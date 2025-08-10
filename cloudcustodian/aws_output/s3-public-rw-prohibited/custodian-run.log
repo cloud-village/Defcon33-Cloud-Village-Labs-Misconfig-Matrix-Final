@@ -1,0 +1,5 @@
+2025-08-04 20:57:15,805 - custodian.policy - INFO - policy:s3-public-rw-prohibited resource:s3 region:us-east-1 count:1 time:2.28
+2025-08-04 22:35:03,635 - custodian.policy - INFO - policy:s3-public-rw-prohibited resource:s3 region:us-east-1 count:1 time:3.04
+2025-08-04 23:06:57,389 - custodian.policy - INFO - policy:s3-public-rw-prohibited resource:s3 region:us-east-1 count:1 time:2.91
+2025-08-05 22:13:44,249 - custodian.policy - INFO - policy:s3-public-rw-prohibited resource:s3 region:us-east-1 count:1 time:3.14
+2025-08-09 13:55:16,777 - custodian.policy - INFO - policy:s3-public-rw-prohibited resource:s3 region:us-east-1 count:1 time:2.93

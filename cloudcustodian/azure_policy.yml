@@ -1,0 +1,49 @@
+policies:
+  - name: azure-storage-public-access-disabled
+    description: "Ensure Azure Storage Account public access is disabled"
+    resource: azure.storage
+    filters:
+      - type: value
+        key: properties.allowBlobPublicAccess
+        value: true
+      - type: value
+        key: properties.allowSharedKeyAccess
+        value: true
+
+  - name: azure-vm-encryption-enabled
+    description: "Ensure Azure VM disk encryption is enabled"
+    resource: azure.vm
+    filters:
+      - type: value
+        key: properties.storageProfile.osDisk.encryptionSettings.enabled
+        value: false
+      - type: value
+        key: properties.storageProfile.osDisk.encryptionSettings
+        value: absent
+
+  - name: azure-nsg-default-rules
+    description: "Ensure Network Security Groups don't have overly permissive default rules"
+    resource: azure.networksecuritygroup
+    filters:
+      - type: value
+        key: properties.securityRules[?name=='AllowVnetInBound'].properties.access
+        value: Allow
+      - type: value
+        key: properties.securityRules[?name=='AllowVnetInBound'].properties.destinationPortRange
+        value: '*'
+
+  - name: azure-keyvault-public-access
+    description: "Ensure Key Vault public network access is disabled"
+    resource: azure.keyvault
+    filters:
+      - type: value
+        key: properties.networkAcls.defaultAction
+        value: Allow
+
+  - name: azure-sql-server-public-access
+    description: "Ensure SQL Server public network access is disabled"
+    resource: azure.sqlserver
+    filters:
+      - type: value
+        key: properties.publicNetworkAccess
+        value: Enabled 

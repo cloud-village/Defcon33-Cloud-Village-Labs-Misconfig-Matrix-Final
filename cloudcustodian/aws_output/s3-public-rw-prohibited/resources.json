@@ -1,0 +1,37 @@
+[
+  {
+    "Name": "executive-summary-cspm",
+    "CreationDate": "2025-08-03T13:19:25+00:00",
+    "Location": {
+      "LocationConstraint": "us-west-1"
+    },
+    "Tags": [],
+    "Policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"PublicReadGetObject\",\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"s3:GetObject\",\"Resource\":\"arn:aws:s3:::executive-summary-cspm/*\"}]}",
+    "Acl": {
+      "Owner": {
+        "DisplayName": "infra+dc33_aws_labs_cloud_inventory_cspm",
+        "ID": "9414930772d12edebdae5d458f20de6acd7c7e60d8102652f8ad383c5c8c7a93"
+      },
+      "Grants": [
+        {
+          "Grantee": {
+            "DisplayName": "infra+dc33_aws_labs_cloud_inventory_cspm",
+            "ID": "9414930772d12edebdae5d458f20de6acd7c7e60d8102652f8ad383c5c8c7a93",
+            "Type": "CanonicalUser"
+          },
+          "Permission": "FULL_CONTROL"
+        }
+      ]
+    },
+    "Replication": null,
+    "Versioning": {},
+    "Website": {
+      "IndexDocument": {
+        "Suffix": "index.html"
+      }
+    },
+    "Logging": {},
+    "Notification": {},
+    "Lifecycle": null
+  }
+]

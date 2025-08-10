@@ -1,0 +1,7 @@
+policies:
+  - name: gcp-uniform-access-storage-remediation
+    resource: gcp.bucket
+    filters:
+      - type: value
+        key: iamConfiguration.uniformBucketLevelAccess.enabled
+        value: false

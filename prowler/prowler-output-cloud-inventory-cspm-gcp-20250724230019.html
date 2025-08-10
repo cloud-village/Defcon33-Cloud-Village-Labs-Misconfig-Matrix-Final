@@ -1,0 +1,584 @@
+
+        <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Required meta tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <style>
+        .read-more {
+            color: #00f;
+        }
+
+        .bg-success-custom {
+            background-color: #98dea7 !important;
+        }
+
+        .bg-danger {
+            background-color: #f28484 !important;
+        }
+    </style>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <!-- https://datatables.net/download/index with jQuery, DataTables, Buttons, SearchPanes, and Select //-->
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/v/dt/jqc-1.12.4/dt-1.10.25/b-1.7.1/sp-1.4.0/sl-1.3.3/datatables.min.css" />
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+        integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+    <style>
+        .show-read-more .more-text {
+            display: none;
+        }
+
+        .dataTable {
+            font-size: 14px;
+        }
+
+        .container-fluid {
+            font-size: 14px;
+        }
+
+        .float-left {
+            float: left !important;
+            max-width: 100%;
+        }
+    </style>
+    <title>Prowler - The Handy Cloud Security Tool</title>
+    </head>
+    <body>
+    <div class="container-fluid">
+        <div class="row mt-3">
+        <div class="col-md-4">
+            <a href=https://github.com/prowler-cloud/prowler/><img class="float-left card-img-left mt-4 mr-4 ml-4"
+                        src=https://user-images.githubusercontent.com/3985464/113734260-7ba06900-96fb-11eb-82bc-d4f68a1e2710.png
+                        alt="prowler-logo"></a>
+            <div class="card">
+            <div class="card-header">
+                Report Information
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-auto">
+                    <b>Version:</b> 3.11.3
+                    </div>
+                </div>
+                </li>
+                <li class="list-group-item">
+                <b>Parameters used:</b> gcp --credentials-file creds.json
+                </li>
+                <li class="list-group-item">
+                <b>Date:</b> 2025-07-24T23:00:19.658914
+                </li>
+            </ul>
+            </div>
+        </div> 
+            <div class="col-md-2">
+                <div class="card">
+                    <div class="card-header">
+                        GCP Assessment Summary
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <b>GCP Project IDs:</b> cloud-inventory-cspm
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        GCP Credentials
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <b>GCP Account:</b> read-only-cspm@cloud-inventory-cspm.iam.gserviceaccount.com
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-md-2">
+            <div class="card">
+                <div class="card-header">
+                    Assessment Overview
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <b>Total Findings:</b> 28
+                    </li>
+                    <li class="list-group-item">
+                        <b>Passed:</b> 5
+                    </li>
+                    <li class="list-group-item">
+                        <b>Failed:</b> 23
+                    </li>
+                    <li class="list-group-item">
+                        <b>Total Resources:</b> 4
+                    </li>
+                </ul>
+            </div>
+        </div>
+        </div>
+        </div>
+        <div class="row-mt-3">
+        <div class="col-md-12">
+            <table class="table compact stripe row-border ordering" id="findingsTable" data-order='[[ 5, "asc" ]]' data-page-length='100'>
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Status</th>
+                    <th scope="col">Severity</th>
+                    <th scope="col">Service Name</th>
+                    <th scope="col">Region</th>
+                    <th style="width:20%" scope="col">Check ID</th>
+                    <th style="width:20%" scope="col">Check Title</th>
+                    <th scope="col">Resource ID</th>
+                    <th scope="col">Resource Tags</th>
+                    <th scope="col">Status Extended</th>
+                    <th scope="col">Risk</th>
+                    <th scope="col">Recomendation</th>
+                    <th scope="col">Compliance</th>
+                </tr>
+            </thead>
+            <tbody>
+    
+                <tr class="p-3 mb-2 bg-success-custom">
+                    <td>PASS</td>
+                    <td>medium</td>
+                    <td>apikeys</td>
+                    <td>global</td>
+                    <td>apikeys<wbr>_key<wbr>_exists</td>
+                    <td>Ensure API Keys Only Exist for Active Services</td>
+                    <td>cloud-inventory-cspm</td>
+                    <td></td>
+                    <td>Project cloud-inventory-cspm does not have active API Keys.</td>
+                    <td><p class="show-read-more">Security risks involved in using API-Keys appear below: API keys are simple encrypted strings, API keys do not identify the user or the application making the API request, API keys are typically accessible to clients, making it easy to discover and steal an API key.</p></td>
+                    <td><p class="show-read-more">To avoid the security risk in using API keys, it is recommended to use standard authentication flow instead.</p> <a class="read-more" href="https://cloud.google.com/docs/authentication/api-keys"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 1.12
+</p></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>FAIL</td>
+                    <td>medium</td>
+                    <td>cloudsql</td>
+                    <td>us-west1</td>
+                    <td>cloudsql<wbr>_instance<wbr>_automated<wbr>_backups</td>
+                    <td>Ensure That Cloud SQL Database Instances Are Configured With Automated Backups</td>
+                    <td>nobackupsql</td>
+                    <td></td>
+                    <td>Database Instance nobackupsql does not have automated backups configured.</td>
+                    <td><p class="show-read-more">Backups provide a way to restore a Cloud SQL instance to recover lost data or recover from a problem with that instance. Automated backups need to be set for any instance that contains data that should be protected from loss or damage. This recommendation is applicable for SQL Server, PostgreSql, MySql generation 1 and MySql generation 2 instances.</p></td>
+                    <td><p class="show-read-more">It is recommended to have all SQL database instances set to enable automated backups.</p> <a class="read-more" href="https://cloud.google.com/sql/docs/postgres/configure-ssl-instance/"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 6.7
+</p></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>FAIL</td>
+                    <td>medium</td>
+                    <td>cloudsql</td>
+                    <td>us-west1</td>
+                    <td>cloudsql<wbr>_instance<wbr>_mysql<wbr>_local<wbr>_infile<wbr>_flag</td>
+                    <td>Ensure That the Local_infile Database Flag for a Cloud SQL MySQL Instance Is Set to Off</td>
+                    <td>nobackupsql</td>
+                    <td></td>
+                    <td>MySQL Instance nobackupsql does not have 'local<wbr>_infile' flag set to 'off'.</td>
+                    <td><p class="show-read-more">The local_infile flag controls the server-side LOCAL capability for LOAD DATA statements. Depending on the local_infile setting, the server refuses or permits local data loading by clients that have LOCAL enabled on the client side.</p></td>
+                    <td><p class="show-read-more">It is recommended to set the local_infile database flag for a Cloud SQL MySQL instance to off.</p> <a class="read-more" href="https://cloud.google.com/sql/docs/mysql/flags"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 6.1.3
+</p></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>FAIL</td>
+                    <td>medium</td>
+                    <td>cloudsql</td>
+                    <td>us-west1</td>
+                    <td>cloudsql<wbr>_instance<wbr>_mysql<wbr>_skip<wbr>_show<wbr>_database<wbr>_flag</td>
+                    <td>Ensure Skip_show_database Database Flag for Cloud SQL MySQL Instance Is Set to On</td>
+                    <td>nobackupsql</td>
+                    <td></td>
+                    <td>MySQL Instance nobackupsql does not have 'skip<wbr>_show<wbr>_database' flag set to 'on'.</td>
+                    <td><p class="show-read-more">'skip_show_database' database flag prevents people from using the SHOW DATABASES statement if they do not have the SHOW DATABASES privilege.</p></td>
+                    <td><p class="show-read-more">It is recommended to set skip_show_database database flag for Cloud SQL Mysql instance to on.</p> <a class="read-more" href="https://cloud.google.com/sql/docs/mysql/flags"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 6.1.2
+</p></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>FAIL</td>
+                    <td>medium</td>
+                    <td>cloudsql</td>
+                    <td>us-west1</td>
+                    <td>cloudsql<wbr>_instance<wbr>_private<wbr>_ip<wbr>_assignment</td>
+                    <td>Ensure Instance IP assignment is set to private</td>
+                    <td>nobackupsql</td>
+                    <td></td>
+                    <td>Database Instance nobackupsql has public IP assignments.</td>
+                    <td><p class="show-read-more">Instance addresses can be public IP or private IP. Public IP means that the instance is accessible through the public internet. In contrast, instances using only private IP are not accessible through the public internet, but are accessible through a Virtual Private Cloud (VPC). Limiting network access to your database will limit potential attacks.</p></td>
+                    <td><p class="show-read-more">Setting databases access only to private will reduce attack surface.</p> <a class="read-more" href="https://cloud.google.com/sql/docs/mysql/configure-private-ip"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 6.2.9
+</p></td>
+                </tr>
+                
+                <tr class="p-3 mb-2 bg-success-custom">
+                    <td>PASS</td>
+                    <td>high</td>
+                    <td>cloudsql</td>
+                    <td>us-west1</td>
+                    <td>cloudsql<wbr>_instance<wbr>_public<wbr>_access</td>
+                    <td>Ensure That Cloud SQL Database Instances Do Not Implicitly Whitelist All Public IP Addresses </td>
+                    <td>nobackupsql</td>
+                    <td></td>
+                    <td>Database Instance nobackupsql does not whitelist all Public IP Addresses.</td>
+                    <td><p class="show-read-more">To minimize attack surface on a Database server instance, only trusted/known and required IP(s) should be white-listed to connect to it. An authorized network should not have IPs/networks configured to 0.0.0.0/0 which will allow access to the instance from anywhere in the world. Note that authorized networks apply only to instances with public IPs.</p></td>
+                    <td><p class="show-read-more">Database Server should accept connections only from trusted Network(s)/IP(s) and restrict access from public IP addresses.</p> <a class="read-more" href="https://cloud.google.com/sql/docs/mysql/connection-org-policy"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 6.5
+</p></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>FAIL</td>
+                    <td>medium</td>
+                    <td>cloudsql</td>
+                    <td>us-west1</td>
+                    <td>cloudsql<wbr>_instance<wbr>_public<wbr>_ip</td>
+                    <td>Check for Cloud SQL Database Instances with Public IPs</td>
+                    <td>nobackupsql</td>
+                    <td></td>
+                    <td>Database Instance nobackupsql has a public IP.</td>
+                    <td><p class="show-read-more">To lower the organization's attack surface, Cloud SQL databases should not have public IPs. Private IPs provide improved network security and lower latency for your application.</p></td>
+                    <td><p class="show-read-more">To lower the organization's attack surface, Cloud SQL databases should not have public IPs. Private IPs provide improved network security and lower latency for your application.</p> <a class="read-more" href="https://cloud.google.com/sql/docs/mysql/configure-private-ip"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 6.6
+</p></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>FAIL</td>
+                    <td>medium</td>
+                    <td>cloudsql</td>
+                    <td>us-west1</td>
+                    <td>cloudsql<wbr>_instance<wbr>_ssl<wbr>_connections</td>
+                    <td>Ensure That the Cloud SQL Database Instance Requires All Incoming Connections To Use SSL</td>
+                    <td>nobackupsql</td>
+                    <td></td>
+                    <td>Database Instance nobackupsql does not require SSL connections.</td>
+                    <td><p class="show-read-more">SQL database connections if successfully trapped (MITM); can reveal sensitive data like credentials, database queries, query outputs etc. For security, it is recommended to always use SSL encryption when connecting to your instance. This recommendation is applicable for Postgresql, MySql generation 1, MySql generation 2 and SQL Server 2017 instances.</p></td>
+                    <td><p class="show-read-more">It is recommended to enforce all incoming connections to SQL database instance to use SSL.</p> <a class="read-more" href="https://cloud.google.com/sql/docs/postgres/configure-ssl-instance/"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 6.4
+</p></td>
+                </tr>
+                
+                <tr class="p-3 mb-2 bg-success-custom">
+                    <td>PASS</td>
+                    <td>medium</td>
+                    <td>iam</td>
+                    <td>global</td>
+                    <td>iam<wbr>_no<wbr>_service<wbr>_roles<wbr>_at<wbr>_project<wbr>_level</td>
+                    <td>Ensure That IAM Users Are Not Assigned the Service Account User or Service Account Token Creator Roles at Project Level</td>
+                    <td>cloud-inventory-cspm</td>
+                    <td></td>
+                    <td>No IAM Users assigned to service roles at project level cloud-inventory-cspm.</td>
+                    <td><p class="show-read-more">The Service Account User (iam.serviceAccountUser) role allows an IAM user to attach a service account to a long-running job service such as an App Engine App or Dataflow Job, whereas the Service Account Token Creator (iam.serviceAccountTokenCreator) role allows a user to directly impersonate the identity of a service account.</p></td>
+                    <td><p class="show-read-more">Ensure that the Service Account User and Service Account Token Creator roles are assigned to a user for a specific GCP service account rather than to a user at the GCP project level, in order to implement the principle of least privilege (POLP). The principle of least privilege (also known as the principle of minimal privilege) is the practice of providing every user the minimal amount of access required to perform its tasks. Google Cloud Platform (GCP) IAM users should not have assigned the Service Account User or Service Account Token Creator roles at the GCP project level. Instead, these roles should be allocated to a user associated with a specific service account, providing that user access to the service account only.</p> <a class="read-more" href="https://cloud.google.com/iam/docs/granting-changing-revoking-access"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 1.6
+</p></td>
+                </tr>
+                
+                <tr class="p-3 mb-2 bg-success-custom">
+                    <td>PASS</td>
+                    <td>medium</td>
+                    <td>iam</td>
+                    <td>global</td>
+                    <td>iam<wbr>_role<wbr>_kms<wbr>_enforce<wbr>_separation<wbr>_of<wbr>_duties</td>
+                    <td>Enforce Separation of Duties for KMS-Related Roles</td>
+                    <td>cloud-inventory-cspm</td>
+                    <td></td>
+                    <td>Principle of separation of duties was enforced for KMS-Related Roles in project cloud-inventory-cspm.</td>
+                    <td><p class="show-read-more">The principle of separation of duties can be enforced in order to eliminate the need for the IAM user/identity that has all the permissions needed to perform unwanted actions, such as using a cryptographic key to access and decrypt data which the user should not normally have access to.</p></td>
+                    <td><p class="show-read-more">It is recommended that the principle of 'Separation of Duties' is enforced while assigning KMS related roles to users.</p> <a class="read-more" href="https://cloud.google.com/kms/docs/separation-of-duties"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 1.11
+</p></td>
+                </tr>
+                
+                <tr class="p-3 mb-2 bg-success-custom">
+                    <td>PASS</td>
+                    <td>medium</td>
+                    <td>iam</td>
+                    <td>global</td>
+                    <td>iam<wbr>_role<wbr>_sa<wbr>_enforce<wbr>_separation<wbr>_of<wbr>_duties</td>
+                    <td>Enforce Separation of Duties for Service-Account Related Roles</td>
+                    <td>cloud-inventory-cspm</td>
+                    <td></td>
+                    <td>Principle of separation of duties was enforced for Service-Account Related Roles in project cloud-inventory-cspm.</td>
+                    <td><p class="show-read-more">The principle of separation of duties should be enforced in order to eliminate the need for high-privileged IAM members, as the permissions granted to these members can allow them to perform malicious or unwanted actions.</p></td>
+                    <td><p class="show-read-more">Ensure that separation of duties (also known as segregation of duties - SoD) is enforced for all Google Cloud Platform (GCP) service-account related roles. The security principle of separation of duties has as its primary objective the prevention of fraud and human error. This objective is achieved by disbanding the tasks and associated privileges for a specific business process among multiple users/members. To follow security best practices, your GCP service accounts should not have the Service Account Admin and Service Account User roles assigned at the same time.</p> <a class="read-more" href="https://cloud.google.com/iam/docs/understanding-roles"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 1.8
+</p></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>FAIL</td>
+                    <td>medium</td>
+                    <td>logging</td>
+                    <td>global</td>
+                    <td>logging<wbr>_log<wbr>_metric<wbr>_filter<wbr>_and<wbr>_alert<wbr>_for<wbr>_audit<wbr>_configuration<wbr>_changes<wbr>_enabled</td>
+                    <td>Ensure That the Log Metric Filter and Alerts Exist for Audit Configuration Changes.</td>
+                    <td>cloud-inventory-cspm</td>
+                    <td></td>
+                    <td>There are no log metric filters or alerts associated in project cloud-inventory-cspm.</td>
+                    <td><p class="show-read-more">Admin Activity audit logs and Data Access audit logs produced by the Google Cloud Audit Logs service can be extremely useful for security analysis, resource change tracking, and compliance auditing.</p></td>
+                    <td><p class="show-read-more">By using Google Cloud alerting policies to detect audit configuration changes, you make sure that the recommended state of audit configuration is well maintained so that all the activities performed within your GCP project are available for security analysis and auditing at any point in time.</p> <a class="read-more" href="https://cloud.google.com/monitoring/alerts"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 2.5
+</p></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>FAIL</td>
+                    <td>medium</td>
+                    <td>logging</td>
+                    <td>global</td>
+                    <td>logging<wbr>_log<wbr>_metric<wbr>_filter<wbr>_and<wbr>_alert<wbr>_for<wbr>_bucket<wbr>_permission<wbr>_changes<wbr>_enabled</td>
+                    <td>Ensure That the Log Metric Filter and Alerts Exist for Cloud Storage IAM Permission Changes.</td>
+                    <td>cloud-inventory-cspm</td>
+                    <td></td>
+                    <td>There are no log metric filters or alerts associated in project cloud-inventory-cspm.</td>
+                    <td><p class="show-read-more">Monitoring changes to cloud storage bucket permissions may reduce the time needed to detect and correct permissions on sensitive cloud storage buckets and objects inside the bucket.</p></td>
+                    <td><p class="show-read-more">It is recommended that a metric filter and alarm be established for Cloud Storage Bucket IAM changes.</p> <a class="read-more" href="https://cloud.google.com/monitoring/alerts"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 2.10
+</p></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>FAIL</td>
+                    <td>medium</td>
+                    <td>logging</td>
+                    <td>global</td>
+                    <td>logging<wbr>_log<wbr>_metric<wbr>_filter<wbr>_and<wbr>_alert<wbr>_for<wbr>_custom<wbr>_role<wbr>_changes<wbr>_enabled</td>
+                    <td>Ensure That the Log Metric Filter and Alerts Exist for Custom Role Changes.</td>
+                    <td>cloud-inventory-cspm</td>
+                    <td></td>
+                    <td>There are no log metric filters or alerts associated in project cloud-inventory-cspm.</td>
+                    <td><p class="show-read-more">Google Cloud IAM provides predefined roles that give granular access to specific Google Cloud Platform resources and prevent unwanted access to other resources.</p></td>
+                    <td><p class="show-read-more">It is recommended that a metric filter and alarm be established for changes to Identity and Access Management (IAM) role creation, deletion and updating activities.</p> <a class="read-more" href="https://cloud.google.com/monitoring/alerts"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 2.6
+</p></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>FAIL</td>
+                    <td>medium</td>
+                    <td>logging</td>
+                    <td>global</td>
+                    <td>logging<wbr>_log<wbr>_metric<wbr>_filter<wbr>_and<wbr>_alert<wbr>_for<wbr>_project<wbr>_ownership<wbr>_changes<wbr>_enabled</td>
+                    <td>Ensure Log Metric Filter and Alerts Exist for Project Ownership Assignments/Changes.</td>
+                    <td>cloud-inventory-cspm</td>
+                    <td></td>
+                    <td>There are no log metric filters or alerts associated in project cloud-inventory-cspm.</td>
+                    <td><p class="show-read-more">Project ownership has the highest level of privileges on a GCP project. These privileges include viewer permissions on all GCP services inside the project, permission to modify the state of all GCP services within the project, set up billing and manage roles and permissions for the project and all the resources inside the project.</p></td>
+                    <td><p class="show-read-more">Using Google Cloud alerting policies to detect ownership assignments/changes will help you maintain the right access permissions for each IAM member created within your project, follow the security principle of least privilege, and prevent any accidental or intentional changes that may lead to unauthorized actions.</p> <a class="read-more" href="https://cloud.google.com/monitoring/alerts"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 2.4
+</p></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>FAIL</td>
+                    <td>medium</td>
+                    <td>logging</td>
+                    <td>global</td>
+                    <td>logging<wbr>_log<wbr>_metric<wbr>_filter<wbr>_and<wbr>_alert<wbr>_for<wbr>_sql<wbr>_instance<wbr>_configuration<wbr>_changes<wbr>_enabled</td>
+                    <td>Ensure That the Log Metric Filter and Alerts Exist for SQL Instance Configuration Changes.</td>
+                    <td>cloud-inventory-cspm</td>
+                    <td></td>
+                    <td>There are no log metric filters or alerts associated in project cloud-inventory-cspm.</td>
+                    <td><p class="show-read-more">Monitoring changes to SQL instance configuration changes may reduce the time needed to detect and correct misconfigurations done on the SQL server.</p></td>
+                    <td><p class="show-read-more">It is recommended that a metric filter and alarm be established for SQL instance configuration changes.</p> <a class="read-more" href="https://cloud.google.com/monitoring/alerts"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 2.11
+</p></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>FAIL</td>
+                    <td>medium</td>
+                    <td>logging</td>
+                    <td>global</td>
+                    <td>logging<wbr>_log<wbr>_metric<wbr>_filter<wbr>_and<wbr>_alert<wbr>_for<wbr>_vpc<wbr>_firewall<wbr>_rule<wbr>_changes<wbr>_enabled</td>
+                    <td>Ensure That the Log Metric Filter and Alerts Exist for VPC Network Firewall Rule Changes.</td>
+                    <td>cloud-inventory-cspm</td>
+                    <td></td>
+                    <td>There are no log metric filters or alerts associated in project cloud-inventory-cspm.</td>
+                    <td><p class="show-read-more">Monitoring for Create or Update Firewall rule events gives insight to network access changes and may reduce the time it takes to detect suspicious activity.</p></td>
+                    <td><p class="show-read-more">It is recommended that a metric filter and alarm be established for Virtual Private Cloud (VPC) Network Firewall rule changes.</p> <a class="read-more" href="https://cloud.google.com/monitoring/alerts"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 2.7
+</p></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>FAIL</td>
+                    <td>medium</td>
+                    <td>logging</td>
+                    <td>global</td>
+                    <td>logging<wbr>_log<wbr>_metric<wbr>_filter<wbr>_and<wbr>_alert<wbr>_for<wbr>_vpc<wbr>_network<wbr>_changes<wbr>_enabled</td>
+                    <td>Ensure That the Log Metric Filter and Alerts Exist for VPC Network Changes.</td>
+                    <td>cloud-inventory-cspm</td>
+                    <td></td>
+                    <td>There are no log metric filters or alerts associated in project cloud-inventory-cspm.</td>
+                    <td><p class="show-read-more">Monitoring changes to a VPC will help ensure VPC traffic flow is not getting impacted.</p></td>
+                    <td><p class="show-read-more">It is recommended that a metric filter and alarm be established for Virtual Private Cloud (VPC) network changes.</p> <a class="read-more" href="https://cloud.google.com/monitoring/alerts"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 2.9
+</p></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>FAIL</td>
+                    <td>medium</td>
+                    <td>logging</td>
+                    <td>global</td>
+                    <td>logging<wbr>_log<wbr>_metric<wbr>_filter<wbr>_and<wbr>_alert<wbr>_for<wbr>_vpc<wbr>_network<wbr>_route<wbr>_changes<wbr>_enabled</td>
+                    <td>Ensure That the Log Metric Filter and Alerts Exist for VPC Network Route Changes.</td>
+                    <td>cloud-inventory-cspm</td>
+                    <td></td>
+                    <td>There are no log metric filters or alerts associated in project cloud-inventory-cspm.</td>
+                    <td><p class="show-read-more">Monitoring changes to route tables will help ensure that all VPC traffic flows through an expected path.</p></td>
+                    <td><p class="show-read-more">It is recommended that a metric filter and alarm be established for Virtual Private Cloud (VPC) network route changes.</p> <a class="read-more" href="https://cloud.google.com/monitoring/alerts"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 2.8
+</p></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>FAIL</td>
+                    <td>medium</td>
+                    <td>logging</td>
+                    <td>global</td>
+                    <td>logging<wbr>_sink<wbr>_created</td>
+                    <td>Ensure there is at least one sink used to export copies of all the log entries.</td>
+                    <td>cloud-inventory-cspm</td>
+                    <td></td>
+                    <td>There are no logging sinks to export copies of all the log entries in project cloud-inventory-cspm.</td>
+                    <td><p class="show-read-more">If sinks are not created, logs would be deleted after the configured retention period, and would not be backed up.</p></td>
+                    <td><p class="show-read-more">It is recommended to create a sink that will export copies of all the log entries. This can help aggregate logs from multiple projects and export them to a Security Information and Event Management (SIEM).</p> <a class="read-more" href="https://cloud.google.com/logging/docs/export"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 2.2
+</p></td>
+                </tr>
+                
+                <tr class="table-danger">
+                    <td>FAIL</td>
+                    <td>high</td>
+                    <td>serviceusage</td>
+                    <td>global</td>
+                    <td>serviceusage<wbr>_cloudasset<wbr>_inventory<wbr>_enabled</td>
+                    <td>Ensure Cloud Asset Inventory Is Enabled</td>
+                    <td>cloudasset.googleapis.com</td>
+                    <td></td>
+                    <td>Cloud Asset Inventory is not enabled in project cloud-inventory-cspm.</td>
+                    <td><p class="show-read-more">Gaining insight into Google Cloud resources and policies is vital for tasks such as DevOps, security analytics, multi-cluster and fleet management, auditing, and governance. With Cloud Asset Inventory you can discover, monitor, and analyze all GCP assets in one place, achieving a better understanding of all your cloud assets across projects and services.</p></td>
+                    <td><p class="show-read-more">Ensure that Cloud Asset Inventory is enabled for all your GCP projects in order to efficiently manage the history and the inventory of your cloud resources. Google Cloud Asset Inventory is a fully managed metadata inventory service that allows you to view, monitor, analyze, and gain insights for your Google Cloud and Anthos assets. Cloud Asset Inventory is disabled by default in each GCP project.</p> <a class="read-more" href="https://cloud.google.com/asset-inventory/docs"><i class="fas fa-external-link-alt"></i></a></td>
+                    <td><p class="show-read-more">
+&#x2022;CIS-2.0: 2.13, 1.1, 1.2, 1.3, 1.13, 1.18, 2.14, 3.9, 3.10, 4.10, 4.12, 6.1.1
+</p></td>
+                </tr>
+                
+               </tbody>
+            </table>
+        </div>
+    </div>
+    </div>
+    </div>
+    <!-- Table search and paginator -->
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"
+        integrity="sha384-1CmrxMRARb6aLqgBO7yyAxTOQE2AKb9GfXnEo760AUcUmFx3ibVJJAzGytlQcNXd"
+        crossorigin="anonymous"></script>
+    <!-- https://datatables.net/download/index with jQuery, DataTables, Buttons, SearchPanes, and Select //-->
+    <script type="text/javascript"
+        src="https://cdn.datatables.net/v/dt/jqc-1.12.4/dt-1.10.25/b-1.7.1/sp-1.4.0/sl-1.3.3/datatables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Initialise the table with 50 rows, and some search/filtering panes
+            $('#findingsTable').DataTable({
+                responsive: true,
+                // Show 25, 50, 100 and All records
+                lengthChange: true,
+                lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]],
+                searchPanes: {
+                    cascadePanes: true,
+                    viewTotal: true,
+                },
+                dom: 'Blfrtip',
+                language: {
+                    // To enable a filter button instead of the filter row
+                    searchPanes: {
+                        clearMessage: 'Clear Filters',
+                        collapse: { 0: 'Filters', _: 'Filters (%d)' },
+                        initCollapsed: true
+
+                    }
+                },
+                buttons: [
+                    {
+                        extend: 'searchPanes',
+                        config: {
+                            cascadePanes: true,
+                            viewTotal: true,
+                            orderable: false
+                        }
+                    }
+                ],
+                columnDefs: [
+                    {
+                        searchPanes: {
+                            show: true,
+                            pagingType: 'numbers',
+                            searching: true
+                        },
+                        // Show all filters
+                        targets: [0, 1, 2, 3, 5, 7]
+                    }
+                ]
+            });
+            var maxLength = 30;
+            // ReadMore ReadLess
+            $(".show-read-more").each(function () {
+                var myStr = $(this).text();
+                if ($.trim(myStr).length > maxLength) {
+                    var newStr = myStr.substring(0, maxLength);
+                    var removedStr = myStr.substring(maxLength, $.trim(myStr).length);
+                    $(this).empty().html(newStr);
+                    $(this).append(' <a href="javascript:void(0);" class="read-more">read more...</a>');
+                    $(this).append('<span class="more-text">' + removedStr + '</span>');
+                }
+            });
+            $(".read-more").click(function () {
+                $(this).siblings(".more-text").contents().unwrap();
+                $(this).remove();
+            });
+        });
+    </script>
+</body>
+
+</html>

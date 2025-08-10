@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Cloud Security Misconfigurations Report</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 0.5in;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.4;
+            color: #333;
+            background: white;
+        }
+        
+        .page-break {
+            page-break-before: always;
+        }
+        
+        .cover-page {
+            text-align: center;
+            padding: 2in 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin: -0.5in -0.5in 0 -0.5in;
+            padding: 3in 0.5in 2in 0.5in;
+        }
+        
+        .cover-title {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 0.5em;
+        }
+        
+        .cover-subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 2em;
+        }
+        
+        .cover-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1em;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .cover-stat {
+            background: rgba(255,255,255,0.2);
+            padding: 1em;
+            border-radius: 8px;
+        }
+        
+        .cover-stat h3 {
+            margin: 0;
+            font-size: 2em;
+        }
+        
+        .cover-stat p {
+            margin: 0.5em 0 0 0;
+            font-size: 0.9em;
+        }
+        
+        .section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1em;
+            margin: 0 -0.5in 1em -0.5in;
+            font-size: 1.8em;
+            font-weight: 700;
+            text-align: center;
+        }
+        
+        .aws-header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+        
+        .azure-header {
+            background: linear-gradient(135deg, #0078d4 0%, #1ba1e2 100%);
+        }
+        
+        .gcp-header {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+        }
+        
+        .architecture-diagram {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 1em;
+            margin: 1em 0;
+            background: #f8f9ff;
+        }
+        
+        .cloud-container {
+            border: 3px dashed #666;
+            border-radius: 12px;
+            padding: 1em;
+            margin: 0.5em 0;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5em;
+            margin: 0.5em 0;
+        }
+        
+        .service-box {
+            background: white;
+            border: 2px solid #dc3545;
+            border-radius: 6px;
+            padding: 0.5em;
+            text-align: center;
+            font-size: 0.8em;
+        }
+        
+        .service-secure {
+            border-color: #28a745;
+        }
+        
+        .misconfig-summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1em;
+            margin: 1em 0;
+        }
+        
+        .risk-category {
+            background: #f8f9ff;
+            border-radius: 8px;
+            padding: 1em;
+            border-left: 4px solid;
+        }
+        
+        .critical { border-left-color: #dc3545; }
+        .high { border-left-color: #fd7e14; }
+        .medium { border-left-color: #ffc107; }
+        
+        .risk-category h4 {
+            margin: 0 0 0.5em 0;
+            color: #2c3e50;
+        }
+        
+        .risk-item {
+            background: white;
+            padding: 0.5em;
+            margin: 0.3em 0;
+            border-radius: 4px;
+            border-left: 2px solid #dc3545;
+            font-size: 0.85em;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1em;
+            margin: 1em 0;
+        }
+        
+        .stat-card {
+            background: #f8f9ff;
+            padding: 1em;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        
+        .stat-card h3 {
+            margin: 0;
+            font-size: 1.8em;
+            color: #667eea;
+        }
+        
+        .stat-card p {
+            margin: 0.5em 0 0 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .compliance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1em 0;
+            font-size: 0.9em;
+        }
+        
+        .compliance-table th {
+            background: #667eea;
+            color: white;
+            padding: 0.5em;
+            text-align: left;
+        }
+        
+        .compliance-table td {
+            padding: 0.5em;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .status-fail { color: #dc3545; font-weight: bold; }
+        .status-warn { color: #fd7e14; font-weight: bold; }
+        .status-pass { color: #28a745; font-weight: bold; }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 1em;
+            margin: 1em 0;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            font-size: 0.9em;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        
+        .executive-summary {
+            background: #f8f9ff;
+            padding: 1.5em;
+            border-radius: 8px;
+            margin: 1em 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        h1, h2, h3 { page-break-after: avoid; }
+        .risk-category { page-break-inside: avoid; }
+        .architecture-diagram { page-break-inside: avoid; }
+        
+        @media print {
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cover Page -->
+    <div class="cover-page">
+        <div class="cover-title">🛡️ Multi-Cloud Security Assessment</div>
+        <div class="cover-subtitle">Comprehensive Security Misconfigurations Report<br>AWS | Azure | Google Cloud Platform</div>
+        
+        <div class="cover-stats">
+            <div class="cover-stat">
+                <h3>90+</h3>
+                <p>Total Vulnerabilities</p>
+            </div>
+            <div class="cover-stat">
+                <h3>3</h3>
+                <p>Cloud Platforms</p>
+            </div>
+            <div class="cover-stat">
+                <h3>35</h3>
+                <p>Services Analyzed</p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 2em; font-size: 0.9em; opacity: 0.8;">
+            <strong>Training Lab Environment</strong><br>
+            Deliberately Misconfigured Infrastructure for Educational Purposes
+        </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="page-break">
+        <div class="section-header">📊 Executive Summary</div>
+        
+        <div class="executive-summary">
+            <h3>🎯 Assessment Overview</h3>
+            <p>This report documents intentional security misconfigurations across AWS, Azure, and Google Cloud Platform environments. The lab demonstrates common cloud security vulnerabilities found in real-world deployments, serving as a comprehensive training resource for security professionals.</p>
+            
+            <h4>Key Findings:</h4>
+            <ul>
+                <li><strong>Critical Risk Issues:</strong> 45+ findings across all platforms</li>
+                <li><strong>Network Security:</strong> Overpermissive firewall rules exposing services globally</li>
+                <li><strong>Identity & Access:</strong> Wildcard permissions and excessive privileges</li>
+                <li><strong>Data Protection:</strong> Unencrypted storage and public access configurations</li>
+                <li><strong>Monitoring Gaps:</strong> Disabled logging and audit trails</li>
+            </ul>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>AWS</h3>
+                <p>30+ Issues<br>8 Services</p>
+            </div>
+            <div class="stat-card">
+                <h3>Azure</h3>
+                <p>30+ Issues<br>12 Services</p>
+            </div>
+            <div class="stat-card">
+                <h3>GCP</h3>
+                <p>30+ Issues<br>15 Services</p>
+            </div>
+            <div class="stat-card">
+                <h3>Overall</h3>
+                <p>100% Vulnerable<br>Training Lab</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- AWS Section -->
+    <div class="page-break">
+        <div class="section-header aws-header">🏗️ Amazon Web Services (AWS)</div>
+        
+        <div class="architecture-diagram">
+            <h3>🌐 AWS Infrastructure Architecture</h3>
+            <div class="cloud-container">
+                <strong>VPC: lab_vpc (10.0.0.0/16) - us-west-2</strong>
+                <div style="margin: 0.5em 0;">
+                    <strong>Subnet: lab_subnet (10.0.1.0/24)</strong>
+                    <div class="service-grid">
+                        <div class="service-box">🖥️ EC2: open_ssh_instance<br>🔓 Public IP + SSH</div>
+                        <div class="service-box">🖥️ EC2: untagged_instance<br>❌ No Tags</div>
+                        <div class="service-box">🗄️ RDS: public_rds<br>🔓 Public Access</div>
+                        <div class="service-box">🪣 S3: no_versioning<br>❌ No Versioning</div>
+                        <div class="service-box">🪣 S3: unencrypted<br>❌ No Encryption</div>
+                        <div class="service-box">📨 SNS: public_topic<br>🔓 Public Subscribe</div>
+                    </div>
+                </div>
+                <div style="text-align: center; color: #dc3545; font-weight: bold; margin-top: 1em;">
+                    🚨 Security Groups: 0.0.0.0/0 → All Ports → All Resources
+                </div>
+            </div>
+        </div>
+        
+        <div class="misconfig-summary">
+            <div class="risk-category critical">
+                <h4>🔴 Critical Risks</h4>
+                <div class="risk-item">IAM Users Without MFA</div>
+                <div class="risk-item">Wildcard IAM Policies (*/*)</div>
+                <div class="risk-item">Open Security Groups (0.0.0.0/0)</div>
+                <div class="risk-item">IAM Role with Open Trust</div>
+                <div class="risk-item">Public RDS Instance</div>
+                <div class="risk-item">Weak Password Policy</div>
+            </div>
+            
+            <div class="risk-category high">
+                <h4>🟠 High Risks</h4>
+                <div class="risk-item">S3 Without Versioning</div>
+                <div class="risk-item">S3 Without Encryption</div>
+                <div class="risk-item">CloudTrail Disabled</div>
+                <div class="risk-item">Permissive NACL Rules</div>
+                <div class="risk-item">SNS Public Access</div>
+                <div class="risk-item">Overpermissive KMS Key</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Azure Section -->
+    <div class="page-break">
+        <div class="section-header azure-header">☁️ Microsoft Azure</div>
+        
+        <div class="architecture-diagram">
+            <h3>🏗️ Azure Resource Architecture</h3>
+            <div class="cloud-container">
+                <strong>Resource Group: misconfig-lab-rg (West US)</strong>
+                <div class="service-grid">
+                    <div class="service-box">🗄️ Storage Account<br>🔓 Public Network Access</div>
+                    <div class="service-box">🐘 PostgreSQL Flexible<br>🔓 All Azure Services</div>
+                    <div class="service-box">🗃️ SQL Server<br>🔓 TLS 1.0 + 0.0.0.0/0</div>
+                    <div class="service-box">🌐 Linux Web App<br>❌ HTTP Only</div>
+                    <div class="service-box">🔑 Key Vault<br>❌ No Logging</div>
+                    <div class="service-box">🌍 Cosmos DB<br>❌ Public Endpoint</div>
+                    <div class="service-box">🖥️ Virtual Machine<br>❌ No Endpoint Protection</div>
+                    <div class="service-box">📊 App Insights<br>🔓 IP Masking Disabled</div>
+                </div>
+                <div style="text-align: center; color: #dc3545; font-weight: bold; margin-top: 1em;">
+                    🚨 All services exposed with minimal security controls
+                </div>
+            </div>
+        </div>
+        
+        <div class="misconfig-summary">
+            <div class="risk-category critical">
+                <h4>🔴 Critical Risks</h4>
+                <div class="risk-item">Storage Public Network Access</div>
+                <div class="risk-item">SQL Server TLS 1.0</div>
+                <div class="risk-item">SQL Firewall 0.0.0.0/0</div>
+                <div class="risk-item">PostgreSQL SSL Not Enforced</div>
+                <div class="risk-item">Web Apps HTTP Only</div>
+                <div class="risk-item">Key Vault No Access Policies</div>
+            </div>
+            
+            <div class="risk-category high">
+                <h4>🟠 High Risks</h4>
+                <div class="risk-item">VM Without Endpoint Protection</div>
+                <div class="risk-item">Cosmos DB Public Endpoint</div>
+                <div class="risk-item">Key Vault No Logging</div>
+                <div class="risk-item">SQL Auditing Disabled</div>
+                <div class="risk-item">Network Watcher Disabled</div>
+                <div class="risk-item">Missing Security Alerts</div>
+            </div>
+        </div>
+        
+        <table class="compliance-table">
+            <thead>
+                <tr>
+                    <th>Azure Security Benchmark</th>
+                    <th>Status</th>
+                    <th>Findings</th>
+                    <th>Impact</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Network Security</td>
+                    <td class="status-fail">FAIL</td>
+                    <td>8</td>
+                    <td>Critical</td>
+                </tr>
+                <tr>
+                    <td>Data Protection</td>
+                    <td class="status-fail">FAIL</td>
+                    <td>6</td>
+                    <td>High</td>
+                </tr>
+                <tr>
+                    <td>Logging & Monitoring</td>
+                    <td class="status-fail">FAIL</td>
+                    <td>7</td>
+                    <td>High</td>
+                </tr>
+                <tr>
+                    <td>Identity Management</td>
+                    <td class="status-warn">WARN</td>
+                    <td>3</td>
+                    <td>Medium</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- GCP Section -->
+    <div class="page-break">
+        <div class="section-header gcp-header">🌐 Google Cloud Platform (GCP)</div>
+        
+        <div class="architecture-diagram">
+            <h3>🏗️ GCP Project Architecture</h3>
+            <div class="cloud-container">
+                <strong>Project: cloud-inventory-cspm (us-west1)</strong>
+                
+                <div style="background: #ffebee; border: 2px solid #f44336; border-radius: 6px; padding: 0.5em; margin: 0.5em 0;">
+                    <strong>🔥 Firewall Rules (Dangerous)</strong><br>
+                    • allow-ssh-anywhere: SSH (22) ← 0.0.0.0/0<br>
+                    • allow-rdp-anywhere: RDP (3389) ← 0.0.0.0/0<br>
+                    • allow-all: ALL protocols ← 0.0.0.0/0
+                </div>
+                
+                <div style="border: 2px solid #4caf50; border-radius: 6px; padding: 0.5em; background: rgba(76, 175, 80, 0.1);">
+                    <strong>VPC Network: default (auto-create subnets)</strong>
+                    <div class="service-grid">
+                        <div class="service-box">🖥️ VM: public-vm<br>🔓 External IP</div>
+                        <div class="service-box">🖥️ VM: serial-vm<br>🔓 Serial Port</div>
+                        <div class="service-box">🪣 Storage: public-bucket<br>🔓 allUsers R/W</div>
+                        <div class="service-box">🐘 Cloud SQL<br>❌ No SSL</div>
+                        <div class="service-box">⚡ Cloud Functions<br>❌ No Auth</div>
+                        <div class="service-box">🚀 Cloud Run<br>❌ No Auth</div>
+                        <div class="service-box">📊 Pub/Sub<br>🔓 allUsers Publish</div>
+                        <div class="service-box">🏗️ GKE Legacy<br>🔓 Client Certs</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; color: #dc3545; font-weight: bold; margin-top: 1em;">
+                    🚨 Internet (0.0.0.0/0) → ALL protocols → ALL services
+                </div>
+            </div>
+        </div>
+        
+        <div class="misconfig-summary">
+            <div class="risk-category critical">
+                <h4>🔴 Critical Risks</h4>
+                <div class="risk-item">Firewall SSH from Anywhere</div>
+                <div class="risk-item">Firewall RDP from Anywhere</div>
+                <div class="risk-item">Firewall All Protocols Open</div>
+                <div class="risk-item">Storage allUsers R/W Access</div>
+                <div class="risk-item">IAM User Owner Role</div>
+                <div class="risk-item">Custom Role Wildcard (*)</div>
+            </div>
+            
+            <div class="risk-category high">
+                <h4>🟠 High Risks</h4>
+                <div class="risk-item">Cloud SQL No SSL</div>
+                <div class="risk-item">Cloud Functions No Auth</div>
+                <div class="risk-item">Cloud Run No Auth</div>
+                <div class="risk-item">GKE Legacy Authentication</div>
+                <div class="risk-item">VM Serial Port Access</div>
+                <div class="risk-item">Pub/Sub Public Access</div>
+            </div>
+        </div>
+        
+        <table class="compliance-table">
+            <thead>
+                <tr>
+                    <th>IAM Principal</th>
+                    <th>Role/Permission</th>
+                    <th>Risk Level</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>user:example@example.com</td>
+                    <td>roles/owner</td>
+                    <td class="status-fail">CRITICAL</td>
+                </tr>
+                <tr>
+                    <td>user:broad@example.com</td>
+                    <td>roles/*</td>
+                    <td class="status-fail">CRITICAL</td>
+                </tr>
+                <tr>
+                    <td>allUsers</td>
+                    <td>roles/storage.objectAdmin</td>
+                    <td class="status-fail">CRITICAL</td>
+                </tr>
+                <tr>
+                    <td>allUsers</td>
+                    <td>roles/pubsub.publisher</td>
+                    <td class="status-warn">HIGH</td>
+                </tr>
+                <tr>
+                    <td>user:bqadmin@example.com</td>
+                    <td>roles/bigquery.admin</td>
+                    <td class="status-warn">HIGH</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Comparative Analysis -->
+    <div class="page-break">
+        <div class="section-header">📈 Comparative Risk Analysis</div>
+        
+        <table class="compliance-table">
+            <thead>
+                <tr>
+                    <th>Risk Category</th>
+                    <th>AWS</th>
+                    <th>Azure</th>
+                    <th>GCP</th>
+                    <th>Total Impact</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Network Security</td>
+                    <td class="status-fail">8 Issues</td>
+                    <td class="status-fail">8 Issues</td>
+                    <td class="status-fail">10 Issues</td>
+                    <td class="status-fail">CRITICAL</td>
+                </tr>
+                <tr>
+                    <td>Identity & Access</td>
+                    <td class="status-fail">12 Issues</td>
+                    <td class="status-warn">6 Issues</td>
+                    <td class="status-fail">8 Issues</td>
+                    <td class="status-fail">CRITICAL</td>
+                </tr>
+                <tr>
+                    <td>Data Protection</td>
+                    <td class="status-warn">6 Issues</td>
+                    <td class="status-fail">8 Issues</td>
+                    <td class="status-warn">5 Issues</td>
+                    <td class="status-warn">HIGH</td>
+                </tr>
+                <tr>
+                    <td>Monitoring & Logging</td>
+                    <td class="status-warn">4 Issues</td>
+                    <td class="status-fail">8 Issues</td>
+                    <td class="status-warn">3 Issues</td>
+                    <td class="status-warn">HIGH</td>
+                </tr>
+                <tr>
+                    <td>Serverless Security</td>
+                    <td class="status-pass">2 Issues</td>
+                    <td class="status-warn">4 Issues</td>
+                    <td class="status-fail">6 Issues</td>
+                    <td class="status-warn">MEDIUM</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="executive-summary">
+            <h3>🔍 Key Patterns Across Platforms</h3>
+            <ul>
+                <li><strong>Network Exposure:</strong> All platforms show overpermissive firewall/security group rules</li>
+                <li><strong>IAM Overpermissioning:</strong> Wildcard permissions and excessive privileges common</li>
+                <li><strong>Public Resources:</strong> Storage, databases, and compute instances exposed to internet</li>
+                <li><strong>Encryption Gaps:</strong> Data at rest and in transit encryption disabled</li>
+                <li><strong>Monitoring Blindness:</strong> Audit logging and security monitoring disabled</li>
+            </ul>
+            
+            <h4>🎯 Training Value</h4>
+            <p>This lab environment demonstrates over 90 distinct security misconfigurations across 35 cloud services, providing comprehensive hands-on experience with:</p>
+            <ul>
+                <li>Cloud Security Posture Management (CSPM) tool validation</li>
+                <li>Security assessment methodology development</li>
+                <li>Cloud security best practices training</li>
+                <li>Incident response and remediation exercises</li>
+            </ul>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #dc3545;"></div>
+                <span>Critical Risk</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #fd7e14;"></div>
+                <span>High Risk</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ffc107;"></div>
+                <span>Medium Risk</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #28a745;"></div>
+                <span>Secure/Compliant</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

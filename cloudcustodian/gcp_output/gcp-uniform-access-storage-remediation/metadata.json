@@ -1,0 +1,67 @@
+{
+  "policy": {
+    "name": "gcp-uniform-access-storage-remediation",
+    "resource": "gcp.bucket",
+    "filters": [
+      {
+        "type": "value",
+        "key": "iamConfiguration.uniformBucketLevelAccess.enabled",
+        "value": false
+      }
+    ]
+  },
+  "version": "0.9.46",
+  "execution": {
+    "id": "b3c20578-c7cd-472b-9dd7-259975df3310",
+    "start": 1754772945.3192837,
+    "end_time": 1754772945.7864258,
+    "duration": 0.46714210510253906
+  },
+  "config": {
+    "region": "",
+    "regions": [],
+    "cache": "~/.cache/cloud-custodian.cache",
+    "profile": null,
+    "account_id": null,
+    "assume_role": null,
+    "session_policy": null,
+    "external_id": null,
+    "log_group": null,
+    "tracer": null,
+    "metrics_enabled": null,
+    "metrics": null,
+    "output_dir": "gcp_output",
+    "cache_period": 15,
+    "dryrun": false,
+    "authorization_file": null,
+    "subparser": "run",
+    "config": null,
+    "configs": [
+      "gcp_policy.yml"
+    ],
+    "policy_filters": [],
+    "resource_types": [],
+    "verbose": null,
+    "quiet": null,
+    "debug": false,
+    "skip_validation": false,
+    "command": "c7n.commands.run",
+    "vars": null
+  },
+  "sys-stats": {},
+  "api-stats": {},
+  "metrics": [
+    {
+      "MetricName": "ResourceCount",
+      "Timestamp": "2025-08-09T13:55:45.785865",
+      "Value": 0,
+      "Unit": "Count"
+    },
+    {
+      "MetricName": "ResourceTime",
+      "Timestamp": "2025-08-09T13:55:45.785882",
+      "Value": 0.45891833305358887,
+      "Unit": "Seconds"
+    }
+  ]
+}

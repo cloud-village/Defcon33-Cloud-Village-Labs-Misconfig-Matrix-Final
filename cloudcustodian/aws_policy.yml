@@ -1,0 +1,56 @@
+policies:
+  - name: s3-public-rw-prohibited
+    description: Account {account_id} - Ensure S3 bucket prohibite public read or write access
+    resource: s3
+    filters:
+      - or:
+          - type: global-grants
+          - type: has-statement
+            statements:
+              - Effect: Allow
+                Action: 's3:GetObject'
+                Principal: '*'
+          - type: has-statement
+            statements:
+              - Effect: Allow
+                Action: 's3:PutObject'
+                Principal: '*'
+          - type: has-statement
+            statements:
+              - Effect: Allow
+                Action: 's3:*'
+                Principal: '*'
+          - type: has-statement
+            statements:
+              - Effect: Allow
+                Action: 's3:GetObject*'
+                Principal: '*'
+          - type: has-statement
+            statements:
+              - Effect: Allow
+                Action: 's3:PutObject*'
+                Principal: '*'
+          - type: has-statement
+            statements:
+              - Effect: Allow
+                Action: 's3:Get*'
+                Principal: '*'
+          - type: has-statement
+            statements:
+              - Effect: Allow
+                Action: 's3:Put*'
+                Principal: '*'
+          - type: has-statement
+            statements:
+              - Effect: Allow
+                Action: 's3:*Object'
+                Principal: '*'
+
+  - name: rds-backup-enabled
+    resource: aws.rds
+    description: "Account {account_id} - RDS DB Instance Backup Should Be Enabled"
+    filters:
+      - type: value
+        key: BackupRetentionPeriod
+        value: 0
+    

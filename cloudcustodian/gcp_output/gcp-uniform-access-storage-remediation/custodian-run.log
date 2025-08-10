@@ -1,0 +1,37 @@
+2025-08-04 20:57:43,704 - custodian.output - ERROR - Error while executing policy
+Traceback (most recent call last):
+  File "/home/rtvkiz/cloud_village/labs/Misconfig-Matrix-From-Chaos-to-Control/cloudcustodian/custodian/lib/python3.13/site-packages/c7n/policy.py", line 330, in run
+    resources = self.policy.resource_manager.resources()
+  File "/home/rtvkiz/cloud_village/labs/Misconfig-Matrix-From-Chaos-to-Control/cloudcustodian/custodian/lib/python3.13/site-packages/c7n_gcp/query.py", line 209, in resources
+    resources = self._fetch_resources(q)
+  File "/home/rtvkiz/cloud_village/labs/Misconfig-Matrix-From-Chaos-to-Control/cloudcustodian/custodian/lib/python3.13/site-packages/c7n_gcp/query.py", line 231, in _fetch_resources
+    return self.augment(self.source.get_resources(query)) or []
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/rtvkiz/cloud_village/labs/Misconfig-Matrix-From-Chaos-to-Control/cloudcustodian/custodian/lib/python3.13/site-packages/c7n_gcp/query.py", line 76, in get_resources
+    return self.query.filter(self.manager, **query)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rtvkiz/cloud_village/labs/Misconfig-Matrix-From-Chaos-to-Control/cloudcustodian/custodian/lib/python3.13/site-packages/c7n_gcp/query.py", line 35, in filter
+    project = session.get_default_project()
+  File "/home/rtvkiz/cloud_village/labs/Misconfig-Matrix-From-Chaos-to-Control/cloudcustodian/custodian/lib/python3.13/site-packages/c7n_gcp/client.py", line 227, in get_default_project
+    raise ValueError("No GCP Project ID set - set CLOUDSDK_CORE_PROJECT")
+ValueError: No GCP Project ID set - set CLOUDSDK_CORE_PROJECT
+2025-08-04 21:10:26,316 - custodian.output - ERROR - Error while executing policy
+Traceback (most recent call last):
+  File "/home/rtvkiz/cloud_village/labs/Misconfig-Matrix-From-Chaos-to-Control/cloudcustodian/custodian/lib/python3.13/site-packages/c7n/policy.py", line 330, in run
+    resources = self.policy.resource_manager.resources()
+  File "/home/rtvkiz/cloud_village/labs/Misconfig-Matrix-From-Chaos-to-Control/cloudcustodian/custodian/lib/python3.13/site-packages/c7n_gcp/query.py", line 209, in resources
+    resources = self._fetch_resources(q)
+  File "/home/rtvkiz/cloud_village/labs/Misconfig-Matrix-From-Chaos-to-Control/cloudcustodian/custodian/lib/python3.13/site-packages/c7n_gcp/query.py", line 231, in _fetch_resources
+    return self.augment(self.source.get_resources(query)) or []
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/rtvkiz/cloud_village/labs/Misconfig-Matrix-From-Chaos-to-Control/cloudcustodian/custodian/lib/python3.13/site-packages/c7n_gcp/query.py", line 76, in get_resources
+    return self.query.filter(self.manager, **query)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rtvkiz/cloud_village/labs/Misconfig-Matrix-From-Chaos-to-Control/cloudcustodian/custodian/lib/python3.13/site-packages/c7n_gcp/query.py", line 35, in filter
+    project = session.get_default_project()
+  File "/home/rtvkiz/cloud_village/labs/Misconfig-Matrix-From-Chaos-to-Control/cloudcustodian/custodian/lib/python3.13/site-packages/c7n_gcp/client.py", line 227, in get_default_project
+    raise ValueError("No GCP Project ID set - set CLOUDSDK_CORE_PROJECT")
+ValueError: No GCP Project ID set - set CLOUDSDK_CORE_PROJECT
+2025-08-04 23:06:36,413 - custodian.policy - INFO - policy:gcp-uniform-access-storage-remediation resource:gcp.bucket region: count:0 time:1.17
+2025-08-05 22:14:02,024 - custodian.policy - INFO - policy:gcp-uniform-access-storage-remediation resource:gcp.bucket region: count:0 time:0.89
+2025-08-09 13:55:45,778 - custodian.policy - INFO - policy:gcp-uniform-access-storage-remediation resource:gcp.bucket region: count:0 time:0.46

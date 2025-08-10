@@ -1,0 +1,79 @@
+{
+  "policy": {
+    "name": "azure-storage-public-access-disabled",
+    "description": "Ensure Azure Storage Account public access is disabled",
+    "resource": "azure.storage",
+    "filters": [
+      {
+        "type": "value",
+        "key": "properties.allowBlobPublicAccess",
+        "value": true
+      },
+      {
+        "type": "value",
+        "key": "properties.allowSharedKeyAccess",
+        "value": true
+      }
+    ]
+  },
+  "version": "0.9.46",
+  "execution": {
+    "id": "9fb66041-fe8e-47cf-a67b-2e89e60d00ec",
+    "start": 1754772929.9073303,
+    "end_time": 1754772931.1807969,
+    "duration": 1.2734665870666504
+  },
+  "config": {
+    "region": "AzureCloud",
+    "regions": [],
+    "cache": "memory",
+    "profile": null,
+    "account_id": "6f44395b-b9f9-450c-a20f-f354280c58bd",
+    "assume_role": null,
+    "session_policy": null,
+    "external_id": null,
+    "log_group": null,
+    "tracer": null,
+    "metrics_enabled": null,
+    "metrics": null,
+    "output_dir": "azure_output",
+    "cache_period": 15,
+    "dryrun": false,
+    "authorization_file": null,
+    "subparser": "run",
+    "config": null,
+    "configs": [
+      "azure_policy.yml"
+    ],
+    "policy_filters": [],
+    "resource_types": [],
+    "verbose": null,
+    "quiet": null,
+    "debug": false,
+    "skip_validation": false,
+    "command": "c7n.commands.run",
+    "vars": null
+  },
+  "sys-stats": {},
+  "api-stats": {},
+  "metrics": [
+    {
+      "MetricName": "ResourceCount",
+      "Timestamp": "2025-08-09T13:55:31.180570",
+      "Value": 2,
+      "Unit": "Count"
+    },
+    {
+      "MetricName": "ResourceTime",
+      "Timestamp": "2025-08-09T13:55:31.180583",
+      "Value": 1.272374153137207,
+      "Unit": "Seconds"
+    },
+    {
+      "MetricName": "ActionTime",
+      "Timestamp": "2025-08-09T13:55:31.180790",
+      "Value": 2.1457672119140625e-06,
+      "Unit": "Seconds"
+    }
+  ]
+}

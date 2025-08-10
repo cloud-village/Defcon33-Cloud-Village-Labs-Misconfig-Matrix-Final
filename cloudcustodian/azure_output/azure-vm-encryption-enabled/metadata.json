@@ -1,0 +1,73 @@
+{
+  "policy": {
+    "name": "azure-vm-encryption-enabled",
+    "description": "Ensure Azure VM disk encryption is enabled",
+    "resource": "azure.vm",
+    "filters": [
+      {
+        "type": "value",
+        "key": "properties.storageProfile.osDisk.encryptionSettings.enabled",
+        "value": false
+      },
+      {
+        "type": "value",
+        "key": "properties.storageProfile.osDisk.encryptionSettings",
+        "value": "absent"
+      }
+    ]
+  },
+  "version": "0.9.46",
+  "execution": {
+    "id": "13410a2c-2812-49c4-af59-c558182b6330",
+    "start": 1754772931.1811278,
+    "end_time": 1754772931.6756625,
+    "duration": 0.4945347309112549
+  },
+  "config": {
+    "region": "AzureCloud",
+    "regions": [],
+    "cache": "memory",
+    "profile": null,
+    "account_id": "6f44395b-b9f9-450c-a20f-f354280c58bd",
+    "assume_role": null,
+    "session_policy": null,
+    "external_id": null,
+    "log_group": null,
+    "tracer": null,
+    "metrics_enabled": null,
+    "metrics": null,
+    "output_dir": "azure_output",
+    "cache_period": 15,
+    "dryrun": false,
+    "authorization_file": null,
+    "subparser": "run",
+    "config": null,
+    "configs": [
+      "azure_policy.yml"
+    ],
+    "policy_filters": [],
+    "resource_types": [],
+    "verbose": null,
+    "quiet": null,
+    "debug": false,
+    "skip_validation": false,
+    "command": "c7n.commands.run",
+    "vars": null
+  },
+  "sys-stats": {},
+  "api-stats": {},
+  "metrics": [
+    {
+      "MetricName": "ResourceCount",
+      "Timestamp": "2025-08-09T13:55:31.675449",
+      "Value": 0,
+      "Unit": "Count"
+    },
+    {
+      "MetricName": "ResourceTime",
+      "Timestamp": "2025-08-09T13:55:31.675459",
+      "Value": 0.4516620635986328,
+      "Unit": "Seconds"
+    }
+  ]
+}

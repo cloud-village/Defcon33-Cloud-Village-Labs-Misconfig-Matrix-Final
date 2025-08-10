@@ -1,0 +1,170 @@
+{
+  "policy": {
+    "name": "s3-public-rw-prohibited",
+    "description": "Account 907977361177 - Ensure S3 bucket prohibite public read or write access",
+    "resource": "s3",
+    "filters": [
+      {
+        "or": [
+          {
+            "type": "global-grants"
+          },
+          {
+            "type": "has-statement",
+            "statements": [
+              {
+                "Effect": "Allow",
+                "Action": "s3:GetObject",
+                "Principal": "*"
+              }
+            ]
+          },
+          {
+            "type": "has-statement",
+            "statements": [
+              {
+                "Effect": "Allow",
+                "Action": "s3:PutObject",
+                "Principal": "*"
+              }
+            ]
+          },
+          {
+            "type": "has-statement",
+            "statements": [
+              {
+                "Effect": "Allow",
+                "Action": "s3:*",
+                "Principal": "*"
+              }
+            ]
+          },
+          {
+            "type": "has-statement",
+            "statements": [
+              {
+                "Effect": "Allow",
+                "Action": "s3:GetObject*",
+                "Principal": "*"
+              }
+            ]
+          },
+          {
+            "type": "has-statement",
+            "statements": [
+              {
+                "Effect": "Allow",
+                "Action": "s3:PutObject*",
+                "Principal": "*"
+              }
+            ]
+          },
+          {
+            "type": "has-statement",
+            "statements": [
+              {
+                "Effect": "Allow",
+                "Action": "s3:Get*",
+                "Principal": "*"
+              }
+            ]
+          },
+          {
+            "type": "has-statement",
+            "statements": [
+              {
+                "Effect": "Allow",
+                "Action": "s3:Put*",
+                "Principal": "*"
+              }
+            ]
+          },
+          {
+            "type": "has-statement",
+            "statements": [
+              {
+                "Effect": "Allow",
+                "Action": "s3:*Object",
+                "Principal": "*"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "version": "0.9.46",
+  "execution": {
+    "id": "d70afdf2-5953-4f04-88cb-5543bc8606a2",
+    "start": 1754772913.8363426,
+    "end_time": 1754772916.7798295,
+    "duration": 2.9434869289398193
+  },
+  "config": {
+    "region": "us-east-1",
+    "regions": [
+      "us-east-1"
+    ],
+    "cache": "~/.cache/cloud-custodian.cache",
+    "profile": null,
+    "account_id": "907977361177",
+    "assume_role": null,
+    "session_policy": null,
+    "external_id": null,
+    "log_group": null,
+    "tracer": null,
+    "metrics_enabled": null,
+    "metrics": null,
+    "output_dir": "aws_output",
+    "cache_period": 15,
+    "dryrun": false,
+    "authorization_file": null,
+    "subparser": "run",
+    "config": null,
+    "configs": [
+      "aws_policy.yml"
+    ],
+    "policy_filters": [],
+    "resource_types": [],
+    "verbose": null,
+    "quiet": null,
+    "debug": false,
+    "skip_validation": false,
+    "command": "c7n.commands.run",
+    "vars": null
+  },
+  "sys-stats": {},
+  "api-stats": {
+    "s3.ListBuckets": 1,
+    "s3.GetBucketLocation": 3,
+    "s3.GetBucketTagging": 3,
+    "s3.GetBucketPolicy": 3,
+    "s3.GetBucketAcl": 3,
+    "s3.GetBucketReplication": 3,
+    "s3.GetBucketVersioning": 3,
+    "s3.GetBucketWebsite": 3,
+    "s3.GetBucketLogging": 3,
+    "s3.GetBucketNotificationConfiguration": 3,
+    "s3.GetBucketLifecycleConfiguration": 3
+  },
+  "metrics": [
+    {
+      "MetricName": "ResourceCount",
+      "Timestamp": "2025-08-09T13:55:16.778769",
+      "Value": 1,
+      "Unit": "Count"
+    },
+    {
+      "MetricName": "ResourceTime",
+      "Timestamp": "2025-08-09T13:55:16.778829",
+      "Value": 2.9320645332336426,
+      "Unit": "Seconds"
+    },
+    {
+      "MetricName": "ActionTime",
+      "Timestamp": "2025-08-09T13:55:16.779790",
+      "Value": 8.344650268554688e-06,
+      "Unit": "Seconds"
+    }
+  ]
+}

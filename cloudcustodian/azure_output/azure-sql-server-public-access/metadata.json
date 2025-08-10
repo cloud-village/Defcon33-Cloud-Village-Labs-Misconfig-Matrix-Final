@@ -1,0 +1,74 @@
+{
+  "policy": {
+    "name": "azure-sql-server-public-access",
+    "description": "Ensure SQL Server public network access is disabled",
+    "resource": "azure.sqlserver",
+    "filters": [
+      {
+        "type": "value",
+        "key": "properties.publicNetworkAccess",
+        "value": "Enabled"
+      }
+    ]
+  },
+  "version": "0.9.46",
+  "execution": {
+    "id": "7eb05945-d436-45d2-9ece-de026f22d63c",
+    "start": 1754772932.837719,
+    "end_time": 1754772933.29005,
+    "duration": 0.4523310661315918
+  },
+  "config": {
+    "region": "AzureCloud",
+    "regions": [],
+    "cache": "memory",
+    "profile": null,
+    "account_id": "6f44395b-b9f9-450c-a20f-f354280c58bd",
+    "assume_role": null,
+    "session_policy": null,
+    "external_id": null,
+    "log_group": null,
+    "tracer": null,
+    "metrics_enabled": null,
+    "metrics": null,
+    "output_dir": "azure_output",
+    "cache_period": 15,
+    "dryrun": false,
+    "authorization_file": null,
+    "subparser": "run",
+    "config": null,
+    "configs": [
+      "azure_policy.yml"
+    ],
+    "policy_filters": [],
+    "resource_types": [],
+    "verbose": null,
+    "quiet": null,
+    "debug": false,
+    "skip_validation": false,
+    "command": "c7n.commands.run",
+    "vars": null
+  },
+  "sys-stats": {},
+  "api-stats": {},
+  "metrics": [
+    {
+      "MetricName": "ResourceCount",
+      "Timestamp": "2025-08-09T13:55:33.289804",
+      "Value": 1,
+      "Unit": "Count"
+    },
+    {
+      "MetricName": "ResourceTime",
+      "Timestamp": "2025-08-09T13:55:33.289811",
+      "Value": 0.45112133026123047,
+      "Unit": "Seconds"
+    },
+    {
+      "MetricName": "ActionTime",
+      "Timestamp": "2025-08-09T13:55:33.290040",
+      "Value": 6.9141387939453125e-06,
+      "Unit": "Seconds"
+    }
+  ]
+}

@@ -1,0 +1,2440 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Scout Report</title>
+
+    <!-- NCC favicon --> 
+    <link href="inc-scoutsuite/favicon.ico" rel="icon" type="image/x-icon">
+
+    <!-- Bootstrap core CSS -->
+    <link href="inc-bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap theme -->
+    <link id="bootstrap-theme" href="inc-bootstrap/css/bootstrap-light.min.css" rel="stylesheet">
+    
+    <!-- Fontawesome CSS -->
+    <link href="inc-fontawesome/css/all.min.css" rel="stylesheet">
+    <!-- Fallback fonts to solve CORS issue-->
+    <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- jQuery -->
+    <script src="inc-jquery/jquery-3.3.1.min.js"></script>
+
+    <!-- Handlebars -->
+    <script src="inc-handlebars/handlebars-v3.0.0.js"></script>
+
+    <!-- Scout -->
+    <script src="inc-scoutsuite/scoutsuite.js"></script>
+    <script src="inc-scoutsuite/pagination.js"></script>
+    <script src="inc-scoutsuite/provider.js"></script>
+    <script src="inc-scoutsuite/helpers.js"></script>
+    <link href="inc-scoutsuite/css/scoutsuite.css" rel="stylesheet">
+    <link id="scout-theme" href="inc-scoutsuite/css/scoutsuite-light.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!------------------>
+    <!-- Fixed navbar -->
+    <!------------------>
+
+    <div class="navbar fixed-top navbar-expand-md bg-primary" role="navigation" id="metadata.list"></div>
+
+    <!--------------->
+    <!-- Container -->
+    <!--------------->
+
+    <div class="container theme-showcase mt-5 pt-5" id="container-user">
+
+        <!-- AWS account ID -->
+        <div class="row justify-content-center" id="account_id.details">
+            <h4>
+                <div class="list-group-item-text std-size" onclick="toggle_element('scout_display_account_id_on_all_pages_form')" >
+                    <span id="account_id"></span>
+                </div>
+                <div id="scout_display_account_id_on_all_pages_form" class="list-group-item-text center std-size" style="text-align: center; display: none">
+                    <label><input id="scout_display_account_id_on_all_pages" type="checkbox" value="">Display account ID on all pages</label>
+                </div>
+            </h4>
+        </div>
+
+        <!-- Title section -->
+        <!--<div id="section_title-div">-->
+        <div id="section_title-div" style="display:flex;flex-direction:column;position:relative;">
+            <h2 id="section_title-h2"></h2>
+            <div id="findings_download_button" style="display:none;position:relative;margin-left:auto">
+                <button id="findings_download_csv_button" type="button" class="btn btn-secondary"><i class="fa fa-download"></i>CSV</button>
+                <button id="findings_download_json_button" type="button" class="btn btn-secondary"><i class="fa fa-download"></i>JSON</button>
+            </div>
+        </div>
+
+        <!-- One column container -->
+        <div class="row">
+            <div class="col-sm-12 w-100" id="single-column">
+            </div>
+
+            <!-- Two columns container -->
+            <div class="row w-100">
+                <div class="col-sm-3 w-100 text-overflow" id="double-column-left"></div>
+                <div class="col-sm-9 w-100 pr-0" id="double-column-right"></div>
+            </div>
+
+            <!-- Element to notify that we are reading a report in json format -->
+<script id="json_format" type="text/x-handlebars-template"></script>
+<script>
+    Handlebars.registerPartial("json_format", document.getElementById("json_format").innerHTML);
+</script>
+
+<!-- Results that need to be read from js files -->
+<script src="scoutsuite-results/scoutsuite_results_azure-tenant-8c2eeb66-1269-4b9f-925a-292cc315aa0f.js"></script>
+<script src="scoutsuite-results/scoutsuite_exceptions_azure-tenant-8c2eeb66-1269-4b9f-925a-292cc315aa0f.js"></script>
+<script id="last_run_details-template" type="text/x-handlebars-template">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Execution Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body m-3">
+                <div>
+                    <p><strong>Provider:</strong> {{provider_name}}</p>
+                    <p><strong>Time:</strong> {{format_date last_run.time}}</p>
+                    {{#if last_run.run_parameters.services}}
+                    <p><strong>Services:</strong> {{last_run.run_parameters.services}}</p>
+                    {{/if}}
+                    {{#if last_run.run_parameters.skipped_services}}
+                    <p><strong>Skipped Services:</strong> {{last_run.run_parameters.skipped_services}}</p>
+                    {{/if}}
+                    {{#if last_run.run_parameters.regions}}
+                    <p><strong>Regions:</strong> {{last_run.run_parameters.regions}}</p>
+                    {{/if}}
+                    <p><strong>Scout version:</strong> <samp>{{last_run.version}}</samp></p>
+                    <p><strong>Using ruleset</strong> <samp>{{last_run.ruleset_name}}</samp>:
+                    <p class="ml-4 mr-4 text-justify"><em>{{last_run.ruleset_about}}</em></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script>
+    var last_run_details_template = Handlebars.compile($("#last_run_details-template").html());
+</script><!-- Network interface partial -->
+<script id="network_interface.partial" type="text/x-handlebars-template" xmlns="http://www.w3.org/1999/html">
+  <div class="accordion">
+      <h5 class="list-group-item-heading accordion-heading"><samp>{{@key}}</samp>
+          <a class="accordion-toggle collapsed" data-toggle="collapse" href="#{{escape_dots (concat 'ec2.regions' region 'vpcs' vpc 'instances' instance_id 'network_interfaces' network_interface)}}">
+              <span class="badge float-right btn-info">Details</span>
+          </a>
+      </h5>
+      <div id="{{concat 'ec2.regions' region 'vpcs' vpc 'instances' instance_id 'network_interfaces' network_interface}}" class="accordion-body item-margin collapse">
+          <div class="accordion-inner">
+              <ul>
+                  {{#if Description}}<li class="list-group-item-text no-margin">Description: {{Description}}</li>{{/if}}
+                      {{#if Association}}
+                          <li class="list-group-item-text no-margin">Public IP: <samp>{{Association.PublicIp}}</samp></li>
+                  {{#if Association.PublicDnsName}}<li class="list-group-item-text no-margin">Public DNS: <samp>{{Association.PublicDnsName}}</samp></li>{{/if}}
+                  {{/if}}
+                  {{#if Attachment}}
+                  <li class="list-group-item-text no-margin">Attached to Instance: <samp>{{Attachment.InstanceId}}</samp></li>
+                  {{/if}}
+                  {{#if Ipv6Addresses}}
+                      <li class="list-group-item-text no-margin">IPv6 Addresses:</li>
+                      <ul>
+                          {{#each Ipv6Addresses}}
+                          <li class="list-group-item-text"><samp>{{Ipv6Address}}</samp></li>
+                          {{/each}}
+                      </ul>
+                  {{/if}}
+                  {{#each PrivateIpAddresses}}
+                  <li class="list-group-item-text no-margin">{{#if Primary}}Primary {{/if}}Private IP: <samp>{{PrivateIpAddress}}</samp></li>
+                  {{/each}}
+                  <li class="list-group-item-text no-margin">Security Groups:
+                      <ul>
+                          {{#each Groups}}
+                              <li><a href="javascript:showObject('services.ec2.regions.{{../region}}.vpcs.{{../vpc}}.security_groups.{{GroupId}}')">{{GroupName}}</a></li>
+                          {{/each}}
+                      </ul>
+                  </li>
+              </ul>
+          </div>
+      </div>
+  </div>
+</script>
+
+<script>
+  Handlebars.registerPartial("network_interface", $("#network_interface\\.partial").html());
+</script>
+
+<!-- Single instance template -->
+<script id="single_network_interface-template" type="text/x-handlebars-template">
+    {{> modal-template template='network_interface' name=network_interface}}
+</script>
+
+<script>
+  var single_ec2_network_interface_template = Handlebars.compile($("#single_network_interface-template").html());
+</script>
+    <!-- IP grant -->
+    <script id="ip_grants.partial" type="text/x-handlebars-template">
+      <ul>
+        {{#each items}}
+            <li class="list-group-item-text">
+                {{#if ../span_id_prefix}}
+                    <span id="{{../../span_id_prefix}}.{{@key}}.CIDR">
+                {{/if}}
+                {{CIDR}} {{#if CIDRName}}({{CIDRName}}){{/if}}
+                {{#if ../span_id_prefix}}
+                    </span>
+                {{/if}}
+            </li>
+        {{/each}}
+      </ul>
+    </script>
+    <script>
+        Handlebars.registerPartial("ip_grants", $("#ip_grants\\.partial").html());
+    </script>
+
+<script id="modal-template" type="text/x-handlebars-template">
+    {{#if name}}
+    <style>
+        .modal-dialog #resource-name { display: none; }        
+    </style>
+    {{/if}}
+
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{name}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {{> (lookup . 'template') }}
+            </div>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("modal-template", $("#modal-template").html());
+</script><!-- Accordion partial -->
+<script id="accordion.partial" type="text/x-handlebars-template">
+        <div class="accordion">
+            <h4 class="list-group-item-heading accordion-heading">
+                {{#if title_partial}}
+                    {{> (lookup . 'title_partial') item = this}}
+                {{else}}
+                    {{#if title}}
+                        {{title}}
+                    {{/if}}
+                {{/if}}
+                {{> count_badge count=items.length target=(concat '#' (escape_dots accordion_id))}}
+            </h4>
+            <div id="{{accordion_id}}" class="accordion-body">
+                <div class="accordion-inner">
+                    <ul class="no-bullet">
+                        {{#each items}}
+                            <li>
+                                {{#if ../item_partial}}
+                                    {{> (lookup ../.. 'item_partial') region = ../../region vpc = ../../vpc item = this}}
+                                {{else}}
+                                    {{this}}
+                                {{/if}}
+                            </li>
+                        {{/each}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+</script>
+<script>
+    Handlebars.registerPartial("accordion", $("#accordion\\.partial").html());
+</script>
+
+    <!-- Generic object partial -->
+    <script id="generic_object.partial" type="text/x-handlebars-template">
+        <ul>
+            {{#each this}}
+                <li class="list-group-item-text no-margin">{{@key}}:
+                {{#ifType this 'object'}}
+                    {{> generic_object this}}
+                {{else}}
+                    {{this}}
+                {{/ifType}}
+                </li>
+            {{/each}}
+        </ul>
+    </script>
+    <script>
+      Handlebars.registerPartial("generic_object", $("#generic_object\\.partial").html());
+    </script>
+
+<!-- Dashboard partial -->
+<script id="services.id.findings.partial" type="text/x-handlebars-template">
+<div class="row" id="services.{{service_name}}.findings.row">
+    <div class="col-sm-12" id="services.{{service_name}}.findings.list">
+        <div class="form-group container row">
+        <div class="col-sm-4">
+            <input class="form-control dashboard-filter" type="text" id="dashboardFilter" placeholder="Filter findings">
+        </div>
+        <div class="col-sm-2">
+            <button class="form-control btn btn-light" id="finding-title">Show All</button>
+        </div>
+        <div class="col-sm-2">
+            <button class="form-control btn btn-success" id="finding-title-good">Good</button>
+        </div>
+        <div class="col-sm-2">
+            <button class="form-control btn btn-warning" id="finding-title-warning">Warning</button>
+        </div>
+        <div class="col-sm-2">
+            <button class="form-control btn btn-danger" id="finding-title-danger">Danger</button>
+        </div>
+        </div>
+
+        <ul class="list-group accordion">
+            {{#each_dict_as_sorted_list findings}}
+                <div id="list-{{key}}" class="card finding_items">
+                <div class="card-header row finding-title finding-title-{{dashboard_color level checked_items flagged_items}} plain-link">
+                    <div class="col-sm-11">
+                        <i class="fa finding-badge finding-badge-{{dashboard_color level checked_items flagged_items}}"></i>
+                        <a href="#services.{{../service_name}}.findings.{{key}}.items">{{description}}</a>
+                    </div>
+                    <div class="col-sm-1">
+                        <button class="finding btn fa collapsed" style="background-color:transparent" data-toggle="collapse" data-target="#item-{{key}}" aria-expanded="false" aria-controls="item-{{key}}"></button>
+                    </div>
+                </div>
+                <div class="collapse" id="item-{{key}}" aria-labelledby="item-{{key}}" data-parent="#list-{{key}}">
+                    <div class="card-body row">
+                        <div class="col-sm-9">
+                            <b>Description</b><br>
+                            {{#if rationale}}
+                                <p>{{{rationale}}}</p>
+                            {{else}}
+                                <p>No description available.</p>
+                            {{/if}}
+                            {{#if remediation}}
+                                <b>Remediation</b><br>
+                                <p>{{{remediation}}}</p>
+                            {{/if}}
+                            {{#if compliance}}
+                            <b>Compliance</b><br>
+                            <ul>
+                                {{#each compliance}}
+                                <li>{{this.name}} version {{this.version}}, reference {{this.reference}}</li>
+                                {{/each}}
+                            </ul>
+                            <br>
+                            {{/if}}
+                            {{#if references}}
+                                <b>References</b><br>
+                                <ul>
+                                    {{#each references}}
+                                    <li><a href="{{this}}">{{this}}</a></li>
+                                    {{/each}}
+                                </ul>
+                            {{/if}}
+                        </div>
+                        <div class="col-sm-3">
+                            <ul>
+                                <li>{{dashboard_name}} checked: {{checked_items}}</li>
+                                <li>{{dashboard_name}} flagged: {{flagged_items}}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{/each_dict_as_sorted_list}}
+        </ul>
+
+    </div>
+</div>
+</script>
+<script>
+Handlebars.registerPartial("dashboard", $("#services\\.id\\.findings\\.partial").html());
+</script>
+<script>
+    // Dashboard filtering
+    $(document).ready(function(){
+        // Filter by text search
+        $(".dashboard-filter").on("keyup", function() {
+            var value = $(this).val().toLowerCase()
+            $(".finding_items").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            })
+        })
+
+        // Filter by button
+        $('.btn').click(function() {
+            var value = $(this).attr('id')
+            if (value.indexOf('finding-title') > -1){
+                $(".finding_items").filter(function() {
+                    $(this).toggle($(this).find(">:first-child").attr("class").indexOf(value) > -1)
+                });
+            }
+            $(".dashboard-filter").val("")
+        })
+    })
+</script>
+    <!-- Policy partial -->
+    <script id="policy.partial" type="text/x-handlebars-template">
+        <pre class="code">{{jsonToString document}}</pre>
+    </script>
+    <script>
+      Handlebars.registerPartial("policy", $("#policy\\.partial").html());
+    </script>
+
+  <!-- Generic partial for resource -->
+  <script id="details.partial" type="text/x-handlebars-template">
+    <div id="services.{{service_name}}.{{resource_type}}.details">
+      {{#each items}}
+        <div class="list-group" id="services.{{../service_name}}.{{../resource_type}}.{{@key}}.view">
+          {{> (lookup .. 'partial_name') service_name = ../service_name resource_type = ../resource_type resource_key = @key resource = this}}
+        </div>
+      {{/each}}
+    </div>
+  </script>
+  <script>
+    Handlebars.registerPartial("details", $("#details\\.partial").html());
+  </script>
+
+<!-- Filters -->
+<script id="filters.list.template" type="text/x-handlebars-template">
+  {{#each items}}
+    {{#each filters}}   
+      <li id="services.{{display_path}}.filters"><a class="dropdown-item" href="#services.{{@../key}}.filters.{{@key}}.items">{{description}}</a></li>
+    {{/each}}
+  {{/each}}
+</script>
+<script id="count_badge.partial" type="text/x-handlebars-template">
+    {{#ifPositive count}}
+        <span class="badge float-right badge-dark">{{count}}</span>
+    {{else}}
+        <span class="badge float-right badge-light disabled">0</span>
+    {{/ifPositive}}
+</script>
+
+<script>
+    Handlebars.registerPartial("count_badge", $("#count_badge\\.partial").html());
+</script>
+<!-- Single Redshift cluster template -->
+<script id="single_redshift_cluster-template" type="text/x-handlebars-template">
+    {{> modal-template template='redshift_cluster'}}
+</script>
+<script>
+    var single_redshift_cluster_template = Handlebars.compile($("#single_redshift_cluster-template").html());
+</script>
+
+<!-- Generic left-menu link partial for resources -->
+<script id="left_menu.partial" type="text/x-handlebars-template">
+  <div id="services.{{service_name}}.{{resource_type}}.list">
+    <div class="list-group" >
+      <div class="list-group-item">
+        <a href="#services.{{service_name}}.{{resource_type}}">Show all <span class="badge float-right">{{items.length}}</span></a>
+      </div>
+    </div>
+    <div class="list-group">
+      {{#each items}}
+      <div class="list-group-item" id="services.{{../service_name}}.{{../resource_type}}.{{id}}.link">
+        <a href="#services.{{../service_name}}.{{../resource_type}}.{{id}}.view">{{name}}</a>
+      </div>
+      {{/each}}
+    </div>
+</script>
+<script>
+    Handlebars.registerPartial("left_menu", $("#left_menu\\.partial").html());
+</script>
+
+<footer id="report-footer">
+    <div>
+        <p>Scout Suite is an open-source tool released by <a href="https://www.nccgroup.trust" rel="author" target="_blank">NCC Group</a>
+            <img src="inc-scoutsuite/favicon.ico" rel="icon" type="image/x-icon" alt="Red dot" />
+        </p>
+    </div>
+</footer>
+
+  <!-- Generic partial for region-then-resource -->
+  <script id="details_for_region.partial" type="text/x-handlebars-template">
+    <div id="services.{{service_name}}.regions.id.{{resource_type}}.details">
+      {{#each items}}
+        {{#each (lookup . ../resource_type)}}
+          <div class="list-group" id="services.{{../../service_name}}.regions.{{@../key}}.{{../../resource_type}}.{{@key}}.view">
+            {{> (lookup ../.. 'partial_name') service_name = ../../service_name region = @../key resource_type = ../../resource_type resource_key = @key resource = this}}
+          </div>
+        {{/each}}
+      {{/each}}
+    </div>
+  </script>
+  <script>
+    Handlebars.registerPartial("details_for_region", $("#details_for_region\\.partial").html());
+  </script>
+
+    <!-- Policy partial -->
+    <script id="accordion_policy.partial" type="text/x-handlebars-template">
+      <div class="accordion">
+          <{{#if heading}}{{heading}}{{else}}h5{{/if}} class="list-group-item-heading accordion-heading">{{#samp}}<samp>{{/samp}}{{name}}{{#samp}}</samp>{{/samp}}
+              <a class="accordion-toggle collapsed" data-toggle="collapse" href="#{{escape_dots policy_path}}">
+                  <span class="badge float-right btn-info">Details</span>
+              </a>
+          </{{#if heading}}{{heading}}{{else}}h5{{/if}}>
+        <div id="{{policy_path}}" class="accordion-body item-margin collapse">
+          <div class="accordion-inner">
+              <code>
+                  {{> policy}}
+              </code>
+          </div>
+        </div>
+      </div>
+    </script>
+    <script>
+      Handlebars.registerPartial("accordion_policy", $("#accordion_policy\\.partial").html());
+    </script>
+    <!-- Generic link to other resources -->
+    <script id="resource_link.partial" type="text/x-handlebars-template">
+        <a href="javascript:showObject('{{resource_path}}')">
+            {{getValueAt resource_path 'name'}}
+        </a>
+    </script>
+    <script>
+        Handlebars.registerPartial("resource_link", $("#resource_link\\.partial").html());
+    </script>
+  <!-- Generic partial for region-then-vpc-then-resource -->
+  <script id="details_for_vpc.partial" type="text/x-handlebars-template">
+    <div id="services.{{service_name}}.regions.id.vpcs.id.{{resource_type}}.details">
+      {{#each items}}
+        {{#each vpcs}}
+          {{#each (lookup . ../../resource_type)}}
+            <div class="list-group" id="services.{{../../../service_name}}.regions.{{@../../key}}.vpcs.{{@../key}}.{{../../../resource_type}}.{{@key}}.view">
+              {{> (lookup ../../.. 'partial_name') service_name = ../../../service_name region = @../../key vpc = @../key resource_type = ../../../resource_type resource_key = @key resource = this}}
+            </div>
+          {{/each}}
+        {{/each}}
+      {{/each}}
+    </div>
+  </script>
+  <script>
+    Handlebars.registerPartial("details_for_vpc", $("#details_for_vpc\\.partial").html());
+  </script>
+
+
+    <!-- EC2 grant -->
+    <script id="ec2_grants.partial" type="text/x-handlebars-template">
+      <ul>
+        {{#each items}}
+          <li class="list-group-item-text">
+            <span id="ec2.regions.{{../region}}.vpcs.{{../vpc}}.security_groups.{{../sg_id}}.rules.{{../direction}}.protocols.{{../protocol}}.ports.{{../ports}}.security_groups.{{@key}}">
+              {{#if GroupName}}
+                {{GroupName}} (<a href="javascript:findAndShowEC2Object('regions.vpcs.security_groups', '{{GroupId}}')">{{GroupId}}</a>)
+              {{else}}
+                {{GroupId}} (AWS account ID {{UserId}})
+              {{/if}}
+            </span>
+          </li>
+        {{/each}}
+      </ul>
+    </script>
+    <script>
+        Handlebars.registerPartial("ec2_grants", $("#ec2_grants\\.partial").html());
+    </script>
+
+<!-- Per Service Type navigation bar -->
+<script id="metadata.list.template" type="text/x-handlebars-template">
+      <div class="container">
+        <div class="navbar-header">
+          <span class="navbar-brand"><a id="scoutsuite_navbar" class="text-white" href="javascript:showMainDashboard()">Scout</a></span>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                {{#each items}}
+                <li id="{{@key}}_navbar" class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown">{{makeTitle @key}}</a>
+                    <ul class="dropdown-menu" role="button">
+                        {{#if summaries}}
+                            <li class="dropdown-submenu">
+                                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">Summaries</a>
+                                <ul class="dropdown-menu">
+                                    {{#each summaries}}
+                                    <li><a class="dropdown-item nav-link" href="#{{path}}" id="{{@key}}_subnavbar">{{makeTitle @key}}</a></li>
+                                    {{/each}}
+                                </ul>
+                                <div class="dropdown-divider"></div>
+                            </li>
+                        {{/if}} 
+
+                        {{#each this}} {{#unlessEqual @key 'summaries'}} {{#unless hidden}}
+                            <li class="dropdown-submenu">
+                                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">{{ makeTitle @key }}</a>
+                                <ul class="dropdown-menu">
+                                    <li class="dropdown-header">Summaries</li>
+                                    <li><a class="dropdown-item" href="#services.{{@key}}.findings" id="{{@key}}_subnavbar">Dashboard</a></li>
+                                    {{#each summaries}} {{#if risks}}
+                                        <li class="dropdown-submenu"><a href="#{{path}}" id="{{@key}}_subnavbar">{{makeTitle @key}}</a>
+                                            <ul class="dropdown-menu">
+                                                <li class="dropdown-header">Security risks</li>
+                                                {{#each risks}}
+                                                <li><a class="dropdown-item" href="#services.{{@../../key}}.findings.{{this}}.items" id="{{@key}}_subnavbar">
+                                                    {{getValueAt 'services' @../../key 'findings' this 'description'}}
+                                                </a></li>
+                                                {{/each}}
+                                            </ul>
+                                        </li>
+                                    {{else}}
+                                        <li><a class="dropdown-item" href="#{{path}}" id="{{@key}}_subnavbar">{{makeTitle @key}}</a></li>
+                                    {{/if}} {{/each}}
+
+                                    <li class="dropdown-divider"></li>
+                                    <li class="dropdown-header">{{makeTitle @key}} config</li>
+                                    {{#each resources}} {{#unless hidden}} {{#if risks}}
+                                        <li class="dropdown-submenu"><a href="#{{path}}" id="{{@key}}_subnavbar">{{makeTitle @key}} ({{count}})</a>
+                                            <ul class="dropdown-menu">
+                                                <li class="dropdown-header">Security risks</li>
+                                                {{#each risks}}
+                                                <li><a class="dropdown-item" href="#services.{{@../../key}}.findings.{{this}}.items" id="{{@key}}_subnavbar">
+                                                    {{getValueAt 'services' @../../key 'findings' this 'description'}}
+                                                </a></li>
+                                                {{/each}}
+                                            </ul>
+                                        </li>
+                                    {{else}} {{#if count}}
+                                        <li><a class="dropdown-item" href="#{{path}}" id="{{@key}}_subnavbar">{{makeTitle @key}} ({{count}})</a></li>
+                                    {{else}}
+                                        <li class="disabled"><a class="dropdown-item disabled" href="">{{makeTitle @key}}</a></li>
+                                    {{/if}} {{/if}} {{/unless}} {{/each}}
+                                </ul>
+                            </li>
+                        {{/unless}} {{/unlessEqual}} {{/each}}
+                    </ul>
+                </li>
+                {{/each}}
+            </ul>
+
+            <ul class="nav navbar-nav ml-auto">
+              <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Filters</a>
+                <ul class="dropdown-menu" id="filters.list">
+                </ul>
+              </li>
+              <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="javascript:showLastRunDetails()">Execution Details</a></li>
+                  <li><a class="dropdown-item" href="javascript:showResourcesDetails()">Resources Details</a></li>
+                  <li><a class="dropdown-item" href="javascript:downloadExceptions()">Export Exceptions</a><a id="downloadAnchorElem" style="display:none"></a></li>
+                  <li><a class="dropdown-item" href="javascript:exportSummary()">Export Summary</a></li>
+                    <li><a class="dropdown-item" href="javascript:showAbout()">About Scout</a></li>
+                  <li><span>Dark theme</span>
+                    <label class="switch">
+                      <input type="checkbox" id="theme_checkbox" onclick="toggleTheme()">
+                      <span class="slider round"></span>
+                    </label></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+      </div>
+  </script>
+
+<script src="inc-scoutsuite/theme.js"></script>
+<script>
+    loadLastTheme();
+    if (isDarkThemeEnabled() && document.getElementById("theme_checkbox")) {
+        document.getElementById("theme_checkbox").checked = true;
+    }
+</script>
+<script id="about_scoutsuite-template" type="text/x-handlebars-template">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">About Scout Suite</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body m-3">
+                <div>
+                    <p>Scout Suite is an open-source tool released by <a href="https://www.nccgroup.trust" rel="author" target="_blank">NCC Group</a>.</p>
+                    <p>Use the top navigation bar to review the configuration of the supported cloud provider services.</p>
+                    <p>
+                        For more information about Scout Suite, please check out the project's page on
+                        <a href="https://github.com/nccgroup/ScoutSuite" target="_blank">GitHub</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script>
+    var about_scoutsuite_template = Handlebars.compile($("#about_scoutsuite-template").html());
+</script><script id="resources_details-template" type="text/x-handlebars-template">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Resources Details
+                    <button id="resources_details_download_csv_button" type="button" class="btn btn-secondary"><i class="fa fa-download"></i>CSV</button>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body m-3">
+                <div>
+                    <table class="table">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Service</th>
+                            <th scope="col">Resource</th>
+                            <th scope="col">#</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{#each metadata}}
+                            {{#each this}}
+                                {{#each this.resources}}
+                                    <tr>
+                                        {{#if this.count}}
+                                            <th>{{makeTitle @../key}}</th>
+                                            <th>{{makeTitle @key}}</th>
+                                            <th>{{this.count}}</th>
+                                        {{/if}}
+                                    </tr>
+                                {{/each}}
+                            {{/each}}
+                        {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+</script>
+
+<script>
+    var resources_details_template = Handlebars.compile($("#resources_details-template").html())
+</script>
+
+  <!-- Generic partial showing details about subscriptions and their resources -->
+  <script id="details_for_subscription.partial" type="text/x-handlebars-template">
+    <div id="services.{{service_name}}.subscriptions.id.{{resource_type}}.details">
+      {{#each items}}
+        {{#each (lookup . ../resource_type)}}
+          <div class="list-group" id="services.{{../../service_name}}.subscriptions.{{@../key}}.{{../../resource_type}}.{{@key}}.view">
+            {{> (lookup ../.. 'partial_name') service_name = ../../service_name subscription = @../key resource_type = ../../resource_type resource_key = @key resource = this}}
+          </div>
+        {{/each}}
+      {{/each}}
+    </div>
+  </script>
+  <script>
+    Handlebars.registerPartial("details_for_subscription", $("#details_for_subscription\\.partial").html());
+  </script>
+
+<!-- aad policies -->
+<script id="services.aad.policies.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="aad.policies.authorizationPolicy.name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Allow Invites From: <span id="aad.policies.{{@key}}.allow_invites_from"><samp>{{value_or_none allow_invites_from}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Allowed To Create Apps: <span id="aad.policies.{{@key}}.allowed_to_create_apps"><samp>{{convert_bool_to_enabled allowed_to_create_apps}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Allowed To Create Security Groups: <span id="aad.policies.{{@key}}.allowed_to_create_security_groups">{{convert_bool_to_enabled allowed_to_create_security_groups}}</span></div>
+        <div class="list-group-item-text item-margin">Allowed To Read Other Users: <span id="aad.policies.{{@key}}.allowed_to_read_other_users"><samp>{{convert_bool_to_enabled allowed_to_read_other_users}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Allow Email Verified Users To Join Organization: <span id="aad.policies.{{@key}}.allow_email_verified_users_to_join_organization">{{convert_bool_to_enabled allow_email_verified_users_to_join_organization}}</span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.aad.policies", $("#services\\.aad\\.policies\\.partial").html());
+</script>
+
+<!-- Single aad group template -->
+<script id="single_aad_policy-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.aad.policies'}}
+</script>
+<script>
+    var single_aad_policy_template = Handlebars.compile($("#single_aad_policy-template").html());
+</script><!-- Key Vault partial -->
+<script id="services.keyvault.subscriptions.id.vaults.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">ID: <span id="keyvault.subscriptions.{{@../key}}.vaults.{{@key}}.id"><samp>{{ id }}</samp></span></div>
+        <div class="list-group-item-text item-margin">Location: <span id="keyvault.subscriptions.{{@../key}}.vaults.{{@key}}.location"><samp>{{value_or_none location}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Public Access: <span id="keyvault.subscriptions.{{@../key}}.vaults.{{@key}}.public_access_allowed">{{ convert_bool_to_enabled public_access_allowed }}</span></div>
+        <div class="list-group-item-text item-margin">Vault Recoverable: <span id="keyvault.subscriptions.{{@../key}}.vaults.{{@key}}.recovery_protection_enabled">{{ recovery_protection_enabled }}</span></div>
+        <div class="list-group-item-text item-margin">RBAC Permission Model: <span id="keyvault.subscriptions.{{@../key}}.vaults.{{@key}}.rbac_authorization_enabled">{{ convert_bool_to_enabled rbac_authorization_enabled }}</span></div>
+        <div class="list-group-item-text item-margin">Tags:
+            {{#each tags}}
+                <div
+                    style="border-radius: 5px; -webkit-border-radius: 5px; float: center; background-color: #c2c2d6; padding: 0.1px; text-align: center; display: inline-flex;">
+                    <samp>{{value_or_none this}}</samp>
+                </div>&nbsp;&nbsp;
+            {{else}}
+                <div style="display: inline-flex;"><samp>None</samp></div>
+            {{/each}}
+        </div>
+        <div class="list-group-item-text item-margin">Resource group: <span id="keyvault.subscriptions.{{@../key}}.vaults.{{@key}}.resource_group_name"><samp>{{value_or_none resource_group_name}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.keyvault.subscriptions.id.vaults", $("#services\\.keyvault\\.subscriptions\\.id\\.vaults\\.partial").html());
+</script>
+
+<!-- Single Key Vault template -->
+<script id="single_keyvault_vaults-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.keyvault.vaults' }}
+</script>
+<script>
+    var single_keyvault_vaults_template = Handlebars.compile($("#single_keyvault_vaults-template").html());
+</script><!-- PostgreSQL Database partial -->
+<script id="services.postgresqldatabase.subscriptions.id.servers.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+
+        <div class="list-group-item-text item-margin">PostgreSQL Server Name: <span id="postgresqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">Server SSL connection enforcement: <span id="postgresqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.ssl_enforcement">{{ssl_enforcement}}</span></div>
+        <div class="list-group-item-text item-margin">Log checkpoint server parameter: <span id="postgresqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_log_checkpoints_value">{{log_checkpoints.value}}</span></div>
+        <div class="list-group-item-text item-margin">Log connections server parameter: <span id="postgresqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_log_connections_value">{{log_connections.value}}</span></div>
+        <div class="list-group-item-text item-margin">Log disconnections server parameter: <span id="postgresqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_log_disconnections_value">{{log_disconnections.value}}</span></div>
+        <div class="list-group-item-text item-margin">Log duration server parameter: <span id="postgresqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_log_duration_value">{{log_duration.value}}</span></div>
+        <div class="list-group-item-text item-margin">Connection throttling server parameter: <span id="postgresqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_connection_throttling_value">{{connection_throttling.value}}</span></div>
+        <div class="list-group-item-text item-margin">Log retention days server parameter: <span id="postgresqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_log_retention_days_value">{{log_retention_days.value}}</span></div>
+
+    </div>
+
+        <div class="list-group-item">
+        <h4 class="list-group-item-heading">PostgreSQL Firewall Rules</h4>
+        <div class="list-group-item-text item-margin">
+            {{#each postgresql_firewall_rules}}
+            <samp>{{name}}</samp>
+            <div class="list-group-item-text item-margin">
+                <div class="list-group-item-text item-margin">PostgreSQL Firewall rule start IP: <span id="postgresqldatabase.subscriptions.{{@../../key}}.servers.{{@../key}}.postgresql_firewall_rules.{{@key}}.start_ip">{{start_ip}}</span></div>
+                <div class="list-group-item-text item-margin">PostgreSQL Firewall rule end IP: <span id="postgresqldatabase.subscriptions.{{@../../key}}.servers.{{@../key}}.postgresql_firewall_rules.{{@key}}.end_ip">{{end_ip}}</span></div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.postgresqldatabase.subscriptions.id.servers", $("#services\\.postgresqldatabase\\.subscriptions\\.id\\.servers\\.partial").html());
+</script>
+
+<!-- Single SQL Database template -->
+<script id="single_postgresqldatabase_servers-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.postgresqldatabase.servers' }}
+</script>
+<script>
+    var single_postgresqldatabase_servers_template = Handlebars.compile($("#single_postgresqldatabase_servers-template").html());
+</script>
+<!-- network virtual_networks subnet -->
+<script id="services.network.subscriptions.id.virtual_networks.id.subnets.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Address Prefix: <span id="network.virtual_networks.{{id}}.subnets.{{@key}}.address_prefix"><samp>{{value_or_none address_prefix}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Address Prefixes: <span id="network.virtual_networks.{{id}}.subnets.{{@key}}.address_prefixes"><samp>{{value_or_none address_prefixes}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Provisioning State: <span id="network.virtual_networks.{{id}}.subnets.{{@key}}.provisioning_state"><samp>{{value_or_none provisioning_state}}</samp></span></div>
+        {{#if network_security_group}}
+        <div class="list-group-item-text item-margin">Network Security Group: <a href="javascript:showObject('services.network.subscriptions.{{../subscription}}.security_groups.{{network_security_group}}')"><samp>{{getValueAt 'services.network.subscriptions' ../subscription 'security_groups' network_security_group 'name'}}</samp></a></div>
+        {{else}}
+        <div class="list-group-item-text item-margin">Network Security Group: <samp>None</samp></div>
+        {{/if}}
+        <div class="list-group-item-text item-margin">Route Table: <span id="network.virtual_networks.{{id}}.subnets.{{@key}}.route_table"><samp>{{value_or_none route_table}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Interface Endpoints: <span id="network.virtual_networks.{{id}}.subnets.{{@key}}.interface_endpoints"><samp>{{value_or_none interface_endpoints}}</samp></span></div>
+        <div class="list-group-item-text item-margin">IP Configuration Profiles: <span id="network.virtual_networks.{{id}}.subnets.{{@key}}.ip_configuration_profiles"><samp>{{value_or_none ip_configuration_profiles}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Service Endpoints: <span id="network.virtual_networks.{{id}}.subnets.{{@key}}.service_endpoints"><samp>{{value_or_none service_endpoints}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Service Endpoint Policies: <span id="network.virtual_networks.{{id}}.subnets.{{@key}}.service_endpoint_policies"><samp>{{value_or_none service_endpoint_policies}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Service Association Links: <span id="network.virtual_networks.{{id}}.subnets.{{@key}}.service_association_links"><samp>{{value_or_none service_association_links}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Resource Navigation Links: <span id="network.virtual_networks.{{id}}.subnets.{{@key}}.resource_navigation_links"><samp>{{value_or_none resource_navigation_links}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Delegations: <span id="network.virtual_networks.{{id}}.subnets.{{@key}}.delegations"><samp>{{value_or_none delegations}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Purpose: <span id="network.virtual_networks.{{id}}.subnets.{{@key}}.purpose"><samp>{{value_or_none purpose}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Instances</h4>
+        {{#each instances}}
+        <div class="list-group-item-text item-margin"><a href="javascript:showObject('services.virtualmachines.subscriptions.{{../subscription}}.instances.{{this}}')"><samp>{{getValueAt 'services.virtualmachines.subscriptions' ../subscription 'instances' this 'name'}}</samp></a></div>
+        {{else}}
+        <div class="list-group-item-text item-margin"><samp>None</samp></div>
+        {{/each}}
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.network.subscriptions.id.virtual_networks.id.subnets", $("#services\\.network\\.subscriptions\\.id\\.virtual_networks\\.id\\.subnets\\.partial").html());
+</script>
+
+<!-- Single network virtual_network subnet template -->
+<script id="single_network_subnet-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.network.subscriptions.id.virtual_networks.id.subnets'}}
+</script>
+<script>
+    var single_network_subnet_template = Handlebars.compile($("#single_network_subnet-template").html());
+</script>
+<!-- securitycenter regulatory_compliance_results -->
+<script id="services.securitycenter.subscriptions.id.regulatory_compliance_results.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Standard: <span id="securitycenter.subscriptions.{{subscription}}.regulatory_compliance_results.{{@key}}.standard_name"><samp>{{value_or_none standard_name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Reference: <span id="securitycenter.subscriptions.{{subscription}}.regulatory_compliance_results.{{@key}}.reference"><samp>{{value_or_none reference}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Description: <span id="securitycenter.subscriptions.{{subscription}}.regulatory_compliance_results.{{@key}}.description"><samp>{{value_or_none description}}</samp></span></div>
+        <div class="list-group-item-text item-margin">State: <span id="securitycenter.subscriptions.{{subscription}}.regulatory_compliance_results.{{@key}}.state"><samp>{{value_or_none state}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Passed Assessments: <span id="securitycenter.subscriptions.{{subscription}}.regulatory_compliance_results.{{@key}}.passed_assessments"><samp>{{value_or_none passed_assessments}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Failed Assessments: <span id="securitycenter.subscriptions.{{subscription}}.regulatory_compliance_results.{{@key}}.failed_assessments"><samp>{{value_or_none failed_assessments}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Skipped Assessments: <span id="securitycenter.subscriptions.{{subscription}}.regulatory_compliance_results.{{@key}}.skipped_assessments"><samp>{{value_or_none skipped_assessments}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.securitycenter.subscriptions.id.regulatory_compliance_results", $("#services\\.securitycenter\\.subscriptions\\.id\\.regulatory_compliance_results\\.partial").html());
+</script>
+
+<!-- Single securitycenter regulatory_compliance_result template -->
+<script id="single_securitycenter_regulatory_compliance_result-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.securitycenter.subscriptions.id.regulatory_compliance_results'}}
+</script>
+<script>
+    var single_securitycenter_regulatory_compliance_result_template = Handlebars.compile($("#single_securitycenter_regulatory_compliance_result-template").html());
+</script>
+<!-- rbac roles -->
+<script id="services.rbac.subscriptions.id.roles.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">ID: <span id="rbac.subscriptions.{{@../key}}.roles.{{@key}}.id"><samp>{{value_or_none id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Description: <span id="rbac.subscriptions.{{@../key}}.roles.{{@key}}.description"><samp>{{value_or_none description}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Type: <span id="rbac.subscriptions.{{@../key}}.roles.{{@key}}.type"><samp>{{value_or_none type}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Role Type: <span id="rbac.subscriptions.{{@../key}}.roles.{{@key}}.role_type"><samp>{{value_or_none role_type}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Assignable Scopes: <span id="rbac.subscriptions.{{@../key}}.roles.{{@key}}.assignable_scopes"><samp>{{value_or_none assignable_scopes}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Custom Subscriptions Owner Roles: <span id="rbac.subscriptions.{{@../key}}.roles.{{@key}}.custom_subscription_owner_role"><samp>{{custom_subscription_owner_role}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Permissions</h4>
+        <div class="accordion-inner">
+            {{> accordion_policy name = '' document = permissions policy_path = (concat 'rbac' ../resource_type ../resource_id 'inline_policies' @key 'PolicyDocument') heading="h5" samp=false}}
+        </div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading" id="rbac.subscriptions.{{@../key}}.roles.{{@key}}.assignments">Assignments
+            {{> count_badge count=assignments_count}}
+        </h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#if assignments.users}}
+                <li><span id="rbac.subscriptions.{{@../key}}.roles.{{@key}}.users">Users</span></li>
+                <ul>
+                    {{#each assignments.users}}
+                    <li class="list-group-item-text"><a href="javascript:showObject('services.aad.users', 'id', '{{this}}')">{{getValueAt 'services.aad.users' this 'name'}}</a></li></a></li>
+                    {{/each}}
+                </ul>
+                {{/if}}
+                {{#if assignments.groups}}
+                <li><span id="rbac.subscriptions.{{@../key}}.roles.{{@key}}.groups">Groups</span></li>
+                <ul>
+                    {{#each assignments.groups}}
+                    <li class="list-group-item-text"><a href="javascript:showObject('services.aad.groups', 'id', '{{this}}')">{{getValueAt 'services.aad.groups' this 'name'}}</a></li></a></li>
+                    {{/each}}
+                </ul>
+                {{/if}}
+                {{#if assignments.service_principals}}
+                <li><span id="rbac.subscriptions.{{@../key}}.roles.{{@key}}.serviceprincipals">Service Principals</span></li>
+                <ul>
+                    {{#each assignments.service_principals}}
+                    <li class="list-group-item-text"><a href="javascript:showObject('services.aad.service_principals', 'id', '{{this}}')">{{getValueAt 'services.aad.service_principals' this 'name'}}</a></li></a></li>
+                    {{/each}}
+                </ul>
+                {{/if}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.rbac.subscriptions.id.roles", $("#services\\.rbac\\.subscriptions\\.id\\.roles\\.partial").html());
+</script>
+
+<!-- Single rbac role template -->
+<script id="single_rbac_role-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.rbac.subscriptions.id.roles'}}
+</script>
+<script>
+    var single_rbac_role_template = Handlebars.compile($("#single_rbac_role-template").html());
+</script>
+
+<!-- Network Security Groups partial -->
+<script id="services.network.subscriptions.id.security_groups.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="network.subscriptions.{{@../key}}.security_groups.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">Location: <span id="network.subscriptions.{{@../key}}.security_groups.{{@key}}.location">{{ location }}</span></div>
+        <div class="list-group-item-text item-margin">State: <span id="network.subscriptions.{{@../key}}.security_groups.{{@key}}.provisioning_state">{{ provisioning_state }}</span></div>
+        <div class="list-group-item-text item-margin">Tags:
+            {{#each tags}}
+            <div
+                style="border-radius: 5px; -webkit-border-radius: 5px; float: center; background-color: #c2c2d6; padding: 0.1px; text-align: center; display: inline-flex;">
+                <samp>{{value_or_none this}}</samp>
+            </div>&nbsp;&nbsp;
+            {{else}}
+                <div style="display: inline-flex;"><samp>None</samp></div>
+            {{/each}}
+        </div>
+        <div class="list-group-item-text item-margin">Resource group: <span id="network.subscriptions.{{@../key}}.security_groups.{{@key}}.resource_group_name"><samp>{{value_or_none resource_group_name}}</samp></span></div>
+        {{!--
+        <div class="list-group-item-text item-margin">
+            <span id="network.subscriptions.{{@../key}}.security_groups.{{@key}}.ExposedPorts">Exposed Ports:</span>
+            <div class="list-group-item-text item-margin">
+                {{#each exposed_port_ranges}}
+                <li id="network.security_groups.{{@../key}}.exposed_port_ranges.{{@key}}">{{ this }}</li>
+                {{/each}}
+            </div>
+        </div>
+        --}}
+    </div>
+    <div class="list-group-item">
+        <div class="accordion">
+            <h4 class="list-group-item-heading">Inbound Security Rules</h4>
+            <table class="table-striped" width="100%" >
+                <tr class="table-padding">
+                    <td width="10%">Priority</td>
+                    <td width="40%">Name</td>
+                    <td width="10%">Protocol</td>
+                    <td width="10%">Source Port</td>
+                    <td width="10%">Source Filter</td>
+                    <td width="10%">Destination Port</td>
+                    <td width="10%">Destination Filter</td>
+                    <td width="10%">Action</td>
+                </tr>
+                {{#each_dict_sorted security_rules "priority"}}
+                    {{#ifEqual direction "Inbound"}}
+                    <tr>
+                        <td width="10%" class="text-center">{{priority}}</td>
+                        <td width="40%">{{name}}</td>
+                        <td width="10%" class="text-center">{{protocol}}</td>
+                        <td width="10%" class="text-center">{{source_port_ranges}}</td>
+                        {{#if source_address_prefixes_is_asg}}
+                            <td width="10%" class="text-center">
+                                <a href="javascript:showObject('services.network.application_security_groups.{{source_address_prefixes}}')"><samp>{{getValueAt 'services.network.application_security_groups' source_address_prefixes 'name'}}</samp></a>
+                            </td>
+                        {{else}}
+                            <td width="10%" class="text-center">{{source_address_prefixes}}</td>
+                        {{/if}}
+                        <td width="10%" class="text-center">{{destination_port_ranges}}</td>
+                        <td width="10%" class="text-center">{{destination_address_prefixes}}</td>
+                        {{#if allow}}
+                        <td width="10%" class="text-center"><i class="fa fa-check-circle finding-good"></i></td>
+                        {{else}}
+                        <td width="10%" class="text-center"><i class="fa fa-times-circle finding-danger"></i></td>
+                        {{/if}}
+                    </tr>
+                    {{/ifEqual}}
+                {{/each_dict_sorted}}
+            </table>
+        </div>
+    </div>
+    <div class="list-group-item">
+        <div class="accordion">
+            <h4 class="list-group-item-heading">Outbound Security Rules</h4>
+            <table class="table-striped" width="100%" >
+                <tr class="table-padding">
+                    <td width="10%">Priority</td>
+                    <td width="40%">Name</td>
+                    <td width="10%">Protocol</td>
+                    <td width="10%">Source Port</td>
+                    <td width="10%">Source Filter</td>
+                    <td width="10%">Destination Port</td>
+                    <td width="10%">Destination Filter</td>
+                    <td width="10%">Action</td>
+                </tr>
+                {{#each_dict_sorted security_rules "priority"}}
+                    {{#ifEqual direction "Outbound"}}
+                    <tr>
+                        <td width="10%" class="text-center">{{priority}}</td>
+                        <td width="40%">{{name}}</td>
+                        <td width="10%" class="text-center">{{protocol}}</td>
+                        <td width="10%" class="text-center">{{source_port_ranges}}</td>
+                        <td width="10%" class="text-center">{{source_address_prefixes}}</td>
+                        <td width="10%" class="text-center">{{destination_port_ranges}}</td>
+                        <td width="10%" class="text-center">{{destination_address_prefixes}}</td>
+                        {{#if allow}}
+                        <td width="10%" class="text-center"><i class="fa fa-check-circle finding-good"></i></td>
+                        {{else}}
+                        <td width="10%" class="text-center"><i class="fa fa-times-circle finding-danger"></i></td>
+                        {{/if}}
+                    </tr>
+                    {{/ifEqual}}
+                {{/each_dict_sorted}}
+            </table>
+        </div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Attached Subnets</h4>
+        {{#each subnets}}
+        <div class="list-group-item-text item-margin"><a href="javascript:showObject('services.network.subscriptions.{{../subscription}}.virtual_networks.{{this.virtual_network_id}}.subnets.{{this.id}}')"><samp>{{getValueAt 'services.network.subscriptions' ../subscription 'virtual_networks' this.virtual_network_id 'subnets' this.id 'name'}}</samp></a> (<samp>{{getValueAt 'services.network.subscriptions' ../subscription 'virtual_networks' this.virtual_network_id 'name'}}</samp>)</div>
+        {{else}}
+        <div class="list-group-item-text item-margin"><samp>None</samp></div>
+        {{/each}}
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Attached Network Interfaces</h4>
+        {{#each network_interfaces}}
+        <div class="list-group-item-text item-margin"><a href="javascript:showObject('services.network.subscriptions.{{../subscription}}.network_interfaces.{{this.id}}')"><samp>{{getValueAt 'services.network.subscriptions' ../subscription 'network_interfaces' this.id 'name'}}</samp></a></div>
+        {{else}}
+        <div class="list-group-item-text item-margin"><samp>None</samp></div>
+        {{/each}}
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.network.subscriptions.id.security_groups", $("#services\\.network\\.subscriptions\\.id\\.security_groups\\.partial").html());
+</script>
+
+<!-- Single security group template -->
+<script id="single_network_security_group-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.network.subscriptions.id.security_groups'}}
+</script>
+<script>
+    var single_network_security_group_template = Handlebars.compile($("#single_network_security_group-template").html());
+</script>
+<!-- network watchers -->
+<script id="services.network.subscriptions.id.watchers.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="network.subscriptions.{{@../key}}.watchers.{{@key}}.name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Provisioning State: <span id="network.subscriptions.{{@../key}}.watchers.{{@key}}.provisioning_state"><samp>{{value_or_none provisioning_state}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Location: <span id="network.subscriptions.{{@../key}}.watchers.{{@key}}.location"><samp>{{value_or_none location}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Tags: 
+            {{#each tags}}
+                <div
+                    style="border-radius: 5px; -webkit-border-radius: 5px; float: center; background-color: #c2c2d6; padding: 0.1px; text-align: center; display: inline-flex;">
+                    <samp>{{value_or_none this}}</samp>
+                </div>&nbsp;&nbsp;
+            {{else}}
+                <div style="display: inline-flex;"><samp>None</samp></div>
+            {{/each}}
+        </div>
+        <div class="list-group-item-text item-margin">Resource group: <span id="network.subscriptions.{{@../key}}.watchers.{{@key}}.resource_group_name"><samp>{{value_or_none resource_group_name}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.network.subscriptions.id.watchers", $("#services\\.network\\.subscriptions\\.id\\.watchers\\.partial").html());
+</script>
+
+<!-- Single network watcher template -->
+<script id="single_network_watcher-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.network.subscriptions.id.watchers'}}
+</script>
+<script>
+    var single_network_watcher_template = Handlebars.compile($("#single_network_watcher-template").html());
+</script>
+<!-- Settings partial -->
+<script id="services.securitycenter.subscriptions.id.settings.partial" type="text/x-handlebars-template">
+    <div id="ressource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="securitycenter.subscriptions.{{@../key}}.settings.{{@key}}.name"><samp>{{ name }}</samp></span></div>
+        <div class="list-group-item-text item-margin">Kind: <span id="securitycenter.subscriptions.{{@../key}}.settings.{{@key}}.kind"><samp>{{ kind }}</samp></span></div>
+        <div class="list-group-item-text item-margin">Enabled: <span id="securitycenter.subscriptions.{{@../key}}.settings.{{@key}}.enabled"><samp>{{ enabled }}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.securitycenter.subscriptions.id.settings", $("#services\\.securitycenter\\.subscriptions\\.id\\.settings\\.partial").html());
+</script>
+
+<!-- Single settings template -->
+<script id="single_securitycenter_settings-template" type="text/x-handlebars-template">
+    {{> modal_template template='services.securitycenter.subscriptions.id.settings'}}
+</script>
+<script>
+    var single_securitycenter_settings_template = Handlebars.compile($("#single_securitycenter_settings-template").html());
+</script><!-- Logging and Monitoring Log Alerts-->
+<script id="services.loggingmonitoring.subscriptions.id.log_alerts.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Create Policy Assignment activity log alert exist: <span id="loggingmonitoring.subscriptions.{{@../key}}.log_alerts.{{@key}}.create_policy_assignment_exist"><samp>{{value_or_none create_policy_assignment_exist}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Create or update Network Security Group activity log alert exist: <span id="loggingmonitoring.subscriptions.{{@../key}}.log_alerts.{{@key}}.create_update_NSG_exist"><samp>{{value_or_none create_update_NSG_exist}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Delete Network Security Group activity log alert exist: <span id="loggingmonitoring.subscriptions.{{@../key}}.log_alerts.{{@key}}.delete_NSG_exist"><samp>{{value_or_none delete_NSG_exist}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Create or update Network Security Group Rule activity log alert exist: <span id="loggingmonitoring.subscriptions.{{@../key}}.log_alerts.{{@key}}.create_update_NSG_rule_exist"><samp>{{value_or_none create_update_NSG_rule_exist}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Delete Network Security Group Rule activity log alert exist: <span id="loggingmonitoring.subscriptions.{{@../key}}.log_alerts.{{@key}}.delete_NSG_rule_exist"><samp>{{value_or_none delete_NSG_rule_exist}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Create or update Security Solution activity log alert exist: <span id="loggingmonitoring.subscriptions.{{@../key}}.log_alerts.{{@key}}.create_update_security_solution_exist"><samp>{{value_or_none create_update_security_solution_exist}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Delete Security Solution activity log alert exist: <span id="loggingmonitoring.subscriptions.{{@../key}}.log_alerts.{{@key}}.delete_security_solution_exist"><samp>{{value_or_none delete_security_solution_exist}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Create our update or delete SQL Server Firewall Rule activity log alert exist: <span id="loggingmonitoring.subscriptions.{{@../key}}.log_alerts.{{@key}}.create_delete_firewall_rule_exist"><samp>{{value_or_none create_delete_firewall_rule_exist}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.loggingmonitoring.subscriptions.id.log_alerts", $("#services\\.loggingmonitoring\\.subscriptions\\.id\\.log_alerts\\.partial").html());
+</script>
+
+<!-- Single loggingmonittoring log alerts template -->
+<script id="single_loggingmonitoring_log_alerts-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.loggingmonitoring.subscriptions.id.log_alerts'}}
+</script>
+<script>
+    var single_loggingmonitoring_log_alerts_template = Handlebars.compile($("#single_loggingmonitoring_log_alerts-template").html());
+</script>
+<!-- securitycenter compliance_results -->
+<script id="services.securitycenter.subscriptions.id.compliance_results.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="securitycenter.subscriptions.{{subscription}}.compliance_results.{{@key}}.name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Resource Status: <span id="securitycenter.subscriptions.{{subscription}}.compliance_results.{{@key}}.resource_status"><samp>{{value_or_none resource_status}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.securitycenter.subscriptions.id.compliance_results", $("#services\\.securitycenter\\.subscriptions\\.id\\.compliance_results\\.partial").html());
+</script>
+
+<!-- Single securitycenter compliance_result template -->
+<script id="single_securitycenter_compliance_result-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.securitycenter.subscriptions.id.compliance_results'}}
+</script>
+<script>
+    var single_securitycenter_compliance_result_template = Handlebars.compile($("#single_securitycenter_compliance_result-template").html());
+</script>
+
+<!-- network application_security_groups -->
+<script id="services.network.subscriptions.id.application_security_groups.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="network.subscriptions.{{@../key}}.application_security_groups.{{@key}}.name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Location: <span id="network.subscriptions.{{@../key}}.application_security_groups.{{@key}}.location"><samp>{{value_or_none location}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Provisioning State: <span id="network.subscriptions.{{@../key}}.application_security_groups.{{@key}}.provisioning_state"><samp>{{value_or_none provisioning_state}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Tags:
+            {{#each tags}}
+            <div
+                style="border-radius: 5px; -webkit-border-radius: 5px; float: center; background-color: #c2c2d6; padding: 0.1px; text-align: center; display: inline-flex;">
+                <samp>{{value_or_none this}}</samp>
+            </div>&nbsp;&nbsp;
+            {{else}}
+                <div style="display: inline-flex;"><samp>None</samp></div>
+            {{/each}}
+        </div>
+        <div class="list-group-item-text item-margin">Resource group: <span id="network.subscriptions.{{@../key}}.application_security_groups.{{@key}}.resource_group_name"><samp>{{value_or_none resource_group_name}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Attached Network Interfaces</h4>
+        {{#each network_interfaces}}
+        <div class="list-group-item-text item-margin"><a href="javascript:showObject('services.network.subscriptions.{{../subscription}}.network_interfaces.{{this}}')"><samp>{{getValueAt 'services.network.subscriptions' ../subscription 'network_interfaces' this 'name'}}</samp></a></div>
+        {{else}}
+        <div class="list-group-item-text item-margin"><samp>None</samp></div>
+        {{/each}}
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.network.subscriptions.id.application_security_groups", $("#services\\.network\\.subscriptions\\.id\\.application_security_groups\\.partial").html());
+</script>
+
+<!-- Single network application_security_group template -->
+<script id="single_network_application_security_group-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.network.subscriptions.id.application_security_groups'}}
+</script>
+<script>
+    var single_network_application_security_group_template = Handlebars.compile($("#single_network_application_security_group-template").html());
+</script>
+
+<!-- network network_interfaces -->
+<script id="services.network.subscriptions.id.network_interfaces.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Provisioning State: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.provisioning_state"><samp>{{value_or_none provisioning_state}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Primary: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.primary"><samp>{{value_or_none primary}}</samp></span></div>
+        <div class="list-group-item-text item-margin">IP Configurations: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.ip_configurations"><samp>{{value_or_none ip_configurations}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Mac Address: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.mac_address"><samp>{{value_or_none mac_address}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Interface Endpoint: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.interface_endpoint"><samp>{{value_or_none interface_endpoint}}</samp></span></div>
+        {{#if network_security_group}}
+            <div class="list-group-item-text item-margin">Network Security Group: <a href="javascript:showObject('services.network.subscriptions.{{../subscription}}.security_groups.{{network_security_group}}')"><samp>{{getValueAt 'services.network.subscriptions' ../subscription 'security_groups' network_security_group 'name'}}</samp></a></div>
+        {{else}}
+            <div class="list-group-item-text item-margin">Network Security Group: <samp>None</samp></div>
+        {{/if}}
+        <div class="list-group-item-text item-margin">Enable IP Forwarding: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.enable_ip_forwarding"><samp>{{value_or_none enable_ip_forwarding}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Enable Accelerated Networking: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.enable_accelerated_networking"><samp>{{value_or_none enable_accelerated_networking}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Tags: 
+            {{#each tags}}
+                <div
+                    style="border-radius: 5px; -webkit-border-radius: 5px; float: center; background-color: #c2c2d6; padding: 0.1px; text-align: center; display: inline-flex;">
+                    <samp>{{value_or_none this}}</samp>
+                </div>&nbsp;&nbsp;
+            {{else}}
+                <div style="display: inline-flex;"><samp>None</samp></div>
+            {{/each}}
+        </div>
+        <div class="list-group-item-text item-margin">Resource group: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.resource_group_name"><samp>{{value_or_none resource_group_name}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">IP Configuration</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.ip_configuration.name"><samp>{{value_or_none ip_configuration.name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Provisioning State: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.ip_configuration.provisioning_state"><samp>{{value_or_none ip_configuration.provisioning_state}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Primary: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.ip_configuration.primary"><samp>{{value_or_none ip_configuration.primary}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Public IP Address: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.ip_configuration.public_ip_address"><samp>{{value_or_none ip_configuration.public_ip_address.ip_address}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Private IP Address: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.ip_configuration.private_ip_address"><samp>{{value_or_none ip_configuration.private_ip_address}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Private IP Allocation Method: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.ip_configuration.private_ip_allocation_method"><samp>{{value_or_none ip_configuration.private_ip_allocation_method}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Private IP Address Version: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.ip_configuration.private_ip_address_version"><samp>{{value_or_none ip_configuration.private_ip_address_version}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Subnet: <a href="javascript:showObject('services.network.subscriptions.{{subscription}}.virtual_networks.{{ip_configuration.subnet.virtual_network_id}}.subnets.{{ip_configuration.subnet.id}}')"><samp>{{getValueAt 'services.network.subscriptions' subscription 'virtual_networks' ip_configuration.subnet.virtual_network_id 'subnets' ip_configuration.subnet.id 'name'}}</samp></a></div>
+        {{#if ip_configuration.application_security_groups}}
+            <div class="list-group-item-text item-margin">
+                <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.ip_configuration.application_security_groups">Application Security Groups:</span>
+                <ul>
+                    {{#each ip_configuration.application_security_groups}}
+                    <li>
+                        <a href="javascript:showObject('services.network.subscriptions.{{../subscription}}.application_security_groups.{{this}}')"><samp>{{getValueAt 'services.network.subscriptions' ../subscription 'application_security_groups' this 'name'}}</samp></a>
+                    </li>
+                    {{/each}}
+                </ul>
+            </div>
+        {{else}}
+            <div class="list-group-item-text item-margin">Application Security Groups: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.ip_configuration.application_security_groups"><samp>{{None}}</samp></span></div>
+        {{/if}}
+        <div class="list-group-item-text item-margin">Application Gateway Backend Address Pools: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.ip_configuration.application_gateway_backend_address_pools"><samp>{{value_or_none ip_configuration.application_gateway_backend_address_pools}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Load Balancer Backend Address Pools: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.ip_configuration.load_balancer_backend_address_pools"><samp>{{value_or_none ip_configuration.load_balancer_backend_address_pools}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Load Balancer Inbound NAT Rules: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.ip_configuration.load_balancer_inbound_nat_rules"><samp>{{value_or_none ip_configuration.load_balancer_inbound_nat_rules}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Virtual Network Taps: <span id="network.subscriptions.{{@../key}}.network_interfaces.{{@key}}.ip_configuration.virtual_network_taps"><samp>{{value_or_none ip_configuration.virtual_network_taps}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.network.subscriptions.id.network_interfaces", $("#services\\.network\\.subscriptions\\.id\\.network_interfaces\\.partial").html());
+</script>
+
+<!-- Single network network_interface template -->
+<script id="single_network_network_interface-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.network.subscriptions.id.network_interfaces'}}
+</script>
+<script>
+    var single_network_network_interface_template = Handlebars.compile($("#single_network_network_interface-template").html());
+</script><!-- Storage Accounts partial -->
+<script id="services.securitycenter.subscriptions.id.pricings.partial" type="text/x-handlebars-template">
+    <div id="ressource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Pricing Name: <span id="securitycenter.subscriptions.{{@../key}}.pricings.{{@key}}.name"><samp>{{ name }}</samp></span></div>
+        <div class="list-group-item-text item-margin">Pricing Tier: <span id="securitycenter.subscriptions.{{@../key}}.pricings.{{@key}}.pricing_tier">{{ pricing_tier }}</span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.securitycenter.subscriptions.id.pricings", $("#services\\.securitycenter\\.subscriptions\\.id\\.pricings\\.partial").html());
+</script>
+
+<!-- Single Pricings template -->
+<script id="single_securitycenter_pricing-template" type="text/x-handlebars-template">
+    {{> modal_template template='services.securitycenter.subscriptions.id.pricings'}}
+</script>
+<script>
+    var single_securitycenter_pricing_template = Handlebars.compile($("#single_securitycenter_pricing-template").html());
+</script><!-- virtualmachines disks -->
+<script id="services.virtualmachines.subscriptions.id.disks.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="virtualmachines.subscriptions.{{subscription}}.disks.{{@key}}.name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Unique ID: <span id="virtualmachines.subscriptions.{{subscription}}.disks.{{@key}}.unique_id"><samp>{{value_or_none unique_id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Location: <span id="virtualmachines.subscriptions.{{subscription}}.disks.{{@key}}.location"><samp>{{value_or_none location}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Time Created: <span id="virtualmachines.subscriptions.{{subscription}}.disks.{{@key}}.time_created"><samp>{{format_date time_created}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Provisioning State: <span id="virtualmachines.subscriptions.{{subscription}}.disks.{{@key}}.provisioning_state"><samp>{{value_or_none provisioning_state}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Disk State: <span id="virtualmachines.subscriptions.{{subscription}}.disks.{{@key}}.disk_state"><samp>{{value_or_none disk_state}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Zones: <span id="virtualmachines.subscriptions.{{subscription}}.disks.{{@key}}.zones"><samp>{{value_or_none zones}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Encryption Type: <span id="virtualmachines.subscriptions.{{subscription}}.disks.{{@key}}.encryption_type"><samp>{{value_or_none encryption_type}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Encrypted using ADE: <span id="virtualmachines.subscriptions.{{subscription}}.disks.{{@key}}.encryption_type"><samp>{{convert_bool_to_enabled encryption_ade}}</samp></span></div>
+        <div class="list-group-item-text item-margin">OS Type: <span id="virtualmachines.subscriptions.{{subscription}}.disks.{{@key}}.os_type"><samp>{{value_or_none os_type}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Hyper V Generation: <span id="virtualmachines.subscriptions.{{subscription}}.disks.{{@key}}.hyper_vgeneration"><samp>{{value_or_none hyper_vgeneration}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Disk Size GB: <span id="virtualmachines.subscriptions.{{subscription}}.disks.{{@key}}.disk_size_gb"><samp>{{value_or_none disk_size_gb}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.virtualmachines.subscriptions.id.disks", $("#services\\.virtualmachines\\.subscriptions\\.id\\.disks\\.partial").html());
+</script>
+
+<!-- Single virtualmachines disk template -->
+<script id="single_virtualmachines_disk-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.virtualmachines.subscriptions.id.disks'}}
+</script>
+<script>
+    var single_virtualmachines_disk_template = Handlebars.compile($("#single_virtualmachines_disk-template").html());
+</script>
+<!-- virtualmachines snapshots -->
+<script id="services.virtualmachines.subscriptions.id.snapshots.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="virtualmachines.subscriptions.{{subscription}}.snapshots.{{@key}}.name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Unique ID: <span id="virtualmachines.subscriptions.{{subscription}}.snapshots.{{@key}}.unique_id"><samp>{{value_or_none unique_id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Provisioning State: <span id="virtualmachines.subscriptions.{{subscription}}.snapshots.{{@key}}.provisioning_state"><samp>{{value_or_none provisioning_state}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Time Created: <span id="virtualmachines.subscriptions.{{subscription}}.snapshots.{{@key}}.time_created"><samp>{{format_date time_created}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Location: <span id="virtualmachines.subscriptions.{{subscription}}.snapshots.{{@key}}.location"><samp>{{value_or_none location}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Encryption Type: <span id="virtualmachines.subscriptions.{{subscription}}.snapshots.{{@key}}.encryption_type"><samp>{{value_or_none encryption_type}}</samp></span></div>
+        <div class="list-group-item-text item-margin">OS Type: <span id="virtualmachines.subscriptions.{{subscription}}.snapshots.{{@key}}.os_type"><samp>{{value_or_none os_type}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Managed By: <span id="virtualmachines.subscriptions.{{subscription}}.snapshots.{{@key}}.managed_by"><samp>{{value_or_none managed_by}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Hyper V Generation: <span id="virtualmachines.subscriptions.{{subscription}}.snapshots.{{@key}}.hyper_vgeneration"><samp>{{value_or_none hyper_vgeneration}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Disk Size GB: <span id="virtualmachines.subscriptions.{{subscription}}.snapshots.{{@key}}.disk_size_gb"><samp>{{value_or_none disk_size_gb}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Incremental: <span id="virtualmachines.subscriptions.{{subscription}}.snapshots.{{@key}}.incremental"><samp>{{value_or_none incremental}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.virtualmachines.subscriptions.id.snapshots", $("#services\\.virtualmachines\\.subscriptions\\.id\\.snapshots\\.partial").html());
+</script>
+
+<!-- Single virtualmachines snapshot template -->
+<script id="single_virtualmachines_snapshot-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.virtualmachines.subscriptions.id.snapshots'}}
+</script>
+<script>
+    var single_virtualmachines_snapshot_template = Handlebars.compile($("#single_virtualmachines_snapshot-template").html());
+</script>
+<!-- virtualmachines images -->
+<script id="services.virtualmachines.subscriptions.id.images.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="virtualmachines.subscriptions.{{subscription}}.images.{{@key}}.name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Provisioning State: <span id="virtualmachines.subscriptions.{{subscription}}.images.{{@key}}.provisioning_state"><samp>{{value_or_none provisioning_state}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Location: <span id="virtualmachines.subscriptions.{{subscription}}.images.{{@key}}.location"><samp>{{value_or_none location}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Hyper-V Generation: <span id="virtualmachines.subscriptions.{{subscription}}.images.{{@key}}.hyper_vgeneration"><samp>{{value_or_none hyper_vgeneration}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.virtualmachines.subscriptions.id.images", $("#services\\.virtualmachines\\.subscriptions\\.id\\.images\\.partial").html());
+</script>
+
+<!-- Single virtualmachines image template -->
+<script id="single_virtualmachines_image-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.virtualmachines.subscriptions.id.images'}}
+</script>
+<script>
+    var single_virtualmachines_image_template = Handlebars.compile($("#single_virtualmachines_image-template").html());
+</script>
+
+<!-- aad service_principals -->
+<script id="services.aad.service_principals.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">ID: <span id="aad.service_principals.{{@key}}.id"><samp>{{value_or_none id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Tags: 
+            {{#each tags}}
+                <div
+                    style="border-radius: 5px; -webkit-border-radius: 5px; float: center; background-color: #c2c2d6; padding: 0.1px; text-align: center; display: inline-flex;">
+                    <samp>{{value_or_none this}}</samp>
+                </div>&nbsp;&nbsp;
+            {{else}}
+                <div style="display: inline-flex;"><samp>None</samp></div>
+            {{/each}}
+        </div>
+        <div class="list-group-item-text item-margin">Status: <span id="aad.service_principals.{{@key}}.account_enabled">{{convert_bool_to_enabled account_enabled}}</span></div>
+        {{#if app_name}}
+            <div class="list-group-item-text item-margin">App: <a href="javascript:showObject('services.aad.applications', 'app_id', '{{app_id}}')">{{value_or_none app_name}}</a></span></div>
+        {{else}}
+            <div class="list-group-item-text item-margin">App: {{value_or_none app_name}}</a></span></div>
+        {{/if}}
+        <div class="list-group-item-text item-margin">App Owner Tenant ID: <span id="aad.service_principals.{{@key}}.app_owner_tenant_id"><samp>{{value_or_none app_owner_tenant_id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">App Role Assignment Required: <span id="aad.service_principals.{{@key}}.app_role_assignment_required"><samp>{{value_or_none app_role_assignment_required}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Type: <span id="aad.service_principals.{{@key}}.object_type"><samp>{{value_or_none object_type}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Service Principal Type: <span id="aad.service_principals.{{@key}}.service_principal_type"><samp>{{value_or_none service_principal_type}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Publisher Name: <span id="aad.service_principals.{{@key}}.publisher_name"><samp>{{value_or_none publisher_name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Deletion Timestamp: <span id="aad.service_principals.{{@key}}.deletion_timestamp"><samp>{{value_or_none deletion_timestamp}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Roles
+            {{> count_badge count=roles.length}}
+        </h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each roles}}
+                <li class="list-group-item-text"><a href="javascript:showObject('services.rbac.subscriptions.{{this.subscription_id}}.roles', 'id', '{{this.role_id}}')">{{getValueAt 'services.rbac.subscriptions' this.subscription_id 'roles' this.role_id 'name'}}</a> (subscription <samp>{{this.subscription_id}}</samp>)</li></a></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Keys
+            {{> count_badge count=key_credentials.length}}
+        </h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each key_credentials}}
+                <li class="list-group-item-text">ID: <samp>{{value_or_none this.key_id}}</samp></li>
+                <ul>
+                    <li class="list-group-item-text">Type: <samp>{{value_or_none this.type}}</samp></li>
+                    <li class="list-group-item-text">Usage: <samp>{{value_or_none this.usage}}</samp></li>
+                    <li class="list-group-item-text">Start Date: {{format_date this.start_date}}</li>
+                    <li class="list-group-item-text">End Date: {{format_date this.end_date}}</li>
+                </ul>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.aad.service_principals", $("#services\\.aad\\.service_principals\\.partial").html());
+</script>
+
+<!-- Single aad service_principal template -->
+<script id="single_aad_service_principal-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.aad.service_principals'}}
+</script>
+<script>
+    var single_aad_service_principal_template = Handlebars.compile($("#single_aad_service_principal-template").html());
+</script>
+<!-- Storage Accounts partial -->
+<script id="services.securitycenter.subscriptions.id.security_contacts.partial" type="text/x-handlebars-template">
+    <div id="ressource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="securitycenter.subscriptions.{{@../key}}.security_contacts.{{@key}}.name"><samp>{{ name }}</samp></span></div>
+        <div class="list-group-item-text item-margin">Email: <span id="securitycenter.subscriptions.{{@../key}}.security_contacts.{{@key}}.email"><samp>{{ email }}</samp></span></div>
+        <div class="list-group-item-text item-margin">Phone: <span id="securitycenter.subscriptions.{{@../key}}.security_contacts.{{@key}}.phone"><samp>{{value_or_none phone }}</samp></span></div>
+        <div class="list-group-item-text item-margin">Notify on Alert: <span id="securitycenter.subscriptions.{{@../key}}.security_contacts.{{@key}}.alert_notifications">{{ convert_bool_to_enabled alert_notifications }}</span></div>
+        <div class="list-group-item-text item-margin">Notify Administrators on Alert: <span id="securitycenter.subscriptions.{{@../key}}.security_contacts.{{@key}}.alerts_to_admins">{{ convert_bool_to_enabled alerts_to_admins }}</span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.securitycenter.subscriptions.id.security_contacts", $("#services\\.securitycenter\\.subscriptions\\.id\\.security_contacts\\.partial").html());
+</script>
+
+<!-- Single Pricings template -->
+<script id="single_securitycenter_security_contacts-template" type="text/x-handlebars-template">
+    {{> modal_template template='services.securitycenter.subscriptions.id.security_contacts'}}
+</script>
+<script>
+    var single_securitycenter_security_contacts_template = Handlebars.compile($("#single_securitycenter_security_contacts-template").html());
+</script>
+<!-- aad applications -->
+<script id="services.aad.applications.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">ID: <span id="aad.applications.{{@key}}.id"><samp>{{value_or_none id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">App ID: <span id="aad.applications.{{@key}}.app_id"><samp>{{value_or_none app_id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Type: <span id="aad.applications.{{@key}}.object_type"><samp>{{value_or_none object_type}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Sign In Audience: <span id="aad.applications.{{@key}}.sign_in_audience"><samp>{{value_or_none sign_in_audience}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Publisher Domain: <span id="aad.applications.{{@key}}.publisher_domain"><samp>{{value_or_none publisher_domain}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Available To Other Tenants: <span id="aad.applications.{{@key}}.available_to_other_tenants"><samp>{{value_or_none available_to_other_tenants}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Allow Guests Sign-In: <span id="aad.applications.{{@key}}.allow_guests_sign_in"><samp>{{value_or_none allow_guests_sign_in}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Allow Passthrough Users: <span id="aad.applications.{{@key}}.allow_passthrough_users"><samp>{{value_or_none allow_passthrough_users}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Public Client: <span id="aad.applications.{{@key}}.public_client"><samp>{{value_or_none public_client}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Device-Only Auth Supported: <span id="aad.applications.{{@key}}.is_device_only_auth_supported"><samp>{{value_or_none is_device_only_auth_supported}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Pre-Authorized Applications: <span id="aad.applications.{{@key}}.pre_authorized_applications"><samp>{{value_or_none pre_authorized_applications}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Deletion Timestamp: <span id="aad.applications.{{@key}}.deletion_timestamp"><samp>{{value_or_none deletion_timestamp}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Password Credentials
+            {{> count_badge count=password_credentials.length}}
+        </h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each password_credentials}}
+                <li class="list-group-item-text">ID: <samp>{{value_or_none this.key_id}}</samp></li>
+                <ul>
+                    <li class="list-group-item-text">Start Date: {{format_date this.start_date}}</li>
+                    <li class="list-group-item-text">End Date: {{format_date this.end_date}}</li>
+                </ul>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.aad.applications", $("#services\\.aad\\.applications\\.partial").html());
+</script>
+
+<!-- Single aad application template -->
+<script id="single_aad_application-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.aad.applications'}}
+</script>
+<script>
+    var single_aad_application_template = Handlebars.compile($("#single_aad_application-template").html());
+</script>
+<!-- SQL Database partial -->
+<script id="services.sqldatabase.subscriptions.id.servers.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">SQL Server Name: <span id="sqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">Azure Active Directory Admin: <span id="sqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.ad_admin"><samp>{{value_or_none ad_admin.login}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Auditing: <span id="sqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_auditing_disabled">{{ convert_bool_to_enabled auditing.auditing_enabled }}</span></div>
+        <div class="list-group-item-text item-margin">Auditing retention period: <span id="sqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_low_auditing_retention">{{ auditing.retention_days }}</span></div>
+
+        <div class="list-group-item-text item-margin">Advanced Threat Protection (ATP): <span id="sqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_threat_detection_disabled">{{ convert_bool_to_enabled threat_detection.threat_detection_enabled }}</span></div>
+        <div class="list-group-item-text item-margin">Advanced Threat Protection (ATP) alerts: <span id="sqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_threat_detection_alerts_disabled">{{ convert_bool_to_enabled threat_detection.alerts_enabled }}</span></div>
+        <div class="list-group-item-text item-margin">Send Advanced Threat Protection (ATP) alerts: <span id="sqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_send_threat_detection_alerts_disabled">{{ convert_bool_to_enabled threat_detection.send_alerts_enabled }}</span></div>
+        <div class="list-group-item-text item-margin">Advanced Threat Protection (ATP) retention period: <span id="sqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_low_threat_detection_retention">{{ threat_detection.retention_days }}</span></div>
+
+        <div class="list-group-item-text item-margin">Storage account name: <span id="sqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_vulnerability_storage_account_name">{{server_vulnerability.storage_account_name }}</span></div>
+        <div class="list-group-item-text item-margin">Send email notification to admins and subscription owners: <span id="sqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_vulnerability_email_subscription_admin">{{convert_bool_to_enabled server_vulnerability.email_subscription_admin }}</span></div>
+        <div class="list-group-item-text item-margin">Periodic recurring scans: <span id="sqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_vulnerability_recurring_scans_enabled">{{convert_bool_to_enabled server_vulnerability.recurring_scans_enabled }}</span></div>
+        <div class="list-group-item-text item-margin">Send scan report to is configured: <span id="sqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_vulnerability_send_scan_reports_to_not_empty">{{server_vulnerability.send_scan_reports_to_not_empty}}</span></div>
+
+        <div class="list-group-item-text item-margin">TDE server key type: <span id="sqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.server_encryption_protectors_TDE_protector_is_encrypted">{{ encryption_protectors.server_key_type }}</span></div>
+
+        <div class="list-group-item-text item-margin">Tags:
+            {{#each tags}}
+            <div
+                style="border-radius: 5px; -webkit-border-radius: 5px; float: center; background-color: #c2c2d6; padding: 0.1px; text-align: center; display: inline-flex;">
+                <samp>{{value_or_none this}}</samp>
+            </div>&nbsp;&nbsp;
+            {{else}}
+            <div style="display: inline-flex;"><samp>None</samp></div>
+            {{/each}}
+        </div>
+        <div class="list-group-item-text item-margin">Resource group: <span id="sqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.resource_group_name"><samp>{{value_or_none resource_group_name}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">SQL Databases</h4>
+        <div class="list-group-item-text item-margin">
+            {{#each databases}}
+            <div class="list-group-item-text item-margin"><b>Database name: </b>{{@key}}</div>
+            <div class="list-group-item-text item-margin">
+                <div class="list-group-item-text item-margin">Auditing: <span id="sqldatabase.subscriptions.{{@../../key}}.servers.{{@../key}}.databases.{{@key}}.db_auditing_disabled">{{ convert_bool_to_enabled auditing.auditing_enabled }}</span></div>
+                <div class="list-group-item-text item-margin">Auditing retention period: <span id="sqldatabase.subscriptions.{{@../../key}}.servers.{{@../key}}.databases.{{@key}}.db_low_auditing_retention">{{ auditing.retention_days }}</span></div>
+                <div class="list-group-item-text item-margin">Threat detection: <span id="sqldatabase.subscriptions.{{@../../key}}.servers.{{@../key}}.databases.{{@key}}.db_threat_detection_disabled">{{ convert_bool_to_enabled threat_detection.threat_detection_enabled }}</span></div>
+                <div class="list-group-item-text item-margin">Threat detection alerts: <span id="sqldatabase.subscriptions.{{@../../key}}.servers.{{@../key}}.databases.{{@key}}.db_threat_detection_alerts_disabled">{{ convert_bool_to_enabled threat_detection.alerts_enabled }}</span></div>
+                <div class="list-group-item-text item-margin">Send threat detection alerts: <span id="sqldatabase.subscriptions.{{@../../key}}.servers.{{@../key}}.databases.{{@key}}.db_send_threat_detection_alerts_disabled">{{ convert_bool_to_enabled threat_detection.send_alerts_enabled }}</span></div>
+                <div class="list-group-item-text item-margin">Threat detection retention period: <span id="sqldatabase.subscriptions.{{@../../key}}.servers.{{@../key}}.databases.{{@key}}.db_low_threat_detection_retention">{{ threat_detection.retention_days }}</span></div>
+                <div class="list-group-item-text item-margin">Transparent data encryption: <span id="sqldatabase.subscriptions.{{@../../key}}.servers.{{@../key}}.databases.{{@key}}.transparent_data_encryption_enabled">{{ convert_bool_to_enabled transparent_data_encryption_enabled }}</span></div>
+                <div class="list-group-item-text item-margin">Geo-replication configured: <span id="sqldatabase.subscriptions.{{@../../key}}.servers.{{@../key}}.databases.{{@key}}.replication_configured"><samp>{{ replication_configured }}</samp></span></div>
+                <div class="list-group-item-text item-margin">Tags:
+                    {{#each tags}}
+                    <div
+                            style="border-radius: 5px; -webkit-border-radius: 5px; float: center; background-color: #c2c2d6; padding: 0.1px; text-align: center; display: inline-flex;">
+                        <samp>{{value_or_none this}}</samp>
+                    </div>&nbsp;&nbsp;
+                    {{else}}
+                    <div style="display: inline-flex;"><samp>None</samp></div>
+                    {{/each}}
+                </div>
+                <div class="list-group-item-text item-margin">Resource group: <span id="sqldatabase.subscriptions.{{@../../key}}.servers.{{@../key}}.databases.{{@key}}.resource_group_name"><samp>{{value_or_none resource_group_name}}</samp></span></div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Firewall Rules</h4>
+        <div class="list-group-item-text item-margin">
+            {{#each firewall_rules}}
+            <samp>{{name}}</samp>
+            <div class="list-group-item-text item-margin">
+                <div class="list-group-item-text item-margin">Firewall rule start IP: <span id="sqldatabase.subscriptions.{{@../../key}}.servers.{{@../key}}.firewall_rules.{{@key}}.start_ip">{{start_ip}}</span></div>
+                <div class="list-group-item-text item-margin">Firewall rule end IP: <span id="sqldatabase.subscriptions.{{@../../key}}.servers.{{@../key}}.firewall_rules.{{@key}}.end_ip">{{end_ip}}</span></div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.sqldatabase.subscriptions.id.servers", $("#services\\.sqldatabase\\.subscriptions\\.id\\.servers\\.partial").html());
+</script>
+
+<!-- Single SQL Database template -->
+<script id="single_sqldatabase_servers-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.sqldatabase.servers' }}
+</script>
+<script>
+    var single_sqldatabase_servers_template = Handlebars.compile($("#single_sqldatabase_servers-template").html());
+</script><!-- Storage Accounts partial -->
+<script id="services.storageaccounts.subscriptions.id.storage_accounts.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Storage Account Name: <span id="storageaccounts.subscriptions.{{@../key}}.storage_accounts.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">Public Traffic: <span id="storageaccounts.subscriptions.{{@../key}}.storage_accounts.{{@key}}.public_traffic_allowed">{{convert_bool_to_enabled public_traffic_allowed }}</span></div>
+        <div class="list-group-item-text item-margin">HTTPS Required: <span id="storageaccounts.subscriptions.{{@../key}}.storage_accounts.{{@key}}.https_traffic_enabled">{{convert_bool_to_enabled https_traffic_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Microsoft Trusted Services: <span id="storageaccounts.subscriptions.{{@../key}}.storage_accounts.{{@key}}.trusted_microsoft_services_enabled">{{convert_bool_to_enabled trusted_microsoft_services_enabled }}</span></div>
+        <div class="list-group-item-text item-margin">Access Key Usage: <span id="storageaccounts.subscriptions.{{@../key}}.storage_accounts.{{@key}}.shared_key_access_allowed">{{convert_bool_to_enabled shared_key_access_allowed}}</span></div>
+        <div class="list-group-item-text item-margin">Last Access Key Rotation:
+            <span id="storageaccounts.subscriptions.{{@../key}}.storage_accounts.{{@key}}.access_keys_rotated">
+                {{#if access_keys_last_rotation_date }}
+                    {{ access_keys_last_rotation_date }}
+                {{else}}
+                    Never
+                {{/if}}
+            </span>
+        </div>
+        <div class="list-group-item-text item-margin">Storage encrypted with Customer Managed Key: <span id="storageaccounts.subscriptions.{{@../key}}.storage_accounts.{{@key}}.encryption_key_customer_managed">{{convert_bool_to_enabled encryption_key_customer_managed }}</span></div>
+
+        <div class="list-group-item-text item-margin">Tags: 
+            {{#each tags}}
+                <div style="border-radius: 5px; -webkit-border-radius: 5px; float: center; background-color: #c2c2d6; padding: 0.1px; text-align: center; display: inline-flex;">
+                    <samp>{{value_or_none this}}</samp>
+                </div>&nbsp;&nbsp;
+            {{else}}
+                <div style="display: inline-flex;"><samp>None</samp></div>
+            {{/each}}
+        </div>
+        <div class="list-group-item-text item-margin">Resource group: <span id="storageaccounts.subscriptions.{{@../key}}.storage_accounts.{{@key}}.resource_group_name"><samp>{{value_or_none resource_group_name}}</samp></span></div>
+    </div>
+
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Blob Containers</h4>
+        <div class="list-group-item-text item-margin">
+        {{#each blob_containers}}
+            <samp>{{@key}}</samp>
+            <div class="list-group-item-text item-margin">
+                Public Access: <span id="storageaccounts.subscriptions.{{@../../key}}.storage_accounts.{{@../key}}.blob_containers.{{@key}}.public_access_allowed">{{ convert_bool_to_enabled public_access_allowed }}</span>
+            </div>
+        {{/each}}
+        </div>
+    </div>
+
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Blob Services</h4>
+        <div class="list-group-item-text item-margin">
+            {{#each blob_services}}
+            <samp>{{name}}</samp>
+            <div class="list-group-item-text item-margin">
+                Soft Delete: <span id="storageaccounts.subscriptions.{{@../../key}}.storage_accounts.{{@../key}}.blob_services.{{@key}}.soft_delete_enabled">{{ convert_bool_to_enabled soft_delete_enabled }}</span>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+
+</script>
+
+<script>
+    Handlebars.registerPartial("services.storageaccounts.subscriptions.id.storage_accounts", $("#services\\.storageaccounts\\.subscriptions\\.id\\.storage_accounts\\.partial").html());
+</script>
+
+<!-- Single Storage Accounts template -->
+<script id="single_storageaccounts_storage_accounts-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.storageaccounts.subscriptions.id.storage_accounts' }}
+</script>
+<script>
+    var single_storageaccounts_storage_accounts_template = Handlebars.compile($("#single_storageaccounts_storage_accounts-template").html());
+</script>
+<!-- Logging and Monitoring Log Profiles-->
+<script id="services.loggingmonitoring.subscriptions.id.log_profiles.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="loggingmonitoring.subscriptions.{{@../key}}.log_profiles.{{@key}}.name"><samp>{{name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Storage account id: <span id="loggingmonitoring.subscriptions.{{@../key}}.log_profiles.{{@key}}.storage_account_id"><samp>{{storage_account_id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Captures all activities: <span id="loggingmonitoring.subscriptions.{{@../key}}.log_profiles.{{@key}}.captures_all_activities"><samp>{{captures_all_activities}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Retention policy enabled: <span id="loggingmonitoring.subscriptions.{{@../key}}.log_profiles.{{@key}}.retention_policy_enabled"><samp>{{retention_policy_enabled}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Retention policy days: <span id="loggingmonitoring.subscriptions.{{@../key}}.log_profiles.{{@key}}.retention_policy_days"><samp>{{retention_policy_days}}</samp></span></div>
+
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.loggingmonitoring.subscriptions.id.log_profiles", $("#services\\.loggingmonitoring\\.subscriptions\\.id\\.log_profiles\\.partial").html());
+</script>
+
+<!-- Single loggingmonitoring log profiles template -->
+<script id="single_loggingmonitoring_log_profiles-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.loggingmonitoring.subscriptions.id.log_profiles'}}
+</script>
+<script>
+    var single_loggingmonitoring_log_profiles_template = Handlebars.compile($("#single_loggingmonitoring_log_profiles-template").html());
+</script><!-- Logging and Monitoring Resource Logging-->
+<script id="services.loggingmonitoring.subscriptions.id.resources_logging.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Logging for key vault enabled: <span id="loggingmonitoring.subscriptions.{{@../key}}.resources_logging.{{@key}}.diagnostic_key_vault_audit_event_enabled"><samp>{{convert_bool_to_enabled diagnostic_key_vault.audit_event_enabled}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.loggingmonitoring.subscriptions.id.resources_logging", $("#services\\.loggingmonitoring\\.subscriptions\\.id\\.resources_logging\\.partial").html());
+</script>
+
+<!-- Single loggingmonitoring resource logging template -->
+<script id="single_loggingmonitoring_resources_logging-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.loggingmonitoring.subscriptions.id.resources_logging'}}
+</script>
+<script>
+    var single_loggingmonitoring_resources_logging_template = Handlebars.compile($("#single_loggingmonitoring_resources_logging-template").html());
+</script><!-- Storage Accounts partial -->
+<script id="services.securitycenter.subscriptions.id.auto_provisioning_settings.partial" type="text/x-handlebars-template">
+    <div id="ressource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="securitycenter.subscriptions.{{@../key}}.auto_provisioning_settings.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">Auto Provisioning: <span id="securitycenter.subscriptions.{{@../key}}.auto_provisioning_settings.{{@key}}.auto_provision">{{ auto_provision }}</span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.securitycenter.subscriptions.id.auto_provisioning_settings", $("#services\\.securitycenter\\.subscriptions\\.id\\.auto_provisioning_settings\\.partial").html());
+</script>
+
+<!-- Single Pricings template -->
+<script id="single_securitycenter_auto_provisioning_settings-template" type="text/x-handlebars-template">
+    {{> modal_template template='services.securitycenter.subscriptions.id.auto_provisioning_settings'}}
+</script>
+<script>
+    var single_securitycenter_auto_provisioning_settings_template = Handlebars.compile($("#single_securitycenter_auto_provisioning_settings-template").html());
+</script><!-- MySQL Database partial -->
+<script id="services.mysqldatabase.subscriptions.id.servers.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">MySQL Server Name: <span id="mysqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">Server SSL connection enforcement: <span id="mysqldatabase.subscriptions.{{@../key}}.servers.{{@key}}.ssl_enforcement">{{ssl_enforcement}}</span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.mysqldatabase.subscriptions.id.servers", $("#services\\.mysqldatabase\\.subscriptions\\.id\\.servers\\.partial").html());
+</script>
+
+<!-- Single SQL Database template -->
+<script id="single_mysqldatabase_servers-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.mysqldatabase.servers' }}
+</script>
+<script>
+    var single_mysqldatabase_servers_template = Handlebars.compile($("#single_mysqldatabase_servers-template").html());
+</script><!-- RBAC  -->
+<script id="services.rbac.subscriptions.id.custom_roles_report.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">No Administering Resource Locks Role: <span id="rbac.subscriptions.{{@../key}}.custom_roles_report.{{@key}}.missing_custom_role_administering_resource_locks"><samp>{{ missing_custom_role_administering_resource_locks}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.rbac.subscriptions.id.custom_roles_report", $("#services\\.rbac\\.subscriptions\\.id\\.custom_roles_report\\.partial").html());
+</script>
+
+<!-- Single aad group template -->
+<script id="single_rbac_custom_roles_report-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.rbac.subscriptions.id.custom_roles_report'}}
+</script>
+<script>
+    var single_rbac_policy_template = Handlebars.compile($("#single_rbac_custom_roles_report-template").html());
+</script><!-- appservice web_apps -->
+<script id="services.appservice.subscriptions.id.web_apps.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Resource Group: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.resource_group"><samp>{{value_or_none resource_group}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Repository Site Name: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.repository_site_name"><samp>{{value_or_none repository_site_name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Location: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.location"><samp>{{value_or_none location}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Last Modified Time:<span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.last_modified_time_utc">{{format_date last_modified_time_utc}}</span></div>
+        <div class="list-group-item-text item-margin">State: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.state"><samp>{{value_or_none state}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Usage State: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.usage_state"><samp>{{value_or_none usage_state}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Availability State: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.availability_state"><samp>{{value_or_none availability_state}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Kind: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.kind"><samp>{{value_or_none kind}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Programming Language: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.programming_language"><samp>{{value_or_none programming_language}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Programming Language Version: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.programming_language_version"><samp>{{value_or_none programming_language_version}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Tags:
+            {{#each tags}}
+                <div
+                    style="border-radius: 5px; -webkit-border-radius: 5px; float: center; background-color: #c2c2d6; padding: 0.1px; text-align: center; display: inline-flex;">
+                    <samp>{{value_or_none this}}</samp>
+                </div>&nbsp;&nbsp;
+            {{else}}
+                <div style="display: inline-flex;"><samp>None</samp></div>
+            {{/each}}
+        </div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Configuration</h4>
+        <div class="list-group-item-text item-margin">Authentication: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.authentication_enabled">{{convert_bool_to_enabled authentication_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">HTTPS-Only Traffic: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.https_only">{{convert_bool_to_enabled https_only}}</span></div>
+        <div class="list-group-item-text item-margin">HTTPS 2.0 Support: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.http_2_enabled">{{convert_bool_to_enabled http_2_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">HTTP Logging: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.http_logging_enabled">{{convert_bool_to_enabled http_logging_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">FTP Deployment : <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.ftp_deployment_enabled">{{convert_bool_to_enabled ftp_deployment_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Minimum TLS Version Supported: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.minimum_tls_supported"><samp>{{value_or_none minimum_tls_version_supported}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Client Certificates: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.client_cert_enabled">{{convert_bool_to_enabled client_cert_enabled}}</span></div>
+    </div>
+    {{#if identity}}
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Identities</h4>
+        <div class="list-group-item-text item-margin">System Assigned Identity: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.identity.managed_principal_id"><samp>{{value_or_none identity.principal_id}}</samp></span></div>
+        {{#if identity.user_assigned_identities}}
+        <div class="list-group-item-text item-margin">
+            User Assigned Identities:
+            {{#each identity.user_assigned_identities}}
+            <ul>
+                <li><samp>{{this.principal_id}}</samp></li>
+            </ul>
+            {{/each}}
+        </div>
+        {{/if}}
+    </div>
+    {{/if}}
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Networking</h4>
+        <div class="list-group-item-text item-margin">Default Host Name: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.default_host_name"><samp>{{value_or_none default_host_name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Outbound IP Addresses: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.outbound_ip_addresses">
+            <ul>
+            {{#each outbound_ip_addresses}}
+                <li><samp>{{this}}</samp></li>
+            {{/each}}
+            </ul>
+        </div>
+        <div class="list-group-item-text item-margin">Possible Outbound IP Addresses: <span id="appservice.subscriptions.{{subscription}}.web_apps.{{@key}}.possible_outbound_ip_addresses">
+            <ul>
+            {{#each possible_outbound_ip_addresses}}
+                <li><samp>{{this}}</samp></li>
+            {{/each}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.appservice.subscriptions.id.web_apps", $("#services\\.appservice\\.subscriptions\\.id\\.web_apps\\.partial").html());
+</script>
+
+<!-- Single appservice web_app template -->
+<script id="single_appservice_web_app-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.appservice.subscriptions.id.web_apps'}}
+</script>
+<script>
+    var single_appservice_web_app_template = Handlebars.compile($("#single_appservice_web_app-template").html());
+</script>
+
+<!-- network virtual_networks -->
+<script id="services.network.subscriptions.id.virtual_networks.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="network.subscriptions.{{@../key}}.virtual_networks.{{@key}}.name"><samp>{{name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Resource GUID: <span id="network.subscriptions.{{@../key}}.virtual_networks.{{@key}}.resource_guid"><samp>{{resource_guid}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Type: <span id="network.subscriptions.{{@../key}}.virtual_networks.{{@key}}.type"><samp>{{type}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Location: <span id="network.subscriptions.{{@../key}}.virtual_networks.{{@key}}.location"><samp>{{location}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Provisioning State: <span id="network.subscriptions.{{@../key}}.virtual_networks.{{@key}}.provisioning_state"><samp>{{provisioning_state}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Address Space: <span id="network.subscriptions.{{@../key}}.virtual_networks.{{@key}}.address_space"><samp>{{address_space.address_prefixes}}</samp></span></div>
+        <div class="list-group-item-text item-margin">DHCP Options: <span id="network.subscriptions.{{@../key}}.virtual_networks.{{@key}}.dhcp_options"><samp>{{value_or_none dhcp_options}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Virtual Network Peerings: <span id="network.subscriptions.{{@../key}}.virtual_networks.{{@key}}.virtual_network_peerings"><samp>{{value_or_none virtual_network_peerings}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Enable VM Protection: <span id="network.subscriptions.{{@../key}}.virtual_networks.{{@key}}.enable_vm_protection"><samp>{{enable_vm_protection}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Enable DDoS Protection: <span id="network.subscriptions.{{@../key}}.virtual_networks.{{@key}}.enable_ddos_protection"><samp>{{enable_ddos_protection}}</samp></span></div>
+        <div class="list-group-item-text item-margin">DDoS Protection Plan: <span id="network.subscriptions.{{@../key}}.virtual_networks.{{@key}}.ddos_protection_plan"><samp>{{value_or_none ddos_protection_plan}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Tags: 
+            {{#each tags}}
+                <div
+                    style="border-radius: 5px; -webkit-border-radius: 5px; float: center; background-color: #c2c2d6; padding: 0.1px; text-align: center; display: inline-flex;">
+                    <samp>{{value_or_none this}}</samp>
+                </div>&nbsp;&nbsp;
+            {{else}}
+                <div style="display: inline-flex;"><samp>None</samp></div>
+            {{/each}}
+        </div>
+        <div class="list-group-item-text item-margin">Resource group: <span id="network.subscriptions.{{@../key}}.virtual_networks.{{@key}}.resource_group_name"><samp>{{value_or_none resource_group_name}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Subnets</h4>
+        {{#each subnets}}
+        <div class="list-group-item-text item-margin">
+            <span id="network.subscriptions.{{../subscription}}.virtual_networks.{{@../key}}.subnets.{{@key}}"><samp>{{getValueAt 'services.network.subscriptions' ../subscription 'virtual_networks' @../key 'subnets' this.id 'name'}}</samp></span>
+            (<a id="network.subscriptions.{{../subscription}}.virtual_networks.{{@../key}}.subnets.{{@key}}.address_prefix" href="javascript:showObject('services.network.subscriptions.{{../subscription}}.virtual_networks.{{@../key}}.subnets.{{this.id}}')">{{getValueAt 'services.network.subscriptions' ../subscription 'virtual_networks' @../key 'subnets' this.id 'address_prefix'}}</a>)
+        </div>
+        {{/each}}
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.network.subscriptions.id.virtual_networks", $("#services\\.network\\.subscriptions\\.id\\.virtual_networks\\.partial").html());
+</script>
+
+<!-- Single network virtual_network template -->
+<script id="single_network_virtual_network-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.network.subscriptions.id.virtual_networks'}}
+</script>
+<script>
+    var single_network_virtual_network_template = Handlebars.compile($("#single_network_virtual_network-template").html());
+</script>
+
+<!-- aad users -->
+<script id="services.aad.users.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Principal Name: <span id="aad.users.{{@key}}.user_principal_name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Display Name: <span id="aad.users.{{@key}}.display_name"><samp>{{value_or_none display_name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Given Name: <span id="aad.users.{{@key}}.given_name"><samp>{{value_or_none given_name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Surname: <span id="aad.users.{{@key}}.surname"><samp>{{value_or_none surname}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Mail Nickname: <span id="aad.users.{{@key}}.mail_nickname"><samp>{{value_or_none mail_nickname}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Mail: <span id="aad.users.{{@key}}.mail"><samp>{{value_or_none mail}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Sign-In Names: <span id="aad.users.{{@key}}.sign_in_names"><samp>{{value_or_none sign_in_names}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Type: <span id="aad.users.{{@key}}.user_type"><samp>{{value_or_none user_type}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Status: <span id="aad.users.{{@key}}.account_enabled">{{convert_bool_to_enabled account_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Usage Location: <span id="aad.users.{{@key}}.usage_location"><samp>{{value_or_none usage_location}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Deletion Timestamp: <span id="aad.users.{{@key}}.deletion_timestamp"><samp>{{value_or_none deletion_timestamp}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading" id="aad.users.{{@key}}.roles">Roles
+            {{> count_badge count=roles.length}}
+        </h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each roles}}
+                <li class="list-group-item-text"><a href="javascript:showObject('services.rbac.subscriptions.{{this.subscription_id}}.roles', 'id', '{{this.role_id}}')">{{getValueAt 'services.rbac.subscriptions' this.subscription_id 'roles' this.role_id 'name'}}</a> (subscription <samp>{{this.subscription_id}}</samp>)</li></a></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Groups
+            {{> count_badge count=groups.length}}
+        </h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each groups}}
+                <li class="list-group-item-text"><a href="javascript:showObject('services.aad.groups', 'id', '{{this}}')">{{getValueAt 'services.aad.groups' this 'name'}}</a></li></a></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.aad.users", $("#services\\.aad\\.users\\.partial").html());
+</script>
+
+<!-- Single aad user template -->
+<script id="single_aad_user-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.aad.users'}}
+</script>
+<script>
+    var single_aad_user_template = Handlebars.compile($("#single_aad_user-template").html());
+</script>
+<!-- virtualmachines instances -->
+<script id="services.virtualmachines.subscriptions.id.instances.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="virtualmachines.subscriptions.{{@../key}}.instances.{{@key}}.name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">VM ID: <span id="virtualmachines.subscriptions.{{@../key}}.instances.{{@key}}.vm_id"><samp>{{value_or_none vm_id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Location: <span id="virtualmachines.subscriptions.{{@../key}}.instances.{{@key}}.location"><samp>{{value_or_none location}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Zones: <span id="virtualmachines.subscriptions.{{@../key}}.instances.{{@key}}.zones"><samp>{{value_or_none zones}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Proximity Placement Group: <span id="virtualmachines.subscriptions.{{@../key}}.instances.{{@key}}.proximity_placement_group"><samp>{{value_or_none proximity_placement_group}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Availability Set: <span id="virtualmachines.subscriptions.{{@../key}}.instances.{{@key}}.availability_set"><samp>{{value_or_none availability_set}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Provisioning State: <span id="virtualmachines.subscriptions.{{@../key}}.instances.{{@key}}.provisioning_state"><samp>{{value_or_none provisioning_state}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Identity Principal ID: <span id="virtualmachines.subscriptions.{{@../key}}.instances.{{@key}}.identity"><samp>{{value_or_none identity.principal_id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">License Type: <span id="virtualmachines.subscriptions.{{@../key}}.instances.{{@key}}.license_type"><samp>{{value_or_none license_type}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Plan: <span id="virtualmachines.subscriptions.{{@../key}}.instances.{{@key}}.plan"><samp>{{value_or_none plan}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Hardware Profile: <span id="virtualmachines.subscriptions.{{@../key}}.instances.{{@key}}.hardware_profile"><samp>{{value_or_none hardware_profile}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Diagnostics Profile:
+            {{#each diagnostics_profile}}
+            <ul style="margin-bottom:0">
+                <li><samp>{{@key}}: {{value_or_none this}}</samp></li>
+            </ul>
+            {{else}}
+            <div style="display: inline-flex;"><samp>None</samp></div>
+            {{/each}}
+        </div>
+        <div class="list-group-item-text item-margin">OS Profile:
+            {{#each os_profile}}
+            <ul style="margin-bottom:0">
+                <li><samp>{{@key}}: {{value_or_none this}}</samp></li>
+            </ul>
+            {{else}}
+            <div style="display: inline-flex;"><samp>None</samp></div>
+            {{/each}}
+        </div>
+        <div class="list-group-item-text item-margin">Storage Profile:
+            {{#each storage_profile}}
+            <ul style="margin-bottom:0">
+                <li><samp>{{@key}}: {{value_or_none this}}</samp></li>
+            </ul>
+            {{else}}
+            <div style="display: inline-flex;"><samp>None</samp></div>
+            {{/each}}
+        </div>
+        <div class="list-group-item-text item-margin">Additional Capabilities:
+            {{#each additional_capabilities}}    
+            <ul style="margin-bottom:0">
+                <li><samp>{{this}}</samp></li>
+            </ul>
+            {{else}}
+                <div style="display: inline-flex;"><samp>None</samp></div>
+            {{/each}}
+        </div>
+        <div class="list-group-item-text item-margin">Tags:
+            {{#each tags}}
+            <div
+                style="border-radius: 5px; -webkit-border-radius: 5px; float: center; background-color: #c2c2d6; padding: 0.1px; text-align: center; display: inline-flex;">
+                <samp>{{value_or_none this}}</samp>
+            </div>&nbsp;&nbsp;
+            {{else}}
+            <div style="display: inline-flex;"><samp>None</samp></div>
+            {{/each}}
+        </div>
+        <div class="list-group-item-text item-margin">Resource group: <span id="virtualmachines.subscriptions.{{@../key}}.instances.{{@key}}.resource_group_name"><samp>{{value_or_none resource_group_name}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Network Interfaces</h4>
+        {{#each network_interfaces}}
+        <div class="list-group-item-text item-margin"><a href="javascript:showObject('services.network.subscriptions.{{../subscription}}.network_interfaces.{{this}}')"><samp>{{getValueAt 'services.network.subscriptions' ../subscription 'network_interfaces' this 'name'}}</samp></a></div>
+        {{/each}}
+    </div>
+    <div class="list-group-item">
+        <h4 id="virtualmachines.subscriptions.{{@../key}}.instances.{{@key}}.extensions" class="list-group-item-heading">Extensions</h4>
+        {{#each extensions}}
+        <ul>
+            <li><samp>{{this.name}}</samp></li>
+        </ul>
+        {{/each}}
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.virtualmachines.subscriptions.id.instances", $("#services\\.virtualmachines\\.subscriptions\\.id\\.instances\\.partial").html());
+</script>
+
+<!-- Single virtualmachines instance template -->
+<script id="single_virtualmachines_instance-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.virtualmachines.subscriptions.id.instances'}}
+</script>
+<script>
+    var single_virtualmachines_instance_template = Handlebars.compile($("#single_virtualmachines_instance-template").html());
+</script>
+<!-- Logging and Monitoring Diagnostic-->
+<script id="services.loggingmonitoring.subscriptions.id.diagnostic_settings.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Diagnostic setting exists: <span id="loggingmonitoring.subscriptions.{{@../key}}.diagnostic_settings.{{@key}}.diagnostic_exist"><samp>{{diagnostic_exist}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.loggingmonitoring.subscriptions.id.diagnostic_settings", $("#services\\.loggingmonitoring\\.subscriptions\\.id\\.diagnostic_settings\\.partial").html());
+</script>
+
+<!-- Single loggingmonitoring diagnostic template -->
+<script id="single_loggingmonitoring_diagnostic_settings-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.loggingmonitoring.subscriptions.id.diagnostic_settings'}}
+</script>
+<script>
+    var single_loggingmonitoring_diagnostic_settings_template = Handlebars.compile($("#single_loggingmonitoring_diagnostic_settings-template").html());
+</script><!-- Generic left-menu link partial for subscription-then-resource -->
+<script id="left_menu_for_subscription.partial" type="text/x-handlebars-template">
+  <div id="services.{{service_name}}.subscriptions.id.{{resource_type}}.list">
+  <div class="list-group" >
+    <div class="list-group-item">
+      <a href="javascript:updateHash('services.{{service_name}}.subscriptions.id.{{resource_type}}')">Show all <span class="badge float-right btn-info">{{getValueAt 'metadata' service_group service_name 'resources' resource_type 'count'}}</span></a>
+    </div>
+  </div>
+  {{#each items}}
+  <div class="list-group" id="services.{{../service_name}}.subscriptions.{{@key}}.{{../resource_type}}.list">
+    <div class="list-group-item active">
+      <a href="#services.{{../service_name}}.subscriptions.{{@key}}.{{../resource_type}}">{{@key}}</a>
+      <span class="float-right"><a href="javascript:hideList('services.{{../service_name}}.subscriptions.{{@key}}.{{../resource_type}}.list')"><i class="fa fa-times-circle"></i></a></span>
+    </div>
+    <div class="list-group-item">
+      {{#each (lookup . ../resource_type)}}
+      <div class="list-group-item list-sub-element" id="services.{{../../service_name}}.subscriptions.{{@../key}}.{{../../resource_type}}.{{@key}}.link">
+        {{#if scout2_link}}
+        <a href="#{{scout2_link}}.view">{{name}}</a>
+        {{else}}
+        <a href="#services.{{../../../service_name}}.subscriptions.{{@../key}}.{{../../../resource_type}}.{{@key}}.view">{{name}}</a>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/each}}
+  </div>
+</script>
+<script>
+    Handlebars.registerPartial("left_menu_for_subscription", $("#left_menu_for_subscription\\.partial").html());
+</script>
+
+
+<!-- aad groups -->
+<script id="services.aad.groups.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="aad.groups.{{@key}}.name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Type: <span id="aad.groups.{{@key}}.object_type"><samp>{{value_or_none object_type}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Mail Nickname: <span id="aad.groups.{{@key}}.mail_nickname"><samp>{{value_or_none mail_nickname}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Mail Status: <span id="aad.groups.{{@key}}.mail_enabled">{{convert_bool_to_enabled mail_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Mail: <span id="aad.groups.{{@key}}.mail"><samp>{{value_or_none mail}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Security Status: <span id="aad.groups.{{@key}}.security_enabled">{{convert_bool_to_enabled security_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Deletion Timestamp: <span id="aad.groups.{{@key}}.deletion_timestamp"><samp>{{value_or_none deletion_timestamp}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Role Assignments
+            {{> count_badge count=roles.length}}
+        </h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each roles}}
+                <li class="list-group-item-text"><a href="javascript:showObject('services.rbac.subscriptions.{{this.subscription_id}}.roles', 'id', '{{this.role_id}}')">{{getValueAt 'services.rbac.subscriptions' this.subscription_id 'roles' this.role_id 'name'}}</a> (subscription <samp>{{this.subscription_id}}</samp>)</li></a></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Members
+            {{> count_badge count=users.length}}
+        </h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each users}}
+                <li class="list-group-item-text"><a href="javascript:showObject('services.aad.users', 'id', '{{this}}')">{{getValueAt 'services.aad.users' this 'name'}}</a></li></a></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.aad.groups", $("#services\\.aad\\.groups\\.partial").html());
+</script>
+
+<!-- Single aad group template -->
+<script id="single_aad_group-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.aad.groups'}}
+</script>
+<script>
+    var single_aad_group_template = Handlebars.compile($("#single_aad_group-template").html());
+</script>
+
+<!-- Template for network attack surface -->
+<script id="service_groups.compute.summaries.external_attack_surface.details.template" type="text/x-handlebars-template">
+  {{> attack_surface service = 'Compute'}}
+</script>
+
+<!-- Template for network attack surface -->
+<script id="service_groups.database.summaries.external_attack_surface.details.template" type="text/x-handlebars-template">
+  {{> attack_surface service = 'Database'}}
+</script>
+
+<!-- Template for network attack surface -->
+<script id="attack_surface.partial" type="text/x-handlebars-template">
+  <div class="list-group" id="services.{{service}}.attack_surface.details">
+    <div class="list-group" id="services.{{service}}.attack_surface.view">
+       <div class="list-group" id="{{service}}_attack_surfaces.list">
+         <div class="row list-group-item active">
+           <div class="col-sm-6"><h4>Public IP/DNS</h4></div>
+           <div class="col-sm-6"><h4>Open ports</h4></div>
+         </div>
+         {{#each items}}
+           <div class="row list-group-item">
+             <div class="col-sm-6">Public Address: <samp>{{@key}}</samp></div>
+             {{#if this.InstanceName}}
+             <div class="col-sm-6">Instance Name: <samp>{{this.InstanceName}}</samp></div>
+             {{/if}}
+             {{#if this.PublicDnsName}}
+             <div class="col-sm-8">Public DNS Name: <samp>{{this.PublicDnsName}}</samp></div>
+             {{/if}}
+             <div class="col-sm-6">
+               <ul>
+               {{#each protocols ip = @key}}
+                 <li class="list-group-item-text">{{@key}}</li>
+                 <ul>
+                 {{#each ports}}
+                   <li>{{@key}}</li>
+                   {{> ip_grants items = cidrs}}
+                 {{/each}}
+                 </ul>
+               {{/each}}
+               </ul>
+             </div>
+           </div>
+         {{/each}}
+       </div>
+    </div>
+  </div>
+</script>
+<script>
+    Handlebars.registerPartial("attack_surface", $("#attack_surface\\.partial").html());
+</script>
+
+
+
+
+            <div class="modal-backdrop fade show" id="please-wait-backdrop"></div>
+            <div class="modal fade show" tabindex="-1" role="dialog" id="please-wait-modal" style="padding-right: 17px; display: block;" aria-modal="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Please wait</h5>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row list-group-item">
+                                <p>Loading data, this may take a while...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About-run dashboard -->
+            <script id="last_run.details.template" type="text/x-handlebars-template">
+                <h4>
+                    <div class="row std-size" id="last_run.details">
+                        <div class="list-group-item active ml-3">
+                            <div class="list-group-item-heading">Dashboard</div>
+                        </div>
+                        <div class="accordion" id="last_run">
+                            <a class="card">
+                                <div class="card-header card-header-dark">Service
+                                    <div class="col-sm-2 float-right" style="text-align: center">Checks</div>
+                                    <div class="col-sm-2 float-right" style="text-align: center">Findings</div>
+                                    <div class="col-sm-2 float-right" style="text-align: center">Rules</div>
+                                    <div class="col-sm-2 float-right" style="text-align: center">Resources</div>
+                                </div>
+                            </a>
+                            {{#each items.summary}}
+                            <div class="card finding-title finding-title-{{dashboard_color level rules_count rules_count}} plain-link">
+                                <a href="#services.{{@key}}.findings">
+                                    <div class="finding-title card-header">
+                                        <i class="fa finding-badge finding-badge-{{dashboard_color max_level checked_items flagged_items}}"></i>
+                                        {{makeTitle @key}}
+                                        <div class="col-sm-2 float-right" style="text-align: center">{{checked_items}}</div>
+                                        <div class="col-sm-2 float-right" style="text-align: center">{{flagged_items}}</div>
+                                        <div class="col-sm-2 float-right" style="text-align: center">{{rules_count}}</div>
+                                        <div class="col-sm-2 float-right" style="text-align: center">{{resources_count}}</div>
+                                    </div>
+                                </a>
+                            </div>
+                            {{/each}}
+                        </div>
+                    </div>
+                </h4>
+            </script>
+
+            <!-- Service-specific dashboards -->
+            <div class="row">
+                <div class="col-sm-12" id="services.id.findings.details">
+                    <script id="services.id.findings.details.template" type="text/x-handlebars-template">
+                        {{#each items}}
+                        {{> dashboard service_name = @key}}
+                        {{/each}}
+                    </script>
+                </div>
+            </div>
+
+        </div> <!-- /container -->
+
+        <!-- Bootstrap core JavaScript, placed at the end of the document so the pages load faster -->
+        <script src="inc-bootstrap/js/bootstrap.min.js"></script>
+
+        <!-- Display dashbord -->
+        <script>
+            loadMetadata();
+        </script>
+
+        <!-- Paging section -->
+        <div id="section_paging-div" style="display:flex;flex-direction:column">
+            <h2 id="section_paging-h2"></h2>
+            <div id="paging_buttons" style="margin:auto">
+                <button id="page_backward" type="button" class="btn btn-secondary" disabled><i class="fa fa-arrow-circle-left"></i> Back</button>
+                <button id="page_forward" type="button" class="btn btn-secondary">Next <i class="fa fa-arrow-circle-right"></i></button>                
+            </div>
+        </div>
+
+        <!-- Used by showPopup -->
+        <div id="modal-container" class="modal fade" tabindex="-1" role="dialog"></div>
+
+    </div>
+
+</body>
+
+
+</html>

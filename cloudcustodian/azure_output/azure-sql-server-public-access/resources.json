@@ -1,0 +1,23 @@
+[
+  {
+    "id": "/subscriptions/6f44395b-b9f9-450c-a20f-f354280c58bd/resourceGroups/misconfig-lab-rg/providers/Microsoft.Sql/servers/sqlopendf685f52",
+    "name": "sqlopendf685f52",
+    "type": "Microsoft.Sql/servers",
+    "location": "westus",
+    "tags": {},
+    "kind": "v12.0",
+    "properties": {
+      "administratorLogin": "sqladmin",
+      "version": "12.0",
+      "state": "Ready",
+      "fullyQualifiedDomainName": "sqlopendf685f52.database.windows.net",
+      "privateEndpointConnections": [],
+      "minimalTlsVersion": "1.2",
+      "publicNetworkAccess": "Enabled"
+    },
+    "resourceGroup": "misconfig-lab-rg",
+    "c7n:MatchedFilters": [
+      "properties.publicNetworkAccess"
+    ]
+  }
+]

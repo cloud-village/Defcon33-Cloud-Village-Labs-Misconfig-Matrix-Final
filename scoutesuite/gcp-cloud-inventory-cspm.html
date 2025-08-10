@@ -1,0 +1,2466 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Scout Report</title>
+
+    <!-- NCC favicon --> 
+    <link href="inc-scoutsuite/favicon.ico" rel="icon" type="image/x-icon">
+
+    <!-- Bootstrap core CSS -->
+    <link href="inc-bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap theme -->
+    <link id="bootstrap-theme" href="inc-bootstrap/css/bootstrap-light.min.css" rel="stylesheet">
+    
+    <!-- Fontawesome CSS -->
+    <link href="inc-fontawesome/css/all.min.css" rel="stylesheet">
+    <!-- Fallback fonts to solve CORS issue-->
+    <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- jQuery -->
+    <script src="inc-jquery/jquery-3.3.1.min.js"></script>
+
+    <!-- Handlebars -->
+    <script src="inc-handlebars/handlebars-v3.0.0.js"></script>
+
+    <!-- Scout -->
+    <script src="inc-scoutsuite/scoutsuite.js"></script>
+    <script src="inc-scoutsuite/pagination.js"></script>
+    <script src="inc-scoutsuite/provider.js"></script>
+    <script src="inc-scoutsuite/helpers.js"></script>
+    <link href="inc-scoutsuite/css/scoutsuite.css" rel="stylesheet">
+    <link id="scout-theme" href="inc-scoutsuite/css/scoutsuite-light.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!------------------>
+    <!-- Fixed navbar -->
+    <!------------------>
+
+    <div class="navbar fixed-top navbar-expand-md bg-primary" role="navigation" id="metadata.list"></div>
+
+    <!--------------->
+    <!-- Container -->
+    <!--------------->
+
+    <div class="container theme-showcase mt-5 pt-5" id="container-user">
+
+        <!-- AWS account ID -->
+        <div class="row justify-content-center" id="account_id.details">
+            <h4>
+                <div class="list-group-item-text std-size" onclick="toggle_element('scout_display_account_id_on_all_pages_form')" >
+                    <span id="account_id"></span>
+                </div>
+                <div id="scout_display_account_id_on_all_pages_form" class="list-group-item-text center std-size" style="text-align: center; display: none">
+                    <label><input id="scout_display_account_id_on_all_pages" type="checkbox" value="">Display account ID on all pages</label>
+                </div>
+            </h4>
+        </div>
+
+        <!-- Title section -->
+        <!--<div id="section_title-div">-->
+        <div id="section_title-div" style="display:flex;flex-direction:column;position:relative;">
+            <h2 id="section_title-h2"></h2>
+            <div id="findings_download_button" style="display:none;position:relative;margin-left:auto">
+                <button id="findings_download_csv_button" type="button" class="btn btn-secondary"><i class="fa fa-download"></i>CSV</button>
+                <button id="findings_download_json_button" type="button" class="btn btn-secondary"><i class="fa fa-download"></i>JSON</button>
+            </div>
+        </div>
+
+        <!-- One column container -->
+        <div class="row">
+            <div class="col-sm-12 w-100" id="single-column">
+            </div>
+
+            <!-- Two columns container -->
+            <div class="row w-100">
+                <div class="col-sm-3 w-100 text-overflow" id="double-column-left"></div>
+                <div class="col-sm-9 w-100 pr-0" id="double-column-right"></div>
+            </div>
+
+            <!-- Element to notify that we are reading a report in json format -->
+<script id="json_format" type="text/x-handlebars-template"></script>
+<script>
+    Handlebars.registerPartial("json_format", document.getElementById("json_format").innerHTML);
+</script>
+
+<!-- Results that need to be read from js files -->
+<script src="scoutsuite-results/scoutsuite_results_gcp-cloud-inventory-cspm.js"></script>
+<script src="scoutsuite-results/scoutsuite_exceptions_gcp-cloud-inventory-cspm.js"></script>
+<script id="last_run_details-template" type="text/x-handlebars-template">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Execution Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body m-3">
+                <div>
+                    <p><strong>Provider:</strong> {{provider_name}}</p>
+                    <p><strong>Time:</strong> {{format_date last_run.time}}</p>
+                    {{#if last_run.run_parameters.services}}
+                    <p><strong>Services:</strong> {{last_run.run_parameters.services}}</p>
+                    {{/if}}
+                    {{#if last_run.run_parameters.skipped_services}}
+                    <p><strong>Skipped Services:</strong> {{last_run.run_parameters.skipped_services}}</p>
+                    {{/if}}
+                    {{#if last_run.run_parameters.regions}}
+                    <p><strong>Regions:</strong> {{last_run.run_parameters.regions}}</p>
+                    {{/if}}
+                    <p><strong>Scout version:</strong> <samp>{{last_run.version}}</samp></p>
+                    <p><strong>Using ruleset</strong> <samp>{{last_run.ruleset_name}}</samp>:
+                    <p class="ml-4 mr-4 text-justify"><em>{{last_run.ruleset_about}}</em></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script>
+    var last_run_details_template = Handlebars.compile($("#last_run_details-template").html());
+</script><!-- Network interface partial -->
+<script id="network_interface.partial" type="text/x-handlebars-template" xmlns="http://www.w3.org/1999/html">
+  <div class="accordion">
+      <h5 class="list-group-item-heading accordion-heading"><samp>{{@key}}</samp>
+          <a class="accordion-toggle collapsed" data-toggle="collapse" href="#{{escape_dots (concat 'ec2.regions' region 'vpcs' vpc 'instances' instance_id 'network_interfaces' network_interface)}}">
+              <span class="badge float-right btn-info">Details</span>
+          </a>
+      </h5>
+      <div id="{{concat 'ec2.regions' region 'vpcs' vpc 'instances' instance_id 'network_interfaces' network_interface}}" class="accordion-body item-margin collapse">
+          <div class="accordion-inner">
+              <ul>
+                  {{#if Description}}<li class="list-group-item-text no-margin">Description: {{Description}}</li>{{/if}}
+                      {{#if Association}}
+                          <li class="list-group-item-text no-margin">Public IP: <samp>{{Association.PublicIp}}</samp></li>
+                  {{#if Association.PublicDnsName}}<li class="list-group-item-text no-margin">Public DNS: <samp>{{Association.PublicDnsName}}</samp></li>{{/if}}
+                  {{/if}}
+                  {{#if Attachment}}
+                  <li class="list-group-item-text no-margin">Attached to Instance: <samp>{{Attachment.InstanceId}}</samp></li>
+                  {{/if}}
+                  {{#if Ipv6Addresses}}
+                      <li class="list-group-item-text no-margin">IPv6 Addresses:</li>
+                      <ul>
+                          {{#each Ipv6Addresses}}
+                          <li class="list-group-item-text"><samp>{{Ipv6Address}}</samp></li>
+                          {{/each}}
+                      </ul>
+                  {{/if}}
+                  {{#each PrivateIpAddresses}}
+                  <li class="list-group-item-text no-margin">{{#if Primary}}Primary {{/if}}Private IP: <samp>{{PrivateIpAddress}}</samp></li>
+                  {{/each}}
+                  <li class="list-group-item-text no-margin">Security Groups:
+                      <ul>
+                          {{#each Groups}}
+                              <li><a href="javascript:showObject('services.ec2.regions.{{../region}}.vpcs.{{../vpc}}.security_groups.{{GroupId}}')">{{GroupName}}</a></li>
+                          {{/each}}
+                      </ul>
+                  </li>
+              </ul>
+          </div>
+      </div>
+  </div>
+</script>
+
+<script>
+  Handlebars.registerPartial("network_interface", $("#network_interface\\.partial").html());
+</script>
+
+<!-- Single instance template -->
+<script id="single_network_interface-template" type="text/x-handlebars-template">
+    {{> modal-template template='network_interface' name=network_interface}}
+</script>
+
+<script>
+  var single_ec2_network_interface_template = Handlebars.compile($("#single_network_interface-template").html());
+</script>
+    <!-- IP grant -->
+    <script id="ip_grants.partial" type="text/x-handlebars-template">
+      <ul>
+        {{#each items}}
+            <li class="list-group-item-text">
+                {{#if ../span_id_prefix}}
+                    <span id="{{../../span_id_prefix}}.{{@key}}.CIDR">
+                {{/if}}
+                {{CIDR}} {{#if CIDRName}}({{CIDRName}}){{/if}}
+                {{#if ../span_id_prefix}}
+                    </span>
+                {{/if}}
+            </li>
+        {{/each}}
+      </ul>
+    </script>
+    <script>
+        Handlebars.registerPartial("ip_grants", $("#ip_grants\\.partial").html());
+    </script>
+
+<script id="modal-template" type="text/x-handlebars-template">
+    {{#if name}}
+    <style>
+        .modal-dialog #resource-name { display: none; }        
+    </style>
+    {{/if}}
+
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{name}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {{> (lookup . 'template') }}
+            </div>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("modal-template", $("#modal-template").html());
+</script><!-- Accordion partial -->
+<script id="accordion.partial" type="text/x-handlebars-template">
+        <div class="accordion">
+            <h4 class="list-group-item-heading accordion-heading">
+                {{#if title_partial}}
+                    {{> (lookup . 'title_partial') item = this}}
+                {{else}}
+                    {{#if title}}
+                        {{title}}
+                    {{/if}}
+                {{/if}}
+                {{> count_badge count=items.length target=(concat '#' (escape_dots accordion_id))}}
+            </h4>
+            <div id="{{accordion_id}}" class="accordion-body">
+                <div class="accordion-inner">
+                    <ul class="no-bullet">
+                        {{#each items}}
+                            <li>
+                                {{#if ../item_partial}}
+                                    {{> (lookup ../.. 'item_partial') region = ../../region vpc = ../../vpc item = this}}
+                                {{else}}
+                                    {{this}}
+                                {{/if}}
+                            </li>
+                        {{/each}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+</script>
+<script>
+    Handlebars.registerPartial("accordion", $("#accordion\\.partial").html());
+</script>
+
+    <!-- Generic object partial -->
+    <script id="generic_object.partial" type="text/x-handlebars-template">
+        <ul>
+            {{#each this}}
+                <li class="list-group-item-text no-margin">{{@key}}:
+                {{#ifType this 'object'}}
+                    {{> generic_object this}}
+                {{else}}
+                    {{this}}
+                {{/ifType}}
+                </li>
+            {{/each}}
+        </ul>
+    </script>
+    <script>
+      Handlebars.registerPartial("generic_object", $("#generic_object\\.partial").html());
+    </script>
+
+<!-- Dashboard partial -->
+<script id="services.id.findings.partial" type="text/x-handlebars-template">
+<div class="row" id="services.{{service_name}}.findings.row">
+    <div class="col-sm-12" id="services.{{service_name}}.findings.list">
+        <div class="form-group container row">
+        <div class="col-sm-4">
+            <input class="form-control dashboard-filter" type="text" id="dashboardFilter" placeholder="Filter findings">
+        </div>
+        <div class="col-sm-2">
+            <button class="form-control btn btn-light" id="finding-title">Show All</button>
+        </div>
+        <div class="col-sm-2">
+            <button class="form-control btn btn-success" id="finding-title-good">Good</button>
+        </div>
+        <div class="col-sm-2">
+            <button class="form-control btn btn-warning" id="finding-title-warning">Warning</button>
+        </div>
+        <div class="col-sm-2">
+            <button class="form-control btn btn-danger" id="finding-title-danger">Danger</button>
+        </div>
+        </div>
+
+        <ul class="list-group accordion">
+            {{#each_dict_as_sorted_list findings}}
+                <div id="list-{{key}}" class="card finding_items">
+                <div class="card-header row finding-title finding-title-{{dashboard_color level checked_items flagged_items}} plain-link">
+                    <div class="col-sm-11">
+                        <i class="fa finding-badge finding-badge-{{dashboard_color level checked_items flagged_items}}"></i>
+                        <a href="#services.{{../service_name}}.findings.{{key}}.items">{{description}}</a>
+                    </div>
+                    <div class="col-sm-1">
+                        <button class="finding btn fa collapsed" style="background-color:transparent" data-toggle="collapse" data-target="#item-{{key}}" aria-expanded="false" aria-controls="item-{{key}}"></button>
+                    </div>
+                </div>
+                <div class="collapse" id="item-{{key}}" aria-labelledby="item-{{key}}" data-parent="#list-{{key}}">
+                    <div class="card-body row">
+                        <div class="col-sm-9">
+                            <b>Description</b><br>
+                            {{#if rationale}}
+                                <p>{{{rationale}}}</p>
+                            {{else}}
+                                <p>No description available.</p>
+                            {{/if}}
+                            {{#if remediation}}
+                                <b>Remediation</b><br>
+                                <p>{{{remediation}}}</p>
+                            {{/if}}
+                            {{#if compliance}}
+                            <b>Compliance</b><br>
+                            <ul>
+                                {{#each compliance}}
+                                <li>{{this.name}} version {{this.version}}, reference {{this.reference}}</li>
+                                {{/each}}
+                            </ul>
+                            <br>
+                            {{/if}}
+                            {{#if references}}
+                                <b>References</b><br>
+                                <ul>
+                                    {{#each references}}
+                                    <li><a href="{{this}}">{{this}}</a></li>
+                                    {{/each}}
+                                </ul>
+                            {{/if}}
+                        </div>
+                        <div class="col-sm-3">
+                            <ul>
+                                <li>{{dashboard_name}} checked: {{checked_items}}</li>
+                                <li>{{dashboard_name}} flagged: {{flagged_items}}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{/each_dict_as_sorted_list}}
+        </ul>
+
+    </div>
+</div>
+</script>
+<script>
+Handlebars.registerPartial("dashboard", $("#services\\.id\\.findings\\.partial").html());
+</script>
+<script>
+    // Dashboard filtering
+    $(document).ready(function(){
+        // Filter by text search
+        $(".dashboard-filter").on("keyup", function() {
+            var value = $(this).val().toLowerCase()
+            $(".finding_items").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            })
+        })
+
+        // Filter by button
+        $('.btn').click(function() {
+            var value = $(this).attr('id')
+            if (value.indexOf('finding-title') > -1){
+                $(".finding_items").filter(function() {
+                    $(this).toggle($(this).find(">:first-child").attr("class").indexOf(value) > -1)
+                });
+            }
+            $(".dashboard-filter").val("")
+        })
+    })
+</script>
+    <!-- Policy partial -->
+    <script id="policy.partial" type="text/x-handlebars-template">
+        <pre class="code">{{jsonToString document}}</pre>
+    </script>
+    <script>
+      Handlebars.registerPartial("policy", $("#policy\\.partial").html());
+    </script>
+
+  <!-- Generic partial for resource -->
+  <script id="details.partial" type="text/x-handlebars-template">
+    <div id="services.{{service_name}}.{{resource_type}}.details">
+      {{#each items}}
+        <div class="list-group" id="services.{{../service_name}}.{{../resource_type}}.{{@key}}.view">
+          {{> (lookup .. 'partial_name') service_name = ../service_name resource_type = ../resource_type resource_key = @key resource = this}}
+        </div>
+      {{/each}}
+    </div>
+  </script>
+  <script>
+    Handlebars.registerPartial("details", $("#details\\.partial").html());
+  </script>
+
+<!-- Filters -->
+<script id="filters.list.template" type="text/x-handlebars-template">
+  {{#each items}}
+    {{#each filters}}   
+      <li id="services.{{display_path}}.filters"><a class="dropdown-item" href="#services.{{@../key}}.filters.{{@key}}.items">{{description}}</a></li>
+    {{/each}}
+  {{/each}}
+</script>
+<script id="count_badge.partial" type="text/x-handlebars-template">
+    {{#ifPositive count}}
+        <span class="badge float-right badge-dark">{{count}}</span>
+    {{else}}
+        <span class="badge float-right badge-light disabled">0</span>
+    {{/ifPositive}}
+</script>
+
+<script>
+    Handlebars.registerPartial("count_badge", $("#count_badge\\.partial").html());
+</script>
+<!-- Single Redshift cluster template -->
+<script id="single_redshift_cluster-template" type="text/x-handlebars-template">
+    {{> modal-template template='redshift_cluster'}}
+</script>
+<script>
+    var single_redshift_cluster_template = Handlebars.compile($("#single_redshift_cluster-template").html());
+</script>
+
+<!-- Generic left-menu link partial for resources -->
+<script id="left_menu.partial" type="text/x-handlebars-template">
+  <div id="services.{{service_name}}.{{resource_type}}.list">
+    <div class="list-group" >
+      <div class="list-group-item">
+        <a href="#services.{{service_name}}.{{resource_type}}">Show all <span class="badge float-right">{{items.length}}</span></a>
+      </div>
+    </div>
+    <div class="list-group">
+      {{#each items}}
+      <div class="list-group-item" id="services.{{../service_name}}.{{../resource_type}}.{{id}}.link">
+        <a href="#services.{{../service_name}}.{{../resource_type}}.{{id}}.view">{{name}}</a>
+      </div>
+      {{/each}}
+    </div>
+</script>
+<script>
+    Handlebars.registerPartial("left_menu", $("#left_menu\\.partial").html());
+</script>
+
+<footer id="report-footer">
+    <div>
+        <p>Scout Suite is an open-source tool released by <a href="https://www.nccgroup.trust" rel="author" target="_blank">NCC Group</a>
+            <img src="inc-scoutsuite/favicon.ico" rel="icon" type="image/x-icon" alt="Red dot" />
+        </p>
+    </div>
+</footer>
+
+  <!-- Generic partial for region-then-resource -->
+  <script id="details_for_region.partial" type="text/x-handlebars-template">
+    <div id="services.{{service_name}}.regions.id.{{resource_type}}.details">
+      {{#each items}}
+        {{#each (lookup . ../resource_type)}}
+          <div class="list-group" id="services.{{../../service_name}}.regions.{{@../key}}.{{../../resource_type}}.{{@key}}.view">
+            {{> (lookup ../.. 'partial_name') service_name = ../../service_name region = @../key resource_type = ../../resource_type resource_key = @key resource = this}}
+          </div>
+        {{/each}}
+      {{/each}}
+    </div>
+  </script>
+  <script>
+    Handlebars.registerPartial("details_for_region", $("#details_for_region\\.partial").html());
+  </script>
+
+    <!-- Policy partial -->
+    <script id="accordion_policy.partial" type="text/x-handlebars-template">
+      <div class="accordion">
+          <{{#if heading}}{{heading}}{{else}}h5{{/if}} class="list-group-item-heading accordion-heading">{{#samp}}<samp>{{/samp}}{{name}}{{#samp}}</samp>{{/samp}}
+              <a class="accordion-toggle collapsed" data-toggle="collapse" href="#{{escape_dots policy_path}}">
+                  <span class="badge float-right btn-info">Details</span>
+              </a>
+          </{{#if heading}}{{heading}}{{else}}h5{{/if}}>
+        <div id="{{policy_path}}" class="accordion-body item-margin collapse">
+          <div class="accordion-inner">
+              <code>
+                  {{> policy}}
+              </code>
+          </div>
+        </div>
+      </div>
+    </script>
+    <script>
+      Handlebars.registerPartial("accordion_policy", $("#accordion_policy\\.partial").html());
+    </script>
+    <!-- Generic link to other resources -->
+    <script id="resource_link.partial" type="text/x-handlebars-template">
+        <a href="javascript:showObject('{{resource_path}}')">
+            {{getValueAt resource_path 'name'}}
+        </a>
+    </script>
+    <script>
+        Handlebars.registerPartial("resource_link", $("#resource_link\\.partial").html());
+    </script>
+  <!-- Generic partial for region-then-vpc-then-resource -->
+  <script id="details_for_vpc.partial" type="text/x-handlebars-template">
+    <div id="services.{{service_name}}.regions.id.vpcs.id.{{resource_type}}.details">
+      {{#each items}}
+        {{#each vpcs}}
+          {{#each (lookup . ../../resource_type)}}
+            <div class="list-group" id="services.{{../../../service_name}}.regions.{{@../../key}}.vpcs.{{@../key}}.{{../../../resource_type}}.{{@key}}.view">
+              {{> (lookup ../../.. 'partial_name') service_name = ../../../service_name region = @../../key vpc = @../key resource_type = ../../../resource_type resource_key = @key resource = this}}
+            </div>
+          {{/each}}
+        {{/each}}
+      {{/each}}
+    </div>
+  </script>
+  <script>
+    Handlebars.registerPartial("details_for_vpc", $("#details_for_vpc\\.partial").html());
+  </script>
+
+
+    <!-- EC2 grant -->
+    <script id="ec2_grants.partial" type="text/x-handlebars-template">
+      <ul>
+        {{#each items}}
+          <li class="list-group-item-text">
+            <span id="ec2.regions.{{../region}}.vpcs.{{../vpc}}.security_groups.{{../sg_id}}.rules.{{../direction}}.protocols.{{../protocol}}.ports.{{../ports}}.security_groups.{{@key}}">
+              {{#if GroupName}}
+                {{GroupName}} (<a href="javascript:findAndShowEC2Object('regions.vpcs.security_groups', '{{GroupId}}')">{{GroupId}}</a>)
+              {{else}}
+                {{GroupId}} (AWS account ID {{UserId}})
+              {{/if}}
+            </span>
+          </li>
+        {{/each}}
+      </ul>
+    </script>
+    <script>
+        Handlebars.registerPartial("ec2_grants", $("#ec2_grants\\.partial").html());
+    </script>
+
+<!-- Per Service Type navigation bar -->
+<script id="metadata.list.template" type="text/x-handlebars-template">
+      <div class="container">
+        <div class="navbar-header">
+          <span class="navbar-brand"><a id="scoutsuite_navbar" class="text-white" href="javascript:showMainDashboard()">Scout</a></span>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                {{#each items}}
+                <li id="{{@key}}_navbar" class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown">{{makeTitle @key}}</a>
+                    <ul class="dropdown-menu" role="button">
+                        {{#if summaries}}
+                            <li class="dropdown-submenu">
+                                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">Summaries</a>
+                                <ul class="dropdown-menu">
+                                    {{#each summaries}}
+                                    <li><a class="dropdown-item nav-link" href="#{{path}}" id="{{@key}}_subnavbar">{{makeTitle @key}}</a></li>
+                                    {{/each}}
+                                </ul>
+                                <div class="dropdown-divider"></div>
+                            </li>
+                        {{/if}} 
+
+                        {{#each this}} {{#unlessEqual @key 'summaries'}} {{#unless hidden}}
+                            <li class="dropdown-submenu">
+                                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">{{ makeTitle @key }}</a>
+                                <ul class="dropdown-menu">
+                                    <li class="dropdown-header">Summaries</li>
+                                    <li><a class="dropdown-item" href="#services.{{@key}}.findings" id="{{@key}}_subnavbar">Dashboard</a></li>
+                                    {{#each summaries}} {{#if risks}}
+                                        <li class="dropdown-submenu"><a href="#{{path}}" id="{{@key}}_subnavbar">{{makeTitle @key}}</a>
+                                            <ul class="dropdown-menu">
+                                                <li class="dropdown-header">Security risks</li>
+                                                {{#each risks}}
+                                                <li><a class="dropdown-item" href="#services.{{@../../key}}.findings.{{this}}.items" id="{{@key}}_subnavbar">
+                                                    {{getValueAt 'services' @../../key 'findings' this 'description'}}
+                                                </a></li>
+                                                {{/each}}
+                                            </ul>
+                                        </li>
+                                    {{else}}
+                                        <li><a class="dropdown-item" href="#{{path}}" id="{{@key}}_subnavbar">{{makeTitle @key}}</a></li>
+                                    {{/if}} {{/each}}
+
+                                    <li class="dropdown-divider"></li>
+                                    <li class="dropdown-header">{{makeTitle @key}} config</li>
+                                    {{#each resources}} {{#unless hidden}} {{#if risks}}
+                                        <li class="dropdown-submenu"><a href="#{{path}}" id="{{@key}}_subnavbar">{{makeTitle @key}} ({{count}})</a>
+                                            <ul class="dropdown-menu">
+                                                <li class="dropdown-header">Security risks</li>
+                                                {{#each risks}}
+                                                <li><a class="dropdown-item" href="#services.{{@../../key}}.findings.{{this}}.items" id="{{@key}}_subnavbar">
+                                                    {{getValueAt 'services' @../../key 'findings' this 'description'}}
+                                                </a></li>
+                                                {{/each}}
+                                            </ul>
+                                        </li>
+                                    {{else}} {{#if count}}
+                                        <li><a class="dropdown-item" href="#{{path}}" id="{{@key}}_subnavbar">{{makeTitle @key}} ({{count}})</a></li>
+                                    {{else}}
+                                        <li class="disabled"><a class="dropdown-item disabled" href="">{{makeTitle @key}}</a></li>
+                                    {{/if}} {{/if}} {{/unless}} {{/each}}
+                                </ul>
+                            </li>
+                        {{/unless}} {{/unlessEqual}} {{/each}}
+                    </ul>
+                </li>
+                {{/each}}
+            </ul>
+
+            <ul class="nav navbar-nav ml-auto">
+              <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Filters</a>
+                <ul class="dropdown-menu" id="filters.list">
+                </ul>
+              </li>
+              <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="javascript:showLastRunDetails()">Execution Details</a></li>
+                  <li><a class="dropdown-item" href="javascript:showResourcesDetails()">Resources Details</a></li>
+                  <li><a class="dropdown-item" href="javascript:downloadExceptions()">Export Exceptions</a><a id="downloadAnchorElem" style="display:none"></a></li>
+                  <li><a class="dropdown-item" href="javascript:exportSummary()">Export Summary</a></li>
+                    <li><a class="dropdown-item" href="javascript:showAbout()">About Scout</a></li>
+                  <li><span>Dark theme</span>
+                    <label class="switch">
+                      <input type="checkbox" id="theme_checkbox" onclick="toggleTheme()">
+                      <span class="slider round"></span>
+                    </label></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+      </div>
+  </script>
+
+<script src="inc-scoutsuite/theme.js"></script>
+<script>
+    loadLastTheme();
+    if (isDarkThemeEnabled() && document.getElementById("theme_checkbox")) {
+        document.getElementById("theme_checkbox").checked = true;
+    }
+</script>
+<script id="about_scoutsuite-template" type="text/x-handlebars-template">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">About Scout Suite</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body m-3">
+                <div>
+                    <p>Scout Suite is an open-source tool released by <a href="https://www.nccgroup.trust" rel="author" target="_blank">NCC Group</a>.</p>
+                    <p>Use the top navigation bar to review the configuration of the supported cloud provider services.</p>
+                    <p>
+                        For more information about Scout Suite, please check out the project's page on
+                        <a href="https://github.com/nccgroup/ScoutSuite" target="_blank">GitHub</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script>
+    var about_scoutsuite_template = Handlebars.compile($("#about_scoutsuite-template").html());
+</script><script id="resources_details-template" type="text/x-handlebars-template">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Resources Details
+                    <button id="resources_details_download_csv_button" type="button" class="btn btn-secondary"><i class="fa fa-download"></i>CSV</button>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body m-3">
+                <div>
+                    <table class="table">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Service</th>
+                            <th scope="col">Resource</th>
+                            <th scope="col">#</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{#each metadata}}
+                            {{#each this}}
+                                {{#each this.resources}}
+                                    <tr>
+                                        {{#if this.count}}
+                                            <th>{{makeTitle @../key}}</th>
+                                            <th>{{makeTitle @key}}</th>
+                                            <th>{{this.count}}</th>
+                                        {{/if}}
+                                    </tr>
+                                {{/each}}
+                            {{/each}}
+                        {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+</script>
+
+<script>
+    var resources_details_template = Handlebars.compile($("#resources_details-template").html())
+</script>
+
+<!-- Compute Engine networks partial -->
+<script id="services.computeengine.projects.id.networks.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="computeengine.projects.{{@../key}}.networks.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">ID: <span id="computeengine.projects.{{@../key}}.networks.{{@key}}.id">{{id}}</span></div>
+        <div class="list-group-item-text item-margin">Project ID: <span id="computeengine.projects.{{@../key}}.networks.{{@key}}.project_id">{{project_id}}</span></div>
+        <div class="list-group-item-text item-margin">Description: <span id="computeengine.projects.{{@../key}}.networks.{{@key}}.description"><samp>{{description}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Creation Date: <span id="computeengine.projects.{{@../key}}.networks.{{@key}}.creation_timestamp">{{format_date creation_timestamp}}</span></div>
+        <div class="list-group-item-text item-margin">Legacy Mode: <span id="computeengine.projects.{{@../key}}.networks.{{@key}}.legacy_mode">{{ legacy_mode}}</span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading accordion-heading">Firewall Rules
+            {{> count_badge count=(count_vpc_instances firewalls) target=(concat '#services.computeengine.projects' project 'networks' @key 'firewalls')}}
+        </h4>
+        <div id="computeengine.projects.{{@../key}}.networks.{{@key}}.firewalls" class="accordion-body">
+            <div class="accordion-inner">
+                <ul>
+                    {{#each firewalls}}
+                    <li><a href="javascript:showObject('services.computeengine.projects.{{@../../key}}.firewalls.{{this}}')">{{getValueAt 'services.computeengine.projects' @../../key 'firewalls' this 'name'}}</a></li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading accordion-heading">Compute Engine Instances
+            {{> count_badge count=(count_vpc_instances instances) target=(concat '#services.computeengine.projects' project 'neworks' @key 'instances')}}
+        </h4>
+        <div id="computeengine.projects.{{@../key}}.networks.{{@key}}.instances" class="accordion-body">
+            <div class="accordion-inner">
+                <ul>
+                    {{#each instances}}
+                    <li><a href="javascript:showObject('services.computeengine.projects.{{@../../key}}.zones.{{instance_zone}}.instances.{{instance_id}}')">{{getValueAt 'services.computeengine.projects' @../../key 'zones' instance_zone 'instances' instance_id 'name'}}</a></li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.computeengine.projects.id.networks", $("#services\\.computeengine\\.projects\\.id\\.networks\\.partial").html());
+</script>
+
+<!-- Single computeengine network template -->
+<script id="single_computeengine_network-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.computeengine.projects.id.networks'}}
+</script>
+<script>
+    var single_computeengine_network_template = Handlebars.compile($("#single_computeengine_network-template").html());
+</script>
+
+<!-- Compute Engine snapshots partial -->
+<script id="services.computeengine.projects.id.snapshots.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="computeengine.projects.{{@../key}}.snapshots.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">Project ID: <span id="computeengine.projects.{{project}}.groups.{{@key}}.project_id"><samp>{{project}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Description: <span id="computeengine.projects.{{@../key}}.snapshots.{{@key}}.description"><samp>{{description}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Creation Date: <span id="computeengine.projects.{{@../key}}.snapshots.{{@key}}.creation_timestamp">{{format_date creation_timestamp}}</span></div>
+        <div class="list-group-item-text item-margin">Status: <span id="computeengine.projects.{{@../key}}.snapshots.{{@key}}.status">{{status}}</span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.computeengine.projects.id.snapshots", $("#services\\.computeengine\\.projects\\.id\\.snapshots\\.partial").html());
+</script>
+
+<!-- Single computeengine snapshot template -->
+<script id="single_computeengine_snapshot-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.computeengine.projects.id.snapshots'}}
+</script>
+<script>
+    var single_computeengine_snapshot_template = Handlebars.compile($("#single_computeengine_snapshot-template").html());
+</script>
+
+<!-- Compute Engine subnetworks partial -->
+<script id="services.computeengine.projects.id.regions.id.subnetworks.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.subnetworks.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">ID: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.subnetworks.{{@key}}.id">{{id}}</span></div>
+        <div class="list-group-item-text item-margin">Project ID: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.subnetworks.{{@key}}.project_id">{{project_id}}</span></div>
+        <div class="list-group-item-text item-margin">Region: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.subnetworks.{{@key}}.region"><samp>{{region}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Creation Date: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.subnetworks.{{@key}}.creation_timestamp">{{format_date creation_timestamp}}</span></div>
+        <div class="list-group-item-text item-margin">IP Range: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.subnetworks.{{@key}}.ip_range"><samp>{{ip_range}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Gateway Address: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.subnetworks.{{@key}}.gateway_address"><samp>{{gateway_address}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Private Google Access: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.subnetworks.{{@key}}.private_ip_google_access_disabled">{{convert_bool_to_enabled private_ip_google_access}}</span></div>
+        <div class="list-group-item-text item-margin">VPC Flow Logs: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.subnetworks.{{@key}}.flowlogs_enabled">{{flowlogs_enabled}}</span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading accordion-heading">Compute Engine Instances
+            {{> count_badge count=(count_vpc_instances instances) target=(concat '#services.compouteengine.projects' project 'regions' @../../key 'subnetworks' @key 'instances')}}
+        </h4>
+        <div id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.subnetworks.{{@key}}..instances" class="accordion-body">
+            <div class="accordion-inner">
+                <ul>
+                    {{#each instances}}
+                    <li><a href="javascript:showObject('services.computeengine.projects.{{@../../../key}}.zones.{{instance_zone}}.instances.{{instance_id}}')">{{getValueAt 'services.computeengine.projects' @../../../key 'zones' instance_zone 'instances' instance_id 'name'}}</a></li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.computeengine.projects.id.regions.id.subnetworks", $("#services\\.computeengine\\.projects\\.id\\.regions\\.id\\.subnetworks\\.partial").html());
+</script>
+
+<!-- Single computeengine subnetwork template -->
+<script id="single_computeengine_subnetwork-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.computeengine.projects.id.regions.id.subnetworks'}}
+</script>
+<script>
+    var single_computeengine_subnetwork_template = Handlebars.compile($("#single_computeengine_subnetwork-template").html());
+</script>
+
+<!-- Cloud Resources Manager users' partial -->
+<script id="services.iam.projects.id.users.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">User: <span id="iam.projects.{{@../key}}.users.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">Project ID: <span id="iam.projects.{{project}}.users.{{@key}}.project_id"><samp>{{project}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Bindings:</h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each roles}}
+                <li><samp>{{this}}</samp></li>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.iam.projects.id.users", $("#services\\.iam\\.projects\\.id\\.users\\.partial").html());
+</script>
+
+<!-- Single iam user template -->
+<script id="single_iam_user-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.iam.projects.id.users'}}
+</script>
+<script>
+    var single_iam_user_template = Handlebars.compile($("#single_iam_user-template").html());
+</script>
+
+<!-- Stackdriver Logging metrics partial -->
+<script id="services.stackdriverlogging.projects.id.metrics.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="stackdriverlogging.projects.{{@../key}}.metrics.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">Project ID: <span id="stackdriverlogging.projects.{{project}}.keyrings.{{@key}}.project_id"><samp>{{project}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Description: <span id="stackdriverlogging.projects.{{@../key}}.metrics.{{@key}}.description"><samp>{{value_or_none description}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Filter: <span id="stackdriverlogging.projects.{{@../key}}.metrics.{{@key}}.filter"><code>{{filter}}</code></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.stackdriverlogging.projects.id.metrics", $("#services\\.stackdriverlogging\\.projects\\.id\\.metrics\\.partial").html());
+</script>
+
+<!-- Single stackdriverlogging metric template -->
+<script id="single_stackdriverlogging_metric-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.stackdriverlogging.projects.id.metrics'}}
+</script>
+<script>
+    var single_stackdriverlogging_metric_template = Handlebars.compile($("#single_stackdriverlogging_metric-template").html());
+</script>
+<!-- functions functions_v2 -->
+<script id="services.functions.projects.id.functions_v2.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="functions.projects.{{project}}.functions_v2.{{@key}}.name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Status: <span id="functions.projects.{{project}}.functions_v2.{{@key}}.status"><samp>{{value_or_none status}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Update Time: <span id="functions.projects.{{project}}.functions_v2.{{@key}}.update_time"><samp>{{value_or_none update_time}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Version: <span id="functions.projects.{{project}}.functions_v2.{{@key}}.version_id"><samp>{{value_or_none version_id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Runtime: <span id="functions.projects.{{project}}.functions_v2.{{@key}}.runtime"><samp>{{value_or_none runtime}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Memory: <span id="functions.projects.{{project}}.functions_v2.{{@key}}.memory"><samp>{{value_or_none memory}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Max Instances: <span id="functions.projects.{{project}}.functions_v2.{{@key}}.max_instances"><samp>{{value_or_none max_instances}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Service Account: <span id="functions.projects.{{project}}.functions_v2.{{@key}}.service_account"><samp>{{value_or_none service_account}}</samp></span></div>
+        <div class="list-group-item-text item-margin" id="functions.projects.{{project}}.functions_v2.{{@key}}.environment_variables">Environment Variables
+            {{#if environment_variables}}
+            <ul>
+                {{#each environment_variables}}
+                <li><samp>{{@key}}: {{this}}</samp></li>
+                {{/each}}
+            </ul>
+            {{else}}
+            <span>None</span>
+            {{/if}}
+        </div>
+        {{#if environment_variables_secrets}}
+        <div class="list-group-item-text item-margin" id="functions.projects.{{project}}.functions_v2.{{@key}}.environment_variables_secrets">Environment Variables Secrets (Potential)
+            <ul>
+                {{#each environment_variables_secrets}}
+                <li><samp>{{this}}</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+        {{/if}}
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Trigger</h4>
+        <div class="list-group-item-text item-margin">URL: <span id="functions.projects.{{project}}.functions_v2.{{@key}}.url"><samp>{{value_or_none url}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Ingress Settings: <span id="functions.projects.{{project}}.functions_v2.{{@key}}.ingress_settings"><samp>{{value_or_none ingress_settings}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading"><span id="functions.projects.{{project}}.functions_v2.{{@key}}.bindings">Bindings:</span></h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each bindings}}
+                <li>Role <samp>{{role}}</samp></li>
+                <ul>
+                    {{#each members}}
+                    <li><samp>{{this}}</samp></li>
+                    {{/each}}
+                </ul>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.functions.projects.id.functions_v2", $("#services\\.functions\\.projects\\.id\\.functions_v2\\.partial").html());
+</script>
+
+<!-- Single functions function_v2 template -->
+<script id="single_functions_function_v2-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.functions.projects.id.functions_v2'}}
+</script>
+<script>
+    var single_functions_function_v2_template = Handlebars.compile($("#single_functions_function_v2-template").html());
+</script>
+
+<!-- Cloud Resources Manager groups' partial -->
+<script id="services.iam.projects.id.groups.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Group: <span id="iam.projects.{{@../key}}.groups.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">Project ID: <span id="iam.projects.{{project}}.groups.{{@key}}.project_id"><samp>{{project}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Bindings:</h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each roles}}
+                <li><samp>{{this}}</samp></li>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.iam.projects.id.groups", $("#services\\.iam\\.projects\\.id\\.groups\\.partial").html());
+</script>
+
+<!-- Single iam group template -->
+<script id="single_iam_group-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.iam.projects.id.groups'}}
+</script>
+<script>
+    var single_iam_group_template = Handlebars.compile($("#single_iam_group-template").html());
+</script>
+
+<!-- Compute Engine firewalls partial -->
+<script id="services.computeengine.projects.id.firewalls.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Firewall name: <span id="computeengine.projects.{{@../key}}.firewalls.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">Project ID: <span id="computeengine.projects.{{@../key}}.instances.{{@key}}.project_id"><samp>{{project_id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Description: <span id="computeengine.projects.{{@../key}}.firewalls.{{@key}}.description"><samp>{{description}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Disabled: <span id="computeengine.projects.{{@../key}}.firewalls.{{@key}}.disabled"><samp>{{disabled}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Network: <span id="computeengine.projects.{{@../key}}.firewalls.{{@key}}.network"><a href="javascript:showObject('services.computeengine.projects.{{@../key}}.networks.{{network_id}}')">{{getValueAt 'services.computeengine.projects' @../key 'networks' network_id 'name'}}</a></span></div>
+        <div class="list-group-item-text item-margin">Creation Date: <span id="computeengine.projects.{{@../key}}.firewalls.{{@key}}.creation_timestamp">{{format_date creation_timestamp}}</span></div>
+        <div class="list-group-item-text item-margin">Priority: <span id="computeengine.projects.{{@../key}}.firewalls.{{@key}}.priority"><samp>{{priority}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Logs: <span id="computeengine.projects.{{@../key}}.firewalls.{{@key}}.logs"><samp>{{convert_bool_to_enabled logs}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Configuration</h4>
+        <div class="list-group-item-text item-margin">Direction: <span id="computeengine.projects.{{@../key}}.firewalls.{{@key}}.direction"><samp>{{direction}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Action: <span id="computeengine.projects.{{@../key}}.firewalls.{{@key}}.action"><samp>{{action}}</samp></span></div>
+        {{#if source_ranges}}
+        <div class="list-group-item-text item-margin"><span id="computeengine.projects.{{@../key}}.firewalls.{{@key}}.source_ranges">Source Ranges:</span></div>
+        <ul>
+            {{#each source_ranges}}
+            <li><samp>{{this}}</samp></li>
+            {{else}}
+            <li><samp>None</samp></li>
+            {{/each}}
+        </ul>
+        {{/if}}
+        {{#if destination_ranges}}
+        <div class="list-group-item-text item-margin"><span id="computeengine.projects.{{@../key}}.firewalls.{{@key}}.destination_ranges">Destination Ranges:</span></div>
+        <ul>
+            {{#each destination_ranges}}
+            <li><samp>{{this}}</samp></li>
+            {{else}}
+            <li><samp>None</samp></li>
+            {{/each}}
+        </ul>
+        {{/if}}
+        {{#if source_tags}}
+        <div class="list-group-item-text item-margin">Source Tags:</div>
+        <ul>
+            {{#each source_tags}}
+            <li><samp>{{this}}</samp></li>
+            {{else}}
+            <li><samp>None</samp></li>
+            {{/each}}
+        </ul>
+        {{/if}}
+        {{#if target_tags}}
+        <div class="list-group-item-text item-margin">Target Tags:</div>
+        <ul>
+            {{#each target_tags}}
+            <li><samp>{{this}}</samp></li>
+            {{else}}
+            <li><samp>None</samp></li>
+            {{/each}}
+        </ul>
+        {{/if}}
+    </div>
+    <div class="list-group-item">
+        {{#ifEqual action "allowed"}}
+            <h4 class="list-group-item-heading"><span id="computeengine.projects.{{@../key}}.firewalls.{{@key}}.allowed_traffic">Allowed Traffic</span></h4>
+            <ul>
+                {{#each allowed_traffic}}
+                    <li><samp>{{@key}}</samp></li>
+                    <ul>
+                    {{#each this}}
+                        <li><span id="computeengine.projects.{{@../../../key}}.firewalls.{{@../../key}}.allowed_traffic.{{@../key}}.{{@key}}.permissive_ports"><samp>{{this}}</samp></span></li>
+                    {{else}}
+                        <li><samp>None</samp></li>
+                    {{/each}}
+                    </ul>
+                {{else}}
+                    <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        {{else}}
+            <h4 class="list-group-item-heading"><span id="computeengine.projects.{{@../key}}.firewalls.{{@key}}.denied_traffic">Denied Traffic</span></h4>
+            <ul>
+                {{#each denied_traffic}}
+                    <li><samp>{{@key}}</samp></li>
+                    <ul>
+                        {{#each this}}
+                            <li><span id="computeengine.projects.{{@../../../key}}.firewalls.{{@../../key}}.allowed_traffic.{{@../key}}.{{@key}}.permissive_ports"><samp>{{this}}</samp></span></li>
+                        {{else}}
+                            <li><samp>None</samp></li>
+                        {{/each}}
+                    </ul>
+                {{else}}
+                    <li><samp>None</samp></li>
+                {{/each}}
+            </ul> {{/ifEqual}}
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.computeengine.projects.id.firewalls", $("#services\\.computeengine\\.projects\\.id\\.firewalls\\.partial").html());
+</script>
+
+<!-- Single computeengine firewall template -->
+<script id="single_computeengine_firewall-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.computeengine.projects.id.firewalls'}}
+</script>
+<script>
+    var single_computeengine_firewall_template = Handlebars.compile($("#single_computeengine_firewall-template").html());
+</script>
+<!-- stackdrivermonitoring alert_policies -->
+<script id="services.stackdrivermonitoring.projects.id.alert_policies.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="stackdrivermonitoring.projects.{{project}}.alert_policies.{{@key}}.name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Creation Record: <span id="stackdrivermonitoring.projects.{{project}}.alert_policies.{{@key}}.creation_record"><code>{{value_or_none creation_record}}</code></span></div>
+        <div class="list-group-item-text item-margin">Mutation Record: <span id="stackdrivermonitoring.projects.{{project}}.alert_policies.{{@key}}.mutation_record"><code>{{value_or_none mutation_record}}</code></span></div>
+        <div class="list-group-item-text item-margin">Conditions: <span id="stackdrivermonitoring.projects.{{project}}.alert_policies.{{@key}}.conditions"><code>{{value_or_none conditions}}</code></span></div>
+        <div class="list-group-item-text item-margin">Combiner: <span id="stackdrivermonitoring.projects.{{project}}.alert_policies.{{@key}}.combiner"><samp>{{value_or_none combiner}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Enabled: <span id="stackdrivermonitoring.projects.{{project}}.alert_policies.{{@key}}.enabled"><samp>{{value_or_none enabled}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.stackdrivermonitoring.projects.id.alert_policies", $("#services\\.stackdrivermonitoring\\.projects\\.id\\.alert_policies\\.partial").html());
+</script>
+
+<!-- Single stackdrivermonitoring alert_policie template -->
+<script id="single_stackdrivermonitoring_alert_policie-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.stackdrivermonitoring.projects.id.alert_policies'}}
+</script>
+<script>
+    var single_stackdrivermonitoring_alert_policie_template = Handlebars.compile($("#single_stackdrivermonitoring_alert_policie-template").html());
+</script>
+
+  <!-- Generic partial for region-then-resource -->
+  <script id="details_for_gcp_region.partial" type="text/x-handlebars-template">
+    <div id="services.{{service_name}}.projects.id.regions.id.{{resource_type}}.details">
+      {{#each items}}
+        {{#each (lookup . "regions")}}
+          {{#each (lookup . ../../resource_type)}}
+          <div class="list-group" id="services.{{../../../service_name}}.projects.{{@../../key}}.regions.{{@../key}}.{{../../../resource_type}}.{{@key}}.view">
+            {{> (lookup ../../.. 'partial_name') service_name = ../../../service_name project = @../../key region = @../key resource_type = ../../../resource_type resource_key = @key resource = this}}
+          </div>
+          {{/each}}
+        {{/each}}
+      {{/each}}
+    </div>
+  </script>
+  <script>
+    Handlebars.registerPartial("details_for_gcp_region", $("#details_for_gcp_region\\.partial").html());
+  </script>
+
+<!-- functions functions_v1 -->
+<script id="services.functions.projects.id.functions_v1.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="functions.projects.{{project}}.functions_v1.{{@key}}.name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Status: <span id="functions.projects.{{project}}.functions_v1.{{@key}}.status"><samp>{{value_or_none status}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Update Time: <span id="functions.projects.{{project}}.functions_v1.{{@key}}.update_time"><samp>{{value_or_none update_time}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Version: <span id="functions.projects.{{project}}.functions_v1.{{@key}}.version_id"><samp>{{value_or_none version_id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Runtime: <span id="functions.projects.{{project}}.functions_v1.{{@key}}.runtime"><samp>{{value_or_none runtime}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Memory: <span id="functions.projects.{{project}}.functions_v1.{{@key}}.memory"><samp>{{value_or_none memory}}MB</samp></span></div>
+        <div class="list-group-item-text item-margin">Max Instances: <span id="functions.projects.{{project}}.functions_v1.{{@key}}.max_instances"><samp>{{value_or_none max_instances}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Docker Registry: <span id="functions.projects.{{project}}.functions_v1.{{@key}}.docker_registry"><samp>{{value_or_none docker_registry}}</samp></span></div>
+        <div class="list-group-item-text item-margin" id="functions.projects.{{project}}.functions_v1.{{@key}}.environment_variables">Environment Variables
+            {{#if environment_variables}}
+            <ul>
+                {{#each environment_variables}}
+                <li><samp>{{@key}}: {{this}}</samp></li>
+                {{/each}}
+            </ul>
+            {{else}}
+            <span>None</span>
+            {{/if}}
+        </div>
+        {{#if environment_variables_secrets}}
+        <div class="list-group-item-text item-margin" id="functions.projects.{{project}}.functions_v1.{{@key}}.environment_variables_secrets">Environment Variables Secrets (Potential)
+            <ul>
+                {{#each environment_variables_secrets}}
+                <li><samp>{{this}}</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+        {{/if}}
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Trigger</h4>
+        <div class="list-group-item-text item-margin">URL: <span id="functions.projects.{{project}}.functions_v1.{{@key}}.url"><samp>{{value_or_none url}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Security Level: <span id="functions.projects.{{project}}.functions_v1.{{@key}}.security_level"><samp>{{value_or_none security_level}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Ingress Settings: <span id="functions.projects.{{project}}.functions_v1.{{@key}}.ingress_settings"><samp>{{value_or_none ingress_settings}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading"><span id="functions.projects.{{project}}.functions_v1.{{@key}}.bindings">Bindings:</span></h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each bindings}}
+                <li>Role <samp>{{role}}</samp></li>
+                <ul>
+                    {{#each members}}
+                    <li><samp>{{this}}</samp></li>
+                    {{/each}}
+                </ul>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.functions.projects.id.functions_v1", $("#services\\.functions\\.projects\\.id\\.functions_v1\\.partial").html());
+</script>
+
+<!-- Single functions function_v1 template -->
+<script id="single_functions_function_v1-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.functions.projects.id.functions_v1'}}
+</script>
+<script>
+    var single_functions_function_v1_template = Handlebars.compile($("#single_functions_function_v1-template").html());
+</script>
+
+<!-- Cloud Resources Manager bindings' partial -->
+<script id="services.iam.projects.id.bindings.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Title: <span id="iam.projects.{{@../key}}.bindings.{{@key}}.title"><samp>{{title}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Description: <span id="iam.projects.{{@../key}}.bindings.{{@key}}.description"><samp>{{value_or_none description}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Project ID: <span id="iam.projects.{{project}}.users.{{@key}}.project_id"><samp>{{project}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Custom Role: <span id="iam.projects.{{project}}.users.{{@key}}.custom_role">{{custom_role}}</span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Permissions</h4>
+        <div class="accordion-inner">
+            {{> accordion_policy name = '' document = permissions policy_path = (concat 'iam' ../resource_type ../resource_id 'permissions' @key 'PolicyDocument') heading="h5" samp=false}}
+        </div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Bindings</h4>
+        <h5  id="iam.projects.{{@../key}}.bindings.{{@key}}.users" class="list-group-item-heading">Attached Users:</h5>
+        <div class="accordion-inner">
+            <ul>
+                {{#each members.users}}
+                <li><samp><samp>{{this}}</samp></samp></li>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+        <h5  id="iam.projects.{{@../key}}.bindings.{{@key}}.groups" class="list-group-item-heading">Attached Groups:</h5>
+        <div class="accordion-inner">
+            <ul>
+                {{#each members.groups}}
+                <li><samp>{{this}}</samp></li>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+        <h5  id="iam.projects.{{@../key}}.bindings.{{@key}}.service_accounts" class="list-group-item-heading">Attached Service Accounts:</h5>
+        <div class="accordion-inner">
+            <ul>
+                {{#each members.service_accounts}}
+                <li><samp>{{this}}</samp></li>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+        <h5  id="iam.projects.{{@../key}}.bindings.{{@key}}.domains" class="list-group-item-heading">Attached Domains:</h5>
+        <div class="accordion-inner">
+            <ul>
+                {{#each members.domains}}
+                <li><samp>{{this}}</samp></li>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.iam.projects.id.bindings", $("#services\\.iam\\.projects\\.id\\.bindings\\.partial").html());
+</script>
+
+<!-- Single iam binding template -->
+<script id="single_iam_binding-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.iam.projects.id.bindings'}}
+</script>
+<script>
+    var single_iam_binding_template = Handlebars.compile($("#single_iam_binding-template").html());
+</script>
+
+<!-- Cloud Resources Manager domains' partial -->
+<script id="services.iam.projects.id.domains.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Domain: <span id="iam.projects.{{@../key}}.domains.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">Project ID: <span id="iam.projects.{{project}}.domains.{{@key}}.project_id"><samp>{{project}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Bindings:</h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each roles}}
+                <li><samp>{{this}}</samp></li>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.iam.projects.id.domains", $("#services\\.iam\\.projects\\.id\\.domains\\.partial").html());
+</script>
+
+<!-- Single iam domain template -->
+<script id="single_iam_domain-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.iam.projects.id.domains'}}
+</script>
+<script>
+    var single_iam_domain_template = Handlebars.compile($("#single_iam_domain-template").html());
+</script>
+<!-- computeengine global_forwarding_rules -->
+<script id="services.computeengine.projects.id.global_forwarding_rules.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">ID: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.id"><samp>{{value_or_none id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Name: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Creation Timestamp: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.creation_timestamp"><samp>{{format_date creation_timestamp}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Description: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.description"><samp>{{value_or_none description}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Network: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.network"><samp>{{value_or_none network}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Subnetwork: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.subnetwork"><samp>{{value_or_none subnetwork}}</samp></span></div>
+        <div class="list-group-item-text item-margin">IP Address: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.ip_address"><samp>{{value_or_none ip_address}}</samp></span></div>
+        <div class="list-group-item-text item-margin">IP Protocol: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.ip_protocol"><samp>{{value_or_none ip_protocol}}</samp></span></div>
+        <div class="list-group-item-text item-margin">IP Version: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.ip_version"><samp>{{value_or_none ipVersion}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Allow Global Access: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.allow_global_access"><samp>{{value_or_none allowGlobalAccess}}</samp></span></div>
+        <div class="list-group-item-text item-margin">All Ports: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.all_ports"><samp>{{value_or_none allPorts}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Port Range: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.port_range"><samp>{{value_or_none port_range}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Ports: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.ports"><samp>{{value_or_none ports}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Target: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.target"><samp>{{value_or_none target}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Load Balancing Scheme: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.load_balancing_scheme"><samp>{{value_or_none load_balancing_scheme}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Network Tier: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.network_tier"><samp>{{value_or_none network_tier}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Backend Service: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.backend_service"><samp>{{value_or_none backendService}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Service Name: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.service_name"><samp>{{value_or_none serviceName}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Service Label: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.service_label"><samp>{{value_or_none serviceLabel}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Labels: <span id="computeengine.projects.{{project}}.global_forwarding_rules.{{@key}}.labels"><samp>{{value_or_none labels}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.computeengine.projects.id.global_forwarding_rules", $("#services\\.computeengine\\.projects\\.id\\.global_forwarding_rules\\.partial").html());
+</script>
+
+<!-- Single computeengine global_forwarding_rule template -->
+<script id="single_computeengine_global_forwarding_rule-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.computeengine.projects.id.global_forwarding_rules'}}
+</script>
+<script>
+    var single_computeengine_global_forwarding_rule_template = Handlebars.compile($("#single_computeengine_global_forwarding_rule-template").html());
+</script>
+
+<!-- Cloud Storage instances partial -->
+<script id="services.cloudsql.projects.id.instances.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Project ID: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.project_id"><samp>{{project_id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Automatic Backups: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.automatic_backup_enabled">{{convert_bool_to_enabled automatic_backup_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Last Backup: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.last_backup_timestamp">{{format_date last_backup_timestamp}}</span></div>
+        <div class="list-group-item-text item-margin">Logs: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.log_enabled">{{convert_bool_to_enabled log_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">SSL Required: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.ssl_required">{{convert_bool_to_enabled ssl_required}}</span></div>
+        <div class="list-group-item-text item-margin">Public IP Address: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.public_ip"><samp>{{value_or_none public_ip}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Private IP Address: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.private_ip"><samp>{{value_or_none private_ip}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Local Infile Flag is Off: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.local_infile_off"><samp>{{value_or_none local_infile_off}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Cross db Ownership Chaining Flag is Off: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.cross_db_ownership_chaining_off"><samp>{{value_or_none cross_db_ownership_chaining_off}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Contained Database Authentication Flag is Off: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.contained_database_authentication_off"><samp>{{value_or_none contained_database_authentication_off}}</samp></span></div>
+
+        <div class="list-group-item-text item-margin">Log Checkpoints Flag is On: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.log_checkpoints_on"><samp>{{value_or_none log_checkpoints_on}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Log Connections Flag is On: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.log_connections_on"><samp>{{value_or_none log_connections_on}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Log Disconnections Flag is On: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.log_disconnections_on"><samp>{{value_or_none log_disconnections_on}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Log Lock Waits Flag is On: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.log_lock_waits_on"><samp>{{value_or_none log_lock_waits_on}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Log Min Messages Flag set Appropriately: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.log_min_messages"><samp>{{value_or_none log_min_messages}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Log Temp Files Flag set to 0: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.log_temp_files_0"><samp>{{value_or_none log_temp_files_0}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Log Min Duration Statement Flag set to -1: <span id="cloudsql.projects.{{@../key}}.instances.{{@key}}.log_min_duration_statement_-1"><samp>{{value_or_none log_min_duration_statement_-1}}</samp></span></div>
+
+        {{#if authorized_networks}}
+        <div class="list-group-item-text item-margin">Authorized Networks:</div>
+        <ul>
+            {{#each authorized_networks }}
+                <li><span id="cloudsql.projects.{{@../../key}}.instances.{{@../key}}.authorized_networks.{{@key}}.open_to_the_world">{{ value }}</span></li>
+            {{/each}}
+        </ul>
+        {{else}}
+        <div class="list-group-item-text item-margin">Authorized Networks: <samp>None</samp></div>
+        {{/if}}
+        <div class="list-group-item-text item-margin">Users:</div>
+        <ul>
+            {{#each users }}
+            <li><span id="cloudsql.projects.{{@../../key}}.instances.{{@../key}}.root_access_from_any_host"><samp>{{ name }}</samp>{{#if host}} (host: <samp>{{host}}</samp>){{/if}}</span></li>
+            {{/each}}
+        </ul>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.cloudsql.projects.id.instances", $("#services\\.cloudsql\\.projects\\.id\\.instances\\.partial").html());
+</script>
+
+<!-- Single cloudsql instance template -->
+<script id="single_cloudsql_instance-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.cloudsql.projects.id.instances'}}
+</script>
+<script>
+    var single_cloudsql_instance_template = Handlebars.compile($("#single_cloudsql_instance-template").html());
+</script>
+<!-- Stackdriver All Logging metrics partial -->
+<script id="services.stackdriverlogging.projects.id.logging_metrics.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Project Ownership Assignment/Changes Log Metric Filter Exist: <span id="stackdriverlogging.projects.{{@../key}}.logging_metrics.{{@key}}.project_ownership_assignments">{{project_ownership_assignments}}</span></div>
+        <div class="list-group-item-text item-margin">Audit Configuration Changes Log Metric Filter Exist: <span id="stackdriverlogging.projects.{{@../key}}.logging_metrics.{{@key}}.audit_config_change">{{audit_config_change}}</span></div>
+        <div class="list-group-item-text item-margin">Custom Role Changes Log Metric Filter Exist: <span id="stackdriverlogging.projects.{{@../key}}.logging_metrics.{{@key}}.custom_role_change">{{custom_role_change}}</span></div>
+        <div class="list-group-item-text item-margin">VPC Network Firewall Rule Changes Log Metric Filter Exist: <span id="stackdriverlogging.projects.{{@../key}}.logging_metrics.{{@key}}.vpc_network_firewall_rule_change">{{vpc_network_firewall_rule_change}}</span></div>
+        <div class="list-group-item-text item-margin">VPC Network Route Changes Log Metric Filter Exist: <span id="stackdriverlogging.projects.{{@../key}}.logging_metrics.{{@key}}.vpc_network_route_change">{{vpc_network_route_change}}</span></div>
+        <div class="list-group-item-text item-margin">VPC Network Changes Log Metric Filter Exist: <span id="stackdriverlogging.projects.{{@../key}}.logging_metrics.{{@key}}.vpc_network_change">{{vpc_network_change}}</span></div>
+        <div class="list-group-item-text item-margin">Cloud Storage IAM Permission Changes Log Metric Filter Exist: <span id="stackdriverlogging.projects.{{@../key}}.logging_metrics.{{@key}}.cloud_storage_iam_permission_change">{{cloud_storage_iam_permission_change}}</span></div>
+        <div class="list-group-item-text item-margin">SQL Instance Configuration Changes Log Metric Filter Exist: <span id="stackdriverlogging.projects.{{@../key}}.logging_metrics.{{@key}}.sql_instance_conf_change">{{sql_instance_conf_change}}</span></div>
+
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.stackdriverlogging.projects.id.logging_metrics", $("#services\\.stackdriverlogging\\.projects\\.id\\.logging_metrics\\.partial").html());
+</script>
+
+<!-- Single stackdriverlogging metric template -->
+<script id="single_stackdriverlogging_logging_metrics-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.stackdriverlogging.projects.id.logging_metrics'}}
+</script>
+<script>
+    var single_stackdriverlogging_logging_metrics_template = Handlebars.compile($("#single_stackdriverlogging_logging_metrics-template").html());
+</script>
+<!-- stackdrivermonitoring uptime_checks -->
+<script id="services.stackdrivermonitoring.projects.id.uptime_checks.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="stackdrivermonitoring.projects.{{project}}.uptime_checks.{{@key}}.name"><samp>{{value_or_none display_name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Monitored Resource: <span id="stackdrivermonitoring.projects.{{project}}.uptime_checks.{{@key}}.monitored_resource"><code>{{value_or_none monitored_resource}}</code></span></div>
+        <div class="list-group-item-text item-margin">HTTP Check: <span id="stackdrivermonitoring.projects.{{project}}.uptime_checks.{{@key}}.http_check"><code>{{value_or_none http_check}}</code></span></div>
+        <div class="list-group-item-text item-margin">Period: <span id="stackdrivermonitoring.projects.{{project}}.uptime_checks.{{@key}}.period"><samp>{{value_or_none period}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Timeout: <span id="stackdrivermonitoring.projects.{{project}}.uptime_checks.{{@key}}.timeout"><samp>{{value_or_none timeout}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.stackdrivermonitoring.projects.id.uptime_checks", $("#services\\.stackdrivermonitoring\\.projects\\.id\\.uptime_checks\\.partial").html());
+</script>
+
+<!-- Single stackdrivermonitoring uptime_check template -->
+<script id="single_stackdrivermonitoring_uptime_check-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.stackdrivermonitoring.projects.id.uptime_checks'}}
+</script>
+<script>
+    var single_stackdrivermonitoring_uptime_check_template = Handlebars.compile($("#single_stackdrivermonitoring_uptime_check-template").html());
+</script>
+
+<!-- Cloud Memorystore for Redis partial -->
+<script id="services.cloudmemorystore.projects.id.redis_instances.partial" type="text/x-handlebars-template">
+    <div class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Location: <span id="cloudmemorystore.projects.{{@../key}}.redis_instances.{{@key}}.location">{{location}}</span></div>
+        <div class="list-group-item-text item-margin">Redis Version: <span id="cloudmemorystore.projects.{{@../key}}.redis_instances.{{@key}}.redis_version">{{redis_version}}</span></div>
+        <div class="list-group-item-text item-margin">Transit Encryption Mode: <span id="cloudmemorystore.projects.{{@../key}}.redis_instances.{{@key}}.ssl_required">{{convert_bool_to_enabled ssl_required}}</span></div>
+        <div class="list-group-item-text item-margin">Auth Enabled: <span id="cloudmemorystore.projects.{{@../key}}.redis_instances.{{@key}}.auth_enabled"><samp>{{convert_bool_to_enabled auth_enabled}}</samp></span></div>
+    </div>
+</script>
+<script>
+    Handlebars.registerPartial("services.cloudmemorystore.projects.id.redis_instances", $("#services\\.cloudmemorystore\\.projects\\.id\\.redis_instances\\.partial").html());
+</script>
+
+<!-- Single redis instance template -->
+<script id="single_cloudmemorystore_redis_instance-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.cloudmemorystore.projects.id.redis_instances'}}
+</script>
+<script>
+    var single_cloudmemorystore_redis_template = Handlebars.compile($("#single_cloudmemorystore_redis_instance-template").html());
+</script>
+<!-- Kubernetes Engine clusters partial -->
+<script id="services.kubernetesengine.projects.id.clusters.partial" type="text/x-handlebars-template">
+    <div class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">Project ID: <span id="kubernetesengine.projects.{{project}}.clusters.{{@key}}.project_id"><samp>{{project}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Location: <span id="kubernetesengine.projects.{{project}}.clusters.{{@key}}.location"><samp>{{location}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Type: <span id="kubernetesengine.projects.{{project}}.clusters.{{@key}}.type"><samp>{{type}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Status: <span id="kubernetesengine.projects.{{project}}.clusters.{{@key}}.status"><samp>{{status}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Image Type: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.container_optimized_os_not_used">{{image_type}}</span></div>
+        <div class="list-group-item-text item-margin">Release Channel: <span id="kubernetesengine.projects.{{project}}.clusters.{{@key}}.release_channel"><samp>{{value_or_none release_channel}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Basic Authentication: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.basic_authentication_enabled">{{convert_bool_to_enabled basic_authentication_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Client Certificate Authentication: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.client_certificate_enabled">{{convert_bool_to_enabled client_certificate_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Dashboard: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.dashboard_status">{{dashboard_status}}</span></div>
+        <div class="list-group-item-text item-margin">Legacy Authorization (ABAC): <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.legacy_abac_enabled">{{convert_bool_to_enabled legacy_abac_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Pod Security Policy: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.pod_security_policy_enabled">{{convert_bool_to_enabled pod_security_policy_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Network Policy: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.network_policy_disabled">{{convert_bool_to_enabled network_policy_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Service Account: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.default_service_account_used">{{service_account}}</span></div>
+        <div class="list-group-item-text item-margin">Workload Identity: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.workload_identity_enabled">{{convert_bool_to_enabled workload_identity_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Private Google Access: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.private_ip_google_access_disabled">{{convert_bool_to_enabled private_ip_google_access_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Alias IP: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.alias_ip_disabled">{{convert_bool_to_enabled alias_ip_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Endpoint: <span id="kubernetesengine.projects.{{project}}.clusters.{{@key}}.endpoint"><samp>{{endpoint}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Private Endpoint: <span id="kubernetesengine.projects.{{project}}.clusters.{{@key}}.private_endpoint_enabled"><samp>{{convert_bool_to_enabled private_endpoint_enabled}}</samp></span></div>
+        {{#if private_endpoint}}
+        <div class="list-group-item-text item-margin">Private Endpoint IP: <span id="kubernetesengine.projects.{{project}}.clusters.{{@key}}.private_endpoint"><samp>{{private_endpoint}}</samp></span></div>
+        {{/if}}
+        {{#if public_endpoint}}
+        <div class="list-group-item-text item-margin">Public Endpoint IP: <span id="kubernetesengine.projects.{{project}}.clusters.{{@key}}.public_endpoint"><samp>{{public_endpoint}}</samp></span></div>
+        {{/if}}
+        <div class="list-group-item-text item-margin">Binary Authorization: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.binary_authorization_enabled">{{convert_bool_to_enabled binary_authorization_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Shielded Nodes: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.shielded_nodes_enabled">{{convert_bool_to_enabled shielded_nodes_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Application-Layer Secrets Encryption: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.application_layer_encryption_enabled">{{convert_bool_to_enabled application_layer_encryption_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Stackdriver Logging: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.logging_disabled">{{convert_bool_to_enabled logging_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Stackdriver Monitoring: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.monitoring_disabled">{{convert_bool_to_enabled monitoring_enabled}}</span></div>
+        {{#if labels}}
+        <div class="list-group-item-text item-margin">Labels: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.has_no_labels">{{labels}}</span></div>
+        {{/if}}
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading"><span class="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.scopes">Scopes</span></h4>
+            {{#if scopes}}
+            <ul>
+                {{#each scopes}}
+                <li><samp>{{this}}</samp></li>
+                {{/each}}
+            </ul>
+            {{else}}
+            <span>None</span>
+            {{/if}}
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading"><span class="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.accessible_cluster">Master Authorized Networks</span></h4>
+        <div class="list-group-item-text item-margin">Status: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.master_authorized_networks_disabled">{{convert_bool_to_enabled master_authorized_networks_enabled}}</span></div>
+        <div class="list-group-item-text item-margin"><span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.authorized_networks_cidr_blocks">CIDR Blocks</span>:
+            {{#if master_authorized_networks_config.cidrBlocks}}
+            <ul>
+                {{#each master_authorized_networks_config.cidrBlocks}}
+                <li><samp>{{this.displayName}}</samp>: <samp>{{this.cidrBlock}}</samp></li>
+                {{/each}}
+            </ul>
+            {{else}}
+                <span>None</span>
+            {{/if}}
+        </div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Node pools</h4>
+        <div class="list-group-item-text item-margin">Private Nodes: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.private_nodes_enabled" class="kubernetesengine.projects.{{@../key}}.nodes.{{@key}}.accessible_cluster">{{convert_bool_to_enabled private_nodes_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Metadata Server: <span id="kubernetesengine.projects.{{@../key}}.clusters.{{@key}}.metadata_server_enabled" class="kubernetesengine.projects.{{@../key}}.nodes.{{@key}}.accessible_cluster">{{convert_bool_to_enabled metadata_server_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">
+            {{#each node_pools}}
+            <samp>{{@key}}</samp>
+            <div class="list-group-item-text item-margin">
+                Integrity Monitoring: <span id="kubernetesengine.projects.{{@../../key}}.clusters.{{@../key}}.node_pools.{{@key}}.integrity_monitoring_enabled">{{convert_bool_to_enabled integrity_monitoring_enabled}}</span>
+            </div>
+            <div class="list-group-item-text item-margin">
+                Secure Boot: <span id="kubernetesengine.projects.{{@../../key}}.clusters.{{@../key}}.node_pools.{{@key}}.secure_boot_enabled">{{convert_bool_to_enabled secure_boot_enabled}}</span>
+            </div>
+            <div class="list-group-item-text item-margin">
+                Legacy Metadata Endpoints: <span id="kubernetesengine.projects.{{@../../key}}.clusters.{{@../key}}.node_pools.{{@key}}.legacy_metadata_endpoints_enabled">{{convert_bool_to_enabled legacy_metadata_endpoints_enabled}}</span>
+            </div>
+            <div class="list-group-item-text item-margin">
+                Automatic Node Upgrades: <span id="kubernetesengine.projects.{{@../../key}}.clusters.{{@../key}}.node_pools.{{@key}}.auto_upgrade_disabled">{{convert_bool_to_enabled auto_upgrade_enabled}}</span>
+            </div>
+            <div class="list-group-item-text item-margin">
+                Automatic Node Repair: <span id="kubernetesengine.projects.{{@../../key}}.clusters.{{@../key}}.node_pools.{{@key}}.auto_repair_disabled">{{convert_bool_to_enabled auto_repair_enabled}}</span>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+
+</script>
+
+<script>
+    Handlebars.registerPartial("services.kubernetesengine.projects.id.clusters", $("#services\\.kubernetesengine\\.projects\\.id\\.clusters\\.partial").html());
+</script>
+
+<!-- Single kubernetesengine cluster template -->
+<script id="single_kubernetesengine_cluster-template" type="text/x-handlebars-template">
+    <div style="text-align: right; padding-right: 10px; text-weight: bold;"><a href="javascript:hidePopup()">X</a></div>
+    {{> services.kubernetesengine.projects.id.clusters}}
+</script>
+<script>
+    var single_kubernetesengine_cluster_template = Handlebars.compile($("#single_kubernetesengine_cluster-template").html());
+</script>
+
+<!-- Cloud DNS zones partial -->
+<script id="services.dns.projects.id.managed_zones.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="dns.projects.{{@../key}}.managed_zones{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">ID: <span id="dns.projects.{{@../key}}.managed_zones{{@key}}.id">{{id}}</span></div>
+        <div class="list-group-item-text item-margin">Description: <span id="dns.projects.{{@../key}}.managed_zones{{@key}}.description"><samp>{{description}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Creation Date: <span id="dns.projects.{{@../key}}.managed_zones{{@key}}.creation_timestamp">{{format_date creation_timestamp}}</span></div>
+        <div class="list-group-item-text item-margin">DNSSEC: <span id="dns.projects.{{@../key}}.managed_zones{{@key}}.dnssec_enabled">{{convert_bool_to_enabled dnssec_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Visibility: <span id="dns.projects.{{@../key}}.managed_zones{{@key}}.visibility">{{ visibility}}</span></div>
+    <div class="list-group-item">
+        <h5  id="dns.projects.{{@../key}}.managed_zones.{{@key}}.dnssec_keys" class="list-group-item-heading">DNSSEC Keys:</h5>
+        <div class="accordion-inner">
+            <ul>
+                {{#each dnssec_keys}}
+                <li><samp>{{@key}}</samp></li>
+                <ul>
+                    <li id="dns.projects.{{@../../key}}.managed_zones.{{@../key}}.dnssec_keys.{{@key}}.key_algorithm">Key Algorithm: <samp>{{key_algorithm}}</samp></li>
+                    <li id="dns.projects.{{@../../key}}.managed_zones.{{@../key}}.dnssec_keys.{{@key}}.key_type">Key Type: <samp>{{key_type}}</samp></li>
+                    <li id="dns.projects.{{@../../key}}.managed_zones.{{@../key}}.dnssec_keys.{{@key}}.length">Length: {{length}}</li>
+                </ul>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.dns.projects.id.managed_zones", $("#services\\.dns\\.projects\\.id\\.managed_zones\\.partial").html());
+</script>
+
+<!-- Single dns zones template -->
+<script id="single_dns_network-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.dns.projects.id.managed_zones'}}
+</script>
+<script>
+    var single_dns_managed_zones_template = Handlebars.compile($("#single_dns_managed_zones-template").html());
+</script>
+
+  <!-- Generic partial for zone-then-resource -->
+  <script id="details_for_gcp_zone.partial" type="text/x-handlebars-template">
+    <div id="services.{{service_name}}.projects.id.zones.id.{{resource_type}}.details">
+      {{#each items}}
+        {{#each (lookup . "zones")}}
+          {{#each (lookup . ../../resource_type)}}
+          <div class="list-group" id="services.{{../../../service_name}}.projects.{{@../../key}}.zones.{{@../key}}.{{../../../resource_type}}.{{@key}}.view">
+            {{> (lookup ../../.. 'partial_name') service_name = ../../../service_name project = @../../key zone = @../key resource_type = ../../../resource_type resource_key = @key resource = this}}
+          </div>
+          {{/each}}
+        {{/each}}
+      {{/each}}
+    </div>
+  </script>
+  <script>
+    Handlebars.registerPartial("details_for_gcp_zone", $("#details_for_gcp_zone\\.partial").html());
+  </script>
+
+
+<!-- Cloud Storage bucket partial -->
+<script id="services.cloudstorage.projects.id.buckets.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Project ID: <span id="cloudstorage.projects.{{@../key}}.buckets.{{@key}}.project_id"><samp>{{project_id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Creation Date: <span id="cloudstorage.projects.{{@../key}}.buckets.{{@key}}.creation_date">{{format_date creation_date}}</span></div>
+        <div class="list-group-item-text item-margin">Location: <span id="cloudstorage.projects.{{@../key}}.buckets.{{@key}}.location"><samp>{{location}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Storage Class: <span id="cloudstorage.projects.{{@../key}}.buckets.{{@key}}.storage_class"><samp>{{storage_class}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Logging: <span id="cloudstorage.projects.{{@../key}}.buckets.{{@key}}.logging_enabled">{{convert_bool_to_enabled logging_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Versioning: <span id="cloudstorage.projects.{{@../key}}.buckets.{{@key}}.versioning_enabled">{{convert_bool_to_enabled versioning_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Public Access Prevention: <span id="cloudstorage.projects.{{@../key}}.buckets.{{@key}}.public_access_prevention">{{public_access_prevention}}</span></div>
+        <div class="list-group-item-text item-margin">Uniform Bucket-Level Access: <span id="cloudstorage.projects.{{@../key}}.buckets.{{@key}}.uniform_bucket_level_access">{{convert_bool_to_enabled uniform_bucket_level_access}}</span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading"><span id="cloudstorage.projects.{{@../key}}.buckets.{{@key}}.permissions">IAM Permissions</span></h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each member_bindings}}
+                <li><span id="cloudstorage.projects.{{@../../key}}.buckets.{{@../key}}.{{@key}}"><samp>{{@key}}</samp></span></li>
+                <ul>
+                    {{#each this}}
+                    <li><samp>{{this}}</samp></li>
+                    {{/each}}
+                </ul>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading"><span id="cloudstorage.projects.{{@../key}}.buckets.{{@key}}.acls">ACL Permissions</span></h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each acls}}
+                <li><samp>{{entity}}</samp></li>
+                <ul>
+                    <li><samp>{{role}}</samp></li>
+                </ul>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading"><span id="cloudstorage.projects.{{@../key}}.buckets.{{@key}}.default_object_acls">Default Object ACL Permissions</span></h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each default_object_acl}}
+                <li><span id="cloudstorage.projects.{{@../../key}}.buckets.{{@../key}}.default_object_acl.{{@key}}.{{entity}}"><samp>{{entity}}</samp></span></li>
+                <ul>
+                    <li><samp>{{role}}</samp></li>
+                </ul>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.cloudstorage.projects.id.buckets", $("#services\\.cloudstorage\\.projects\\.id\\.buckets\\.partial").html());
+</script>
+
+<!-- Single cloudstorage bucket template -->
+<script id="single_cloudstorage_bucket-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.cloudstorage.projects.id.buckets'}}
+</script>
+<script>
+    var single_cloudstorage_bucket_template = Handlebars.compile($("#single_cloudstorage_bucket-template").html());
+</script>
+<!-- Stackdriver Logging sinks partial -->
+<script id="services.stackdriverlogging.projects.id.sinks.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Sink Name: <span id="stackdriverlogging.projects.{{@../key}}.sinks.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">Project ID: <span id="stackdriverlogging.projects.{{project}}.keyrings.{{@key}}.project_id"><samp>{{project}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Filter: <span id="stackdriverlogging.projects.{{@../key}}.sinks.{{@key}}.filter"><code>{{filter}}</code></span></div>
+        <div class="list-group-item-text item-margin">Destination: <span id="stackdriverlogging.projects.{{@../key}}.sinks.{{@key}}.destination"><samp>{{destination}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.stackdriverlogging.projects.id.sinks", $("#services\\.stackdriverlogging\\.projects\\.id\\.sinks\\.partial").html());
+</script>
+
+<!-- Single stackdriverlogging sink template -->
+<script id="single_stackdriverlogging_sink-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.stackdriverlogging.projects.id.sinks'}}
+</script>
+<script>
+    var single_stackdriverlogging_sink_template = Handlebars.compile($("#single_stackdriverlogging_sink-template").html());
+</script>
+<!-- bigquery datasets -->
+<script id="services.bigquery.projects.id.datasets.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="bigquery.projects.{{project}}.datasets.{{@key}}.name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Location: <span id="bigquery.projects.{{project}}.datasets.{{@key}}.location"><samp>{{value_or_none location}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Creation Time: <span id="bigquery.projects.{{project}}.datasets.{{@key}}.creation_time"><samp>{{format_date creation_time}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Last Modified Time: <span id="bigquery.projects.{{project}}.datasets.{{@key}}.last_modified_time"><samp>{{format_date last_modified_time}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Default Encryption Key: <span id="bigquery.projects.{{project}}.datasets.{{@key}}.default_encryption_configuration"><samp>{{value_or_none default_encryption_configuration}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading"><span id="bigquery.projects.{{@../key}}.datasets.{{@key}}.permissions">IAM Permissions</span></h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each bindings}}
+                <li><span id="bigquery.projects.{{@../../key}}.datasets.{{@../key}}.{{@key}}"><samp>{{@key}}</samp></span></li>
+                <ul>
+                    {{#each this}}
+                    <li><samp>{{type}}:{{member}}</samp></li>
+                    {{/each}}
+                </ul>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.bigquery.projects.id.datasets", $("#services\\.bigquery\\.projects\\.id\\.datasets\\.partial").html());
+</script>
+
+<!-- Single bigquery dataset template -->
+<script id="single_bigquery_dataset-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.bigquery.projects.id.datasets'}}
+</script>
+<script>
+    var single_bigquery_dataset_template = Handlebars.compile($("#single_bigquery_dataset-template").html());
+</script>
+
+  <!-- Generic partial showing details about projects and their resources -->
+  <script id="details_for_project.partial" type="text/x-handlebars-template">
+    <div id="services.{{service_name}}.projects.id.{{resource_type}}.details">
+      {{#each items}}
+        {{#each (lookup . ../resource_type)}}
+          <div class="list-group" id="services.{{../../service_name}}.projects.{{@../key}}.{{../../resource_type}}.{{@key}}.view">
+            {{> (lookup ../.. 'partial_name') service_name = ../../service_name project = @../key resource_type = ../../resource_type resource_key = @key resource = this}}
+          </div>
+        {{/each}}
+      {{/each}}
+    </div>
+  </script>
+  <script>
+    Handlebars.registerPartial("details_for_project", $("#details_for_project\\.partial").html());
+  </script>
+
+
+<!-- Cloud Resources Manager Separation Duties bindings' partial -->
+<script id="services.iam.projects.id.bindings_separation_duties.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Separation of duties enforced for service account related roles: <span id="iam.projects.{{@../key}}.bindings_separation_duties.{{@key}}.account_separation_duties"><samp>{{account_separation_duties}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Separation of duties enforced for KMS related roles: <span id="iam.projects.{{@../key}}.bindings_separation_duties.{{@key}}.kms_separation_duties"><samp>{{kms_separation_duties}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.iam.projects.id.bindings_separation_duties", $("#services\\.iam\\.projects\\.id\\.bindings_separation_duties\\.partial").html());
+</script>
+
+<!-- Single iam bindings separation duties template -->
+<script id="single_iam_bindings_separation_duties-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.iam.projects.id.bindings_separation_duties'}}
+</script>
+<script>
+    var single_iam_bindings_separation_duties_template = Handlebars.compile($("#single_iam_bindings_separation_duties-template").html());
+</script>
+
+<!-- Cloud Storage service_accounts partial -->
+<script id="services.iam.projects.id.service_accounts.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">ID: <span id="iam.projects.{{@../key}}.service_accounts.{{@key}}.id"><samp>{{id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Project ID: <span id="iam.projects.{{@../key}}.service_accounts.{{@key}}.project_id"><samp>{{project_id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Email: <span id="iam.projects.{{@../key}}.service_accounts.{{@key}}.email"><samp>{{email}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Display Name: <span id="iam.projects.{{@../key}}.service_accounts.{{@key}}.display_name"><samp>{{display_name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Default Service Account: <span id="iam.projects.{{@../key}}.service_accounts.{{@key}}.default_service_account"><samp>{{default_service_account}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading"><span id="iam.projects.{{@../key}}.service_accounts.{{@key}}.keys">Keys:</span></h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each keys}}
+                <li>Key <samp>{{@key}}</samp></li>
+                <ul>
+                    <li id="iam.projects.{{@../../key}}.service_accounts.{{@../key}}.keys.{{@key}}.key_type">Key Type: <samp>{{key_type}}</samp></li>
+                    <li id="iam.projects.{{@../../key}}.service_accounts.{{@../key}}.keys.{{@key}}.algorithm">Key Algorithm: <samp>{{key_algorithm}}</samp></li>
+                    <li id="iam.projects.{{@../../key}}.service_accounts.{{@../key}}.keys.{{@key}}.valid_before">Valid Before: {{format_date valid_before}}</li>
+                    <li id="iam.projects.{{@../../key}}.service_accounts.{{@../key}}.keys.{{@key}}.valid_after">Valid After: {{format_date valid_after}}</li>
+                </ul>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading"><span id="iam.projects.{{@../key}}.service_accounts.{{@key}}.bindings">Service Account Users:</span></h4>
+        <div class="accordion-inner">
+            <ul>
+                {{#each bindings}}
+                <li>Role <samp>{{role}}</samp></li>
+                <ul>
+                    {{#each members}}
+                    <li><samp>{{this}}</samp></li>
+                    {{/each}}
+                </ul>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.iam.projects.id.service_accounts", $("#services\\.iam\\.projects\\.id\\.service_accounts\\.partial").html());
+</script>
+
+<!-- Single iam service_account template -->
+<script id="single_iam_service_account-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.iam.projects.id.service_accounts'}}
+</script>
+<script>
+    var single_iam_service_account_template = Handlebars.compile($("#single_iam_service_account-template").html());
+</script>
+
+<!-- Compute Engine instances partial -->
+<script id="services.computeengine.projects.id.zones.id.instances.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Instance Name: <span id="computeengine.projects.{{@../../key}}.zones.{{@../key}}.instances.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">Project ID: <span id="computeengine.projects.{{@../../key}}.zones.{{@../key}}.instances.{{@key}}.project_id">{{project_id}}</span></div>
+        <div class="list-group-item-text item-margin">Description: <span id="computeengine.projects.{{@../../key}}.zones.{{@../key}}.instances.{{@key}}.description"><samp>{{description}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Creation Date: <span id="computeengine.projects.{{@../../key}}.zones.{{@../key}}.instances.{{@key}}.creation_timestamp">{{format_date creation_timestamp}}</span></div>
+        <div class="list-group-item-text item-margin">Status: <span id="computeengine.projects.{{@../../key}}.zones.{{@../key}}.instances.{{@key}}.status">{{status}}</span></div>
+        <div class="list-group-item-text item-margin">Deletion Protection: <span id="computeengine.projects.{{@../../key}}.zones.{{@../key}}.instances.{{@key}}.deletion_protection_enabled">{{convert_bool_to_enabled deletion_protection_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Block Project SSH Keys: <span id="computeengine.projects.{{@../../key}}.zones.{{@../key}}.instances.{{@key}}.block_project_ssh_keys_disabled">{{convert_bool_to_enabled block_project_ssh_keys_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">IP Forwarding: <span id="computeengine.projects.{{@../../key}}.zones.{{@../key}}.instances.{{@key}}.ip_forwarding_enabled">{{convert_bool_to_enabled ip_forwarding_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">OS Login: <span id="computeengine.projects.{{@../../key}}.zones.{{@../key}}.instances.{{@key}}.oslogin_disabled">{{convert_bool_to_enabled oslogin_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Serial Port Connection: <span id="computeengine.projects.{{@../../key}}.zones.{{@../key}}.instances.{{@key}}.serial_port_enabled">{{convert_bool_to_enabled serial_port_enabled}}</span></div>
+        <div class="list-group-item-text item-margin">Public IP Addresses: <span id="computeengine.projects.{{@../../key}}.zones.{{@../key}}.instances.{{@key}}.public_ip_addresses">{{convert_bool_to_enabled public_ip_addresses}}</span></div>
+        <div class="list-group-item-text item-margin">Shielded VM: <span id="computeengine.projects.{{@../../key}}.zones.{{@../key}}.instances.{{@key}}.shielded_enable">{{convert_bool_to_enabled shielded_enable}}</span></div>
+
+        {{#if tags}}
+        <div class="list-group-item-text item-margin">Tags:</div>
+        <ul>
+            {{#each tags}}
+            <li><samp>{{@key}}</samp></li>
+            <ul>
+                {{#each this}}
+                <li><samp>{{this}}</samp></li>
+                {{else}}
+                <li><samp>None</samp></li>
+                {{/each}}
+            </ul>
+            {{else}}
+            <li><samp>None</samp></li>
+            {{/each}}
+        </ul>
+        {{/if}}
+    </div>
+    <div class="list-group-item">
+        <h5 class="list-group-item-heading">Network Interfaces</h5>
+        {{#if network_interfaces}}
+        <ul>
+            {{#each network_interfaces}}
+            <li><samp>{{name}}</samp></li>
+            <ul>
+                <li>IP: <samp>{{networkIP}}</samp></li>
+                <li>Network: <a href="javascript:showObject('services.computeengine.projects.{{@../../../key}}.networks.{{network_id}}')">{{getValueAt 'services.computeengine.projects' @../../../key 'networks' network_id 'name'}}</a></li>
+                <li>Subnetwork: <a href="javascript:showObject('services.computeengine.projects.{{@../../../key}}.regions.{{subnetwork_region}}.subnetworks.{{subnetwork_id}}')">{{getValueAt 'services.computeengine.projects' @../../../key 'regions' subnetwork_region 'subnetworks' subnetwork_id 'name'}}</a></li>
+            </ul>
+            {{else}}
+            <li><samp>None</samp></li>
+            {{/each}}
+        </ul>
+        {{/if}}
+    </div>
+    <div class="list-group-item">
+        <h5 class="list-group-item-heading"><span id="computeengine.projects.{{@../../key}}.zones.{{@../key}}.instances.{{@key}}.identity">Identity & API Access</span></h5>
+        <div class="list-group-item-text item-margin">Service Account: <span id="computeengine.projects.{{@../../key}}.zones.{{@../key}}.instances.{{@key}}.service_account"><samp>{{value_or_none service_account}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Access Scopes: <span id="computeengine.projects.{{@../../key}}.zones.{{@../key}}.instances.{{@key}}.access_scopes">:
+        <ul>
+            {{#each access_scopes}}
+            <li><samp>{{this}}</samp></li>
+            {{/each}}
+        </ul>
+        </span></div>
+        <div class="list-group-item-text item-margin">Default Service Account with Full Access to All Cloud APIs: <span id="computeengine.projects.{{@../../key}}.zones.{{@../key}}.instances.{{@key}}.full_access_apis"><samp>{{convert_bool_to_enabled full_access_apis}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h5 class="list-group-item-heading">Disks</h5>
+        {{#if disks}}
+        <ul>
+            {{#each disks}}
+            <li><samp>{{source_device_name}}</samp></li>
+            <ul>
+                <li>Bootable: <samp>{{bootable}}</samp></li> 
+                <li>Type: <samp>{{type}}</samp></li>
+                <li>Mode: <samp>{{mode}}</samp></li>
+                {{#if latest_snapshot}}
+                <li id="latest_snapshot">Latest snapshot: <samp>{{latest_snapshot.creation_timestamp}}</samp></li>
+                {{else}}
+                <li id="latest_snapshot">Latest snapshot: <samp>None</samp></li>
+                {{/if}}
+                <li>Customer Supplied Encryption: <span id="computeengine.projects.{{@../../../key}}.zones.{{@../../key}}.instances.{{@../key}}.disks.{{@key}}.encrypted_with_csek">{{convert_bool_to_enabled encrypted_with_csek}}</span></li>
+            </ul>
+            {{else}}
+            <li><samp>None</samp></li>
+            {{/each}}
+        </ul>
+        {{/if}}
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.computeengine.projects.id.zones.id.instances", $("#services\\.computeengine\\.projects\\.id\\.zones\\.id\\.instances\\.partial").html());
+</script>
+
+<!-- Single computeengine instance template -->
+<script id="single_computeengine_instance-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.computeengine.projects.id.zones.id.instances'}}
+</script>
+<script>
+    var single_computeengine_instance_template = Handlebars.compile($("#single_computeengine_instance-template").html());
+</script>
+
+<!-- Cloud KMS keyrings' partial -->
+<script id="services.kms.projects.id.keyrings.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Name: <span id="kms.projects.{{@../key}}.keyrings.{{@key}}.name">{{name}}</span></div>
+        <div class="list-group-item-text item-margin">Project ID: <span id="kms.projects.{{project}}.keyrings.{{@key}}.project_id"><samp>{{project}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Location: <span id="kms.projects.{{@../key}}.keyrings.{{@key}}.location"><samp>{{location}}</samp></span></div>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading"><span id="kms.projects.{{@../key}}.keyrings.{{@key}}.keys">Keys:</span></h4>
+            <div class="accordion-inner">
+                <ul>
+                    {{#each keys}}
+                    <li><samp>{{@key}}</samp></li>
+                    <ul>
+                        <li id="kms.projects.{{@../../key}}.keyrings.{{@../key}}.keys.{{@key}}.state">State: <samp>{{state}}</samp></li>
+                        <li id="kms.projects.{{@../../key}}.keyrings.{{@../key}}.keys.{{@key}}.protection_level">Protection Level: {{protection_level}}</li>
+                        <li id="kms.projects.{{@../../key}}.keyrings.{{@../key}}.keys.{{@key}}.algorithm">Algorithm: <samp>{{algorithm}}</samp></li>
+                        <li id="kms.projects.{{@../../key}}.keyrings.{{@../key}}.keys.{{@key}}.purpose">Purpose: {{purpose}}</li>
+                        <li id="kms.projects.{{@../../key}}.keyrings.{{@../key}}.keys.{{@key}}.creation_datetime">Creation Date: {{format_date creation_datetime}}</li>
+                        <li id="kms.projects.{{@../../key}}.keyrings.{{@../key}}.keys.{{@key}}.rotation_period">Rotation Period: {{value_or_none rotation_period}}</li>
+                        <li id="kms.projects.{{@../../key}}.keyrings.{{@../key}}.keys.{{@key}}.next_rotation_datetime">Next Rotation Date: {{value_or_none next_rotation_datetime}}</li>
+                        <li id="kms.projects.{{@../../key}}.keyrings.{{@../key}}.keys.{{@key}}.next_rotation_time_days">Days Until Next Rotation: {{value_or_none next_rotation_time_days}}</li>
+                        <li>Bindings</li>
+                        <ul>
+                            {{#each kms_iam_policy}}
+                            <li><samp>{{name}}</samp></li>
+                            <ul>
+                                <li id="kms.projects.{{@../../../key}}.keyrings.{{@../../key}}.keys.{{@../key}}.kms_iam_policy.{{@key}}.title">Title: <samp>{{title}}</samp></li>
+                                <li id="kms.projects.{{@../../../key}}.keyrings.{{@../../key}}.keys.{{@../key}}.kms_iam_policy.{{@key}}.description">Description: {{value_or_none description}}</li>
+                                <li id="kms.projects.{{@../../../key}}.keyrings.{{@../../key}}.keys.{{@../key}}.kms_iam_policy.{{@key}}.custom_role">Custom Role: <samp>{{custom_role}}</samp></li>
+                                <li id="kms.projects.{{@../../../key}}.keyrings.{{@../../key}}.keys.{{@../key}}.kms_iam_policy.{{@key}}.anonymous_public_accessible">Not anonymously or publicly accessible: <samp>{{anonymous_public_accessible}}</samp></li>
+                            </ul>
+
+                            {{else}}
+                            <li><samp>None</samp></li>
+                            {{/each}}
+                        </ul>
+                    </ul>
+
+                    <br>
+
+
+
+                    {{else}}
+                    <li><samp>None</samp></li>
+                    {{/each}}
+                </ul>
+            </div>
+    </div>
+
+
+</script>
+
+<script>
+    Handlebars.registerPartial("services.kms.projects.id.keyrings", $("#services\\.kms\\.projects\\.id\\.keyrings\\.partial").html());
+</script>
+
+<!-- Single kms keyring template -->
+<script id="single_kms_keyring-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.kms.projects.id.keyrings'}}
+</script>
+<script>
+    var single_kms_keyring_template = Handlebars.compile($("#single_kms_keyring-template").html());
+</script>
+<!-- stackdrivermonitoring all alert policies -->
+<script id="services.stackdrivermonitoring.projects.id.monitoring_alert_policies.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">Project Ownership Assignment/Changes Alerts Exist: <span id="stackdrivermonitoring.projects.{{project}}.monitoring_alert_policies.{{@key}}.project_ownership_assignments"><samp>{{project_ownership_assignments}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Audit Configuration Changes Alerts Exist: <span id="stackdrivermonitoring.projects.{{@../key}}.monitoring_alert_policies.{{@key}}.audit_config_change">{{audit_config_change}}</span></div>
+        <div class="list-group-item-text item-margin">Custom Role Changes Alerts Exist: <span id="stackdrivermonitoring.projects.{{@../key}}.monitoring_alert_policies.{{@key}}.custom_role_change">{{custom_role_change}}</span></div>
+        <div class="list-group-item-text item-margin">VPC Network Firewall Rule Changes Alerts Exist: <span id="stackdrivermonitoring.projects.{{@../key}}.monitoring_alert_policies.{{@key}}.vpc_network_firewall_rule_change">{{vpc_network_firewall_rule_change}}</span></div>
+        <div class="list-group-item-text item-margin">VPC Network Route Changes Alerts Exist: <span id="stackdrivermonitoring.projects.{{@../key}}.monitoring_alert_policies.{{@key}}.vpc_network_route_change">{{vpc_network_route_change}}</span></div>
+        <div class="list-group-item-text item-margin">VPC Network Changes Alerts Exist: <span id="stackdrivermonitoring.projects.{{@../key}}.monitoring_alert_policies.{{@key}}.vpc_network_change">{{vpc_network_change}}</span></div>
+        <div class="list-group-item-text item-margin">Cloud Storage IAM Permission Changes Alerts Exist: <span id="stackdrivermonitoring.projects.{{@../key}}.monitoring_alert_policies.{{@key}}.cloud_storage_iam_permission_change">{{cloud_storage_iam_permission_change}}</span></div>
+        <div class="list-group-item-text item-margin">SQL Instance Configuration Changes Alerts Exist: <span id="stackdrivermonitoring.projects.{{@../key}}.monitoring_alert_policies.{{@key}}.sql_instance_conf_change">{{sql_instance_conf_change}}</span></div>
+
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.stackdrivermonitoring.projects.id.monitoring_alert_policies", $("#services\\.stackdrivermonitoring\\.projects\\.id\\.monitoring_alert_policies\\.partial").html());
+</script>
+
+<!-- Single stackdrivermonitoring monitoring_alert_policies template -->
+<script id="single_stackdrivermonitoring_monitoring_alert_policies-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.stackdrivermonitoring.projects.id.monitoring_alert_policies'}}
+</script>
+<script>
+    var single_stackdrivermonitoring_monitoring_alert_policies_template = Handlebars.compile($("#single_stackdrivermonitoring_monitoring_alert_policies-template").html());
+</script>
+<!-- Generic left-menu link partial for zone-then-resource -->
+<script id="left_menu_for_gcp_zone.partial" type="text/x-handlebars-template">
+  <div id="services.{{service_name}}.projects.id.zones.id.{{resource_type}}.list">
+  <div class="list-group" >
+    <div class="list-group-item">
+      <a href="javascript:updateHash('services.{{service_name}}.projects.id.zones.id.{{resource_type}}')">Show all <span class="badge float-right btn-info">{{getValueAt 'metadata' service_group service_name 'resources' resource_type 'count'}}</span></a>
+    </div>
+  </div>
+  {{#each items}}
+  <div class="list-group" id="services.{{../service_name}}.projects.{{@key}}.zones.id.{{../resource_type}}.list">
+    <div class="list-group-item active">
+      <a href="javascript:showRowWithItems('services.{{../service_name}}.projects.{{@key}}.zones.id.{{../resource_type}}')">{{@key}}</a>
+      <span class="float-right"><a href="javascript:hideList('services.{{../service_name}}.projects.{{@key}}.zones.id.{{../resource_type}}.list')"><i class="fa fa-times-circle"></i></a></span>
+    </div>
+    <div>
+      {{#each (lookup . "zones")}}
+      {{#if (lookup . (concatWith ../../resource_type "_count" ""))}}
+      <div class="list-group-item" id="services.{{../../../service_name}}.projects.{{@../key}}.zones.{{@key}}.{{../../../resource_type}}.list">
+        {{#if scout2_link}}
+        <a href="#{{scout2_link}}.view">{{@key}}</a>
+        {{else}}
+        <a href="#services.{{../../../../service_name}}.projects.{{@../key}}.zones.{{@key}}.{{../../../../resource_type}}">{{@key}}</a>
+        {{/if}}
+        <span class="float-right"><a href="javascript:hideList('services.{{../../../service_name}}.projects.{{@../key}}.zones.{{@key}}.{{../../../resource_type}}.list')"><i class="fa fa-times-circle"></i></a></span>
+        {{#each (lookup . ../../../resource_type)}}
+        <div class="list-group-item-text list-sub-element">
+            <a href="#services.{{../../../../service_name}}.projects.{{@../../key}}.zones.{{@../key}}.{{../../../../resource_type}}.{{@key}}.view">{{name}}</a>
+        </div>
+        {{/each}} 
+      </div>   
+      {{/if}}
+      {{/each}}     
+    </div>
+  </div>
+  {{/each}}
+  </div>
+</script>
+<script>
+    Handlebars.registerPartial("left_menu_for_gcp_zone", $("#left_menu_for_gcp_zone\\.partial").html());
+</script>
+
+<!-- Generic left-menu link partial for region-then-resource -->
+<script id="left_menu_for_gcp_region.partial" type="text/x-handlebars-template">
+  <div id="services.{{service_name}}.projects.id.regions.id.{{resource_type}}.list">
+  <div class="list-group" >
+    <div class="list-group-item">
+      <a href="javascript:updateHash('services.{{service_name}}.projects.id.regions.id.{{resource_type}}')">Show all <span class="badge float-right btn-info">{{getValueAt 'metadata' service_group service_name 'resources' resource_type 'count'}}</span></a>
+    </div>
+  </div>
+  {{#each items}}
+  <div class="list-group" id="services.{{../service_name}}.projects.{{@key}}.regions.id.{{../resource_type}}.list">
+    <div class="list-group-item active">
+      <a href="javascript:showRowWithItems('services.{{../service_name}}.projects.{{@key}}.regions.id.{{../resource_type}}')">{{@key}}</a>
+      <span class="float-right"><a href="javascript:hideList('services.{{../service_name}}.projects.{{@key}}.regions.id.{{../resource_type}}.list')"><i class="fa fa-times-circle"></i></a></span>
+    </div>
+    <div>
+      {{#each (lookup . "regions")}}
+      {{#if (lookup . (concatWith ../../resource_type "_count" ""))}}
+      <div class="list-group-item" id="services.{{../../../service_name}}.projects.{{@../key}}.regions.{{@key}}.{{../../../resource_type}}.list">
+        {{#if scout2_link}}
+        <a href="#{{scout2_link}}.view">{{@key}}</a>
+        {{else}}
+        <a href="#services.{{../../../../service_name}}.projects.{{@../key}}.regions.{{@key}}.{{../../../../resource_type}}">{{@key}}</a>
+        {{/if}}
+        <span class="float-right"><a href="javascript:hideList('services.{{../../../service_name}}.projects.{{@../key}}.regions.{{@key}}.{{../../../resource_type}}.list')"><i class="fa fa-times-circle"></i></a></span>
+        {{#each (lookup . ../../../resource_type)}}
+        <div class="list-group-item-text list-sub-element">
+            <a href="#services.{{../../../../service_name}}.projects.{{@../../key}}.regions.{{@../key}}.{{../../../../resource_type}}.{{@key}}.view">{{name}}</a>
+        </div>
+        {{/each}}    
+      </div>
+      {{/if}}
+      {{/each}}     
+    </div>
+  </div>
+  {{/each}}
+  </div>
+</script>
+<script>
+    Handlebars.registerPartial("left_menu_for_gcp_region", $("#left_menu_for_gcp_region\\.partial").html());
+</script>
+
+<!-- Generic left-menu link partial for project-then-resource -->
+<script id="left_menu_for_project.partial" type="text/x-handlebars-template">
+  <div id="services.{{service_name}}.projects.id.{{resource_type}}.list">
+  <div class="list-group" >
+    <div class="list-group-item">
+      <a href="javascript:updateHash('services.{{service_name}}.projects.id.{{resource_type}}')">Show all <span class="badge float-right btn-info">{{getValueAt 'metadata' service_group service_name 'resources' resource_type 'count'}}</span></a>
+    </div>
+  </div>
+  {{#each items}}
+  <div class="list-group" id="services.{{../service_name}}.projects.{{@key}}.{{../resource_type}}.list">
+    <div class="list-group-item active">
+      <a href="#services.{{../service_name}}.projects.{{@key}}.{{../resource_type}}">{{@key}}</a>
+      <span class="float-right"><a href="javascript:hideList('services.{{../service_name}}.projects.{{@key}}.{{../resource_type}}.list')"><i class="fa fa-times-circle"></i></a></span>
+    </div>
+    <div class="list-group-item">
+      {{#each (lookup . ../resource_type)}}
+      <div class="list-group-item list-sub-element" id="services.{{../../service_name}}.projects.{{@../key}}.{{../../resource_type}}.{{@key}}.link">
+        {{#if scout2_link}}
+        <a href="#{{scout2_link}}.view">{{name}}</a>
+        {{else}}
+        <a href="#services.{{../../../service_name}}.projects.{{@../key}}.{{../../../resource_type}}.{{@key}}.view">{{name}}</a>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/each}}
+  </div>
+</script>
+<script>
+    Handlebars.registerPartial("left_menu_for_project", $("#left_menu_for_project\\.partial").html());
+</script>
+
+<!-- computeengine forwarding_rules -->
+<script id="services.computeengine.projects.id.regions.id.forwarding_rules.partial" type="text/x-handlebars-template">
+    <div id="resource-name" class="list-group-item active">
+        <h4 class="list-group-item-heading">{{name}}</h4>
+    </div>
+    <div class="list-group-item">
+        <h4 class="list-group-item-heading">Information</h4>
+        <div class="list-group-item-text item-margin">ID: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.id"><samp>{{value_or_none id}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Name: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.name"><samp>{{value_or_none name}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Creation Timestamp: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.creation_timestamp"><samp>{{format_date creation_timestamp}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Description: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.description"><samp>{{value_or_none description}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Region: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.region"><samp>{{value_or_none region}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Network: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.network"><samp>{{value_or_none network}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Subnetwork: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.subnetwork"><samp>{{value_or_none subnetwork}}</samp></span></div>
+        <div class="list-group-item-text item-margin">IP Address: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.ip_address"><samp>{{value_or_none ip_address}}</samp></span></div>
+        <div class="list-group-item-text item-margin">IP Protocol: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.ip_protocol"><samp>{{value_or_none ip_protocol}}</samp></span></div>
+        <div class="list-group-item-text item-margin">IP Version: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.ip_version"><samp>{{value_or_none ipVersion}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Allow Global Access: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.allow_global_access"><samp>{{value_or_none allowGlobalAccess}}</samp></span></div>
+        <div class="list-group-item-text item-margin">All Ports: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.all_ports"><samp>{{value_or_none allPorts}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Port Range: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.port_range"><samp>{{value_or_none port_range}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Ports: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.ports"><samp>{{value_or_none ports}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Target: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.target"><samp>{{value_or_none target}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Load Balancing Scheme: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.load_balancing_scheme"><samp>{{value_or_none load_balancing_scheme}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Network Tier: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.network_tier"><samp>{{value_or_none network_tier}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Backend Service: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.backend_service"><samp>{{value_or_none backendService}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Service Name: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.service_name"><samp>{{value_or_none serviceName}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Service Label: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.service_label"><samp>{{value_or_none serviceLabel}}</samp></span></div>
+        <div class="list-group-item-text item-margin">Labels: <span id="computeengine.projects.{{@../../key}}.regions.{{@../key}}.forwarding_rules.{{@key}}.labels"><samp>{{value_or_none labels}}</samp></span></div>
+    </div>
+</script>
+
+<script>
+    Handlebars.registerPartial("services.computeengine.projects.id.regions.id.forwarding_rules", $("#services\\.computeengine\\.projects\\.id\\.regions\\.id\\.forwarding_rules\\.partial").html());
+</script>
+
+<!-- Single computeengine forwarding_rule template -->
+<script id="single_computeengine_forwarding_rule-template" type="text/x-handlebars-template">
+    {{> modal-template template='services.computeengine.projects.id.regions.id.forwarding_rules'}}
+</script>
+<script>
+    var single_computeengine_forwarding_rule_template = Handlebars.compile($("#single_computeengine_forwarding_rule-template").html());
+</script>
+
+<!-- Template for network attack surface -->
+<script id="service_groups.compute.summaries.external_attack_surface.details.template" type="text/x-handlebars-template">
+  {{> attack_surface service = 'Compute'}}
+</script>
+
+<!-- Template for network attack surface -->
+<script id="service_groups.database.summaries.external_attack_surface.details.template" type="text/x-handlebars-template">
+  {{> attack_surface service = 'Database'}}
+</script>
+
+<!-- Template for network attack surface -->
+<script id="attack_surface.partial" type="text/x-handlebars-template">
+  <div class="list-group" id="services.{{service}}.attack_surface.details">
+    <div class="list-group" id="services.{{service}}.attack_surface.view">
+       <div class="list-group" id="{{service}}_attack_surfaces.list">
+         <div class="row list-group-item active">
+           <div class="col-sm-6"><h4>Public IP/DNS</h4></div>
+           <div class="col-sm-6"><h4>Open ports</h4></div>
+         </div>
+         {{#each items}}
+           <div class="row list-group-item">
+             <div class="col-sm-6">Public Address: <samp>{{@key}}</samp></div>
+             {{#if this.InstanceName}}
+             <div class="col-sm-6">Instance Name: <samp>{{this.InstanceName}}</samp></div>
+             {{/if}}
+             {{#if this.PublicDnsName}}
+             <div class="col-sm-8">Public DNS Name: <samp>{{this.PublicDnsName}}</samp></div>
+             {{/if}}
+             <div class="col-sm-6">
+               <ul>
+               {{#each protocols ip = @key}}
+                 <li class="list-group-item-text">{{@key}}</li>
+                 <ul>
+                 {{#each ports}}
+                   <li>{{@key}}</li>
+                   {{> ip_grants items = cidrs}}
+                 {{/each}}
+                 </ul>
+               {{/each}}
+               </ul>
+             </div>
+           </div>
+         {{/each}}
+       </div>
+    </div>
+  </div>
+</script>
+<script>
+    Handlebars.registerPartial("attack_surface", $("#attack_surface\\.partial").html());
+</script>
+
+
+
+
+            <div class="modal-backdrop fade show" id="please-wait-backdrop"></div>
+            <div class="modal fade show" tabindex="-1" role="dialog" id="please-wait-modal" style="padding-right: 17px; display: block;" aria-modal="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Please wait</h5>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row list-group-item">
+                                <p>Loading data, this may take a while...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About-run dashboard -->
+            <script id="last_run.details.template" type="text/x-handlebars-template">
+                <h4>
+                    <div class="row std-size" id="last_run.details">
+                        <div class="list-group-item active ml-3">
+                            <div class="list-group-item-heading">Dashboard</div>
+                        </div>
+                        <div class="accordion" id="last_run">
+                            <a class="card">
+                                <div class="card-header card-header-dark">Service
+                                    <div class="col-sm-2 float-right" style="text-align: center">Checks</div>
+                                    <div class="col-sm-2 float-right" style="text-align: center">Findings</div>
+                                    <div class="col-sm-2 float-right" style="text-align: center">Rules</div>
+                                    <div class="col-sm-2 float-right" style="text-align: center">Resources</div>
+                                </div>
+                            </a>
+                            {{#each items.summary}}
+                            <div class="card finding-title finding-title-{{dashboard_color level rules_count rules_count}} plain-link">
+                                <a href="#services.{{@key}}.findings">
+                                    <div class="finding-title card-header">
+                                        <i class="fa finding-badge finding-badge-{{dashboard_color max_level checked_items flagged_items}}"></i>
+                                        {{makeTitle @key}}
+                                        <div class="col-sm-2 float-right" style="text-align: center">{{checked_items}}</div>
+                                        <div class="col-sm-2 float-right" style="text-align: center">{{flagged_items}}</div>
+                                        <div class="col-sm-2 float-right" style="text-align: center">{{rules_count}}</div>
+                                        <div class="col-sm-2 float-right" style="text-align: center">{{resources_count}}</div>
+                                    </div>
+                                </a>
+                            </div>
+                            {{/each}}
+                        </div>
+                    </div>
+                </h4>
+            </script>
+
+            <!-- Service-specific dashboards -->
+            <div class="row">
+                <div class="col-sm-12" id="services.id.findings.details">
+                    <script id="services.id.findings.details.template" type="text/x-handlebars-template">
+                        {{#each items}}
+                        {{> dashboard service_name = @key}}
+                        {{/each}}
+                    </script>
+                </div>
+            </div>
+
+        </div> <!-- /container -->
+
+        <!-- Bootstrap core JavaScript, placed at the end of the document so the pages load faster -->
+        <script src="inc-bootstrap/js/bootstrap.min.js"></script>
+
+        <!-- Display dashbord -->
+        <script>
+            loadMetadata();
+        </script>
+
+        <!-- Paging section -->
+        <div id="section_paging-div" style="display:flex;flex-direction:column">
+            <h2 id="section_paging-h2"></h2>
+            <div id="paging_buttons" style="margin:auto">
+                <button id="page_backward" type="button" class="btn btn-secondary" disabled><i class="fa fa-arrow-circle-left"></i> Back</button>
+                <button id="page_forward" type="button" class="btn btn-secondary">Next <i class="fa fa-arrow-circle-right"></i></button>                
+            </div>
+        </div>
+
+        <!-- Used by showPopup -->
+        <div id="modal-container" class="modal fade" tabindex="-1" role="dialog"></div>
+
+    </div>
+
+</body>
+
+
+</html>

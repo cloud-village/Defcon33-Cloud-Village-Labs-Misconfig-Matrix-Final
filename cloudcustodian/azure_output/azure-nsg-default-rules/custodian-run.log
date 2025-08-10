@@ -1,0 +1,5 @@
+2025-08-04 21:09:33,925 - custodian.policy - INFO - policy:azure-nsg-default-rules resource:azure.networksecuritygroup region:AzureCloud count:0 time:0.75
+2025-08-04 22:35:13,644 - custodian.policy - INFO - policy:azure-nsg-default-rules resource:azure.networksecuritygroup region:AzureCloud count:0 time:0.75
+2025-08-04 23:06:45,522 - custodian.policy - INFO - policy:azure-nsg-default-rules resource:azure.networksecuritygroup region:AzureCloud count:0 time:1.02
+2025-08-05 22:13:53,694 - custodian.policy - INFO - policy:azure-nsg-default-rules resource:azure.networksecuritygroup region:AzureCloud count:0 time:0.88
+2025-08-09 13:55:32,240 - custodian.policy - INFO - policy:azure-nsg-default-rules resource:azure.networksecuritygroup region:AzureCloud count:0 time:0.56

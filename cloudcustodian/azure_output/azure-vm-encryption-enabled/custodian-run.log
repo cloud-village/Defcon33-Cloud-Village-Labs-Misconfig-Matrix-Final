@@ -1,0 +1,5 @@
+2025-08-04 21:09:33,173 - custodian.policy - INFO - policy:azure-vm-encryption-enabled resource:azure.vm region:AzureCloud count:0 time:0.70
+2025-08-04 22:35:12,894 - custodian.policy - INFO - policy:azure-vm-encryption-enabled resource:azure.vm region:AzureCloud count:0 time:0.25
+2025-08-04 23:06:44,498 - custodian.policy - INFO - policy:azure-vm-encryption-enabled resource:azure.vm region:AzureCloud count:0 time:0.48
+2025-08-05 22:13:52,771 - custodian.policy - INFO - policy:azure-vm-encryption-enabled resource:azure.vm region:AzureCloud count:0 time:0.66
+2025-08-09 13:55:31,639 - custodian.policy - INFO - policy:azure-vm-encryption-enabled resource:azure.vm region:AzureCloud count:0 time:0.45

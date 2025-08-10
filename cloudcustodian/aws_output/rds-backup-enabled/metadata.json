@@ -1,0 +1,72 @@
+{
+  "policy": {
+    "name": "rds-backup-enabled",
+    "resource": "aws.rds",
+    "description": "Account 907977361177 - RDS DB Instance Backup Should Be Enabled",
+    "filters": [
+      {
+        "type": "value",
+        "key": "BackupRetentionPeriod",
+        "value": 0
+      }
+    ]
+  },
+  "version": "0.9.46",
+  "execution": {
+    "id": "97224d42-78f4-4e76-af13-06aa104dc4ea",
+    "start": 1754772916.7818267,
+    "end_time": 1754772917.4182334,
+    "duration": 0.636406660079956
+  },
+  "config": {
+    "region": "us-east-1",
+    "regions": [
+      "us-east-1"
+    ],
+    "cache": "~/.cache/cloud-custodian.cache",
+    "profile": null,
+    "account_id": "907977361177",
+    "assume_role": null,
+    "session_policy": null,
+    "external_id": null,
+    "log_group": null,
+    "tracer": null,
+    "metrics_enabled": null,
+    "metrics": null,
+    "output_dir": "aws_output",
+    "cache_period": 15,
+    "dryrun": false,
+    "authorization_file": null,
+    "subparser": "run",
+    "config": null,
+    "configs": [
+      "aws_policy.yml"
+    ],
+    "policy_filters": [],
+    "resource_types": [],
+    "verbose": null,
+    "quiet": null,
+    "debug": false,
+    "skip_validation": false,
+    "command": "c7n.commands.run",
+    "vars": null
+  },
+  "sys-stats": {},
+  "api-stats": {
+    "rds.DescribeDBInstances": 1
+  },
+  "metrics": [
+    {
+      "MetricName": "ResourceCount",
+      "Timestamp": "2025-08-09T13:55:17.417733",
+      "Value": 0,
+      "Unit": "Count"
+    },
+    {
+      "MetricName": "ResourceTime",
+      "Timestamp": "2025-08-09T13:55:17.417760",
+      "Value": 0.6342582702636719,
+      "Unit": "Seconds"
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+[
+  {
+    "id": "/subscriptions/6f44395b-b9f9-450c-a20f-f354280c58bd/resourceGroups/misconfig-lab-rg/providers/Microsoft.Storage/storageAccounts/defaultnetopendf685f52",
+    "name": "defaultnetopendf685f52",
+    "type": "Microsoft.Storage/storageAccounts",
+    "tags": {},
+    "location": "westus",
+    "sku": {
+      "name": "Standard_LRS",
+      "tier": "Standard"
+    },
+    "kind": "StorageV2",
+    "identity": {
+      "type": "None"
+    },
+    "properties": {
+      "provisioningState": "Succeeded",
+      "primaryEndpoints": {
+        "blob": "https://defaultnetopendf685f52.blob.core.windows.net/",
+        "queue": "https://defaultnetopendf685f52.queue.core.windows.net/",
+        "table": "https://defaultnetopendf685f52.table.core.windows.net/",
+        "file": "https://defaultnetopendf685f52.file.core.windows.net/",
+        "web": "https://defaultnetopendf685f52.z22.web.core.windows.net/",
+        "dfs": "https://defaultnetopendf685f52.dfs.core.windows.net/"
+      },
+      "primaryLocation": "westus",
+      "statusOfPrimary": "available",
+      "creationTime": "2025-07-25T20:19:49.490231Z",
+      "keyCreationTime": {
+        "key1": "2025-07-25T20:19:49.583981Z",
+        "key2": "2025-07-25T20:19:49.583981Z"
+      },
+      "encryption": {
+        "services": {
+          "blob": {
+            "enabled": true,
+            "lastEnabledTime": "2025-07-25T20:19:49.599606Z",
+            "keyType": "Account"
+          },
+          "file": {
+            "enabled": true,
+            "lastEnabledTime": "2025-07-25T20:19:49.599606Z",
+            "keyType": "Account"
+          }
+        },
+        "keySource": "Microsoft.Storage"
+      },
+      "accessTier": "Hot",
+      "supportsHttpsTrafficOnly": true,
+      "networkAcls": {
+        "bypass": "AzureServices",
+        "resourceAccessRules": [],
+        "virtualNetworkRules": [],
+        "ipRules": [],
+        "defaultAction": "Allow"
+      },
+      "isSftpEnabled": false,
+      "isLocalUserEnabled": true,
+      "isHnsEnabled": false,
+      "privateEndpointConnections": [],
+      "allowBlobPublicAccess": true,
+      "minimumTlsVersion": "TLS1_2",
+      "allowSharedKeyAccess": true,
+      "isNfsV3Enabled": false,
+      "allowCrossTenantReplication": false,
+      "defaultToOAuthAuthentication": false,
+      "publicNetworkAccess": "Enabled",
+      "dnsEndpointType": "Standard"
+    },
+    "resourceGroup": "misconfig-lab-rg",
+    "c7n:MatchedFilters": [
+      "properties.allowBlobPublicAccess",
+      "properties.allowSharedKeyAccess"
+    ]
+  },
+  {
+    "id": "/subscriptions/6f44395b-b9f9-450c-a20f-f354280c58bd/resourceGroups/misconfig-lab-rg/providers/Microsoft.Storage/storageAccounts/publicblobdf685f52",
+    "name": "publicblobdf685f52",
+    "type": "Microsoft.Storage/storageAccounts",
+    "tags": {},
+    "location": "westus",
+    "sku": {
+      "name": "Standard_LRS",
+      "tier": "Standard"
+    },
+    "kind": "StorageV2",
+    "identity": {
+      "type": "None"
+    },
+    "properties": {
+      "provisioningState": "Succeeded",
+      "primaryEndpoints": {
+        "blob": "https://publicblobdf685f52.blob.core.windows.net/",
+        "queue": "https://publicblobdf685f52.queue.core.windows.net/",
+        "table": "https://publicblobdf685f52.table.core.windows.net/",
+        "file": "https://publicblobdf685f52.file.core.windows.net/",
+        "web": "https://publicblobdf685f52.z22.web.core.windows.net/",
+        "dfs": "https://publicblobdf685f52.dfs.core.windows.net/"
+      },
+      "primaryLocation": "westus",
+      "statusOfPrimary": "available",
+      "creationTime": "2025-07-25T20:19:52.505887Z",
+      "keyCreationTime": {
+        "key1": "2025-07-25T20:19:52.615265Z",
+        "key2": "2025-07-25T20:19:52.615265Z"
+      },
+      "encryption": {
+        "services": {
+          "blob": {
+            "enabled": true,
+            "lastEnabledTime": "2025-07-25T20:19:52.63089Z",
+            "keyType": "Account"
+          },
+          "file": {
+            "enabled": true,
+            "lastEnabledTime": "2025-07-25T20:19:52.63089Z",
+            "keyType": "Account"
+          }
+        },
+        "keySource": "Microsoft.Storage"
+      },
+      "accessTier": "Hot",
+      "supportsHttpsTrafficOnly": true,
+      "networkAcls": {
+        "bypass": "AzureServices",
+        "resourceAccessRules": [],
+        "virtualNetworkRules": [],
+        "ipRules": [],
+        "defaultAction": "Allow"
+      },
+      "isSftpEnabled": false,
+      "isLocalUserEnabled": true,
+      "isHnsEnabled": false,
+      "privateEndpointConnections": [],
+      "allowBlobPublicAccess": true,
+      "minimumTlsVersion": "TLS1_2",
+      "allowSharedKeyAccess": true,
+      "isNfsV3Enabled": false,
+      "allowCrossTenantReplication": false,
+      "defaultToOAuthAuthentication": false,
+      "publicNetworkAccess": "Enabled",
+      "dnsEndpointType": "Standard"
+    },
+    "resourceGroup": "misconfig-lab-rg",
+    "c7n:MatchedFilters": [
+      "properties.allowBlobPublicAccess",
+      "properties.allowSharedKeyAccess"
+    ]
+  }
+]
