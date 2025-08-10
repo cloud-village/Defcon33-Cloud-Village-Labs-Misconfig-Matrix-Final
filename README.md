@@ -78,10 +78,10 @@ Download the credentials from the bitly link and place them in the home director
 We can navigate to each tool in the repository and find the Readme along with the scan results. We have provided HTML files which can be downloaded and viewed if there are technical issues when installing scripts and tools.
 Running scripts and make note of limitations / differences between each tool.
 
-1. ScouteSuite:
-2. Cloudcustodian: 
-3. Cartographer
-4. Prowler: 
+1. ScouteSuite: https://github.com/cloud-village/Defcon33-Cloud-Village-Labs-Misconfig-Matrix-Final/tree/main/scoutesuite
+2. Cloudcustodian: https://github.com/cloud-village/Defcon33-Cloud-Village-Labs-Misconfig-Matrix-Final/tree/main/cloudcustodian
+3. Cartographer: https://github.com/cloud-village/Defcon33-Cloud-Village-Labs-Misconfig-Matrix-Final/tree/main/cartographer
+4. Prowler: https://github.com/cloud-village/Defcon33-Cloud-Village-Labs-Misconfig-Matrix-Final/tree/main/prowler
 5. CloudMapper: https://github.com/cloud-village/Defcon33-Cloud-Village-Labs-Misconfig-Matrix-Final/tree/main/cloudmapper
 
 ## Part 3: Pugh Matrix Evaluation
