@@ -1,4 +1,4 @@
-finfr# 🗺️ Cartographer - Cloud Infrastructure Mapping Tool
+Cartographer - Cloud Infrastructure Mapping Tool
 
 ## What is Cartographer?
 
