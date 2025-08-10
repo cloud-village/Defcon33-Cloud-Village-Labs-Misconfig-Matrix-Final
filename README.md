@@ -81,8 +81,8 @@ Running scripts and make note of limitations / differences between each tool.
 1. ScouteSuite:
 2. Cloudcustodian: 
 3. Cartographer
-4. Prowler: https://github.com/HariPranav/Misconfig-Matrix-From-Chaos-to-Control/tree/master/prowler
-5. CloudMapper: 
+4. Prowler: 
+5. CloudMapper: https://github.com/cloud-village/Defcon33-Cloud-Village-Labs-Misconfig-Matrix-Final/tree/main/cloudmapper
 
 ## Part 3: Pugh Matrix Evaluation
 
