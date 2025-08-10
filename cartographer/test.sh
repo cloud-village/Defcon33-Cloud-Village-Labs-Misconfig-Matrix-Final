@@ -11,8 +11,8 @@ REPO_DIR="cartography"
 ENTRYPOINT_FILE="dev-entrypoint.sh"
 AWS_PROFILE="default"
 AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION:-us-east-1}"
-NEO4J_URI="bolt://cartography-neo4j-1:7687"
-#NEO4J_URI="bolt://neo4j:7687"
+#NEO4J_URI="bolt://cartography-neo4j-1:7687"
+NEO4J_URI="bolt://neo4j:7687"
 NEO4J_BROWSER_URL="http://localhost:7474"
 GCP_CREDENTIALS_FILE="${GCP_CREDENTIALS_FILE:-../gcp.json}"
 
@@ -31,9 +31,7 @@ prompt_for_provider() {
     echo "=============================================="
     echo "🌐 Choose Cloud Provider to Scan:"
     echo "   1) AWS"
-    echo "   2) GCP"
-    echo "   3) Both AWS and GCP"
-    echo "   4) Exit"
+    echo "   2) Exit"
     echo "=============================================="
     
     while true; do
@@ -44,14 +42,6 @@ prompt_for_provider() {
                 break
                 ;;
             2)
-                PROVIDER="gcp"
-                break
-                ;;
-            3)
-                PROVIDER="both"
-                break
-                ;;
-            4)
                 log "Exiting..."
                 exit 0
                 ;;
@@ -136,17 +126,17 @@ start_neo4j() {
 # }
 
 # Step 6: Run Cartography for AWS
-run_cartography_aws() {
-    log "Running Cartography scan against AWS..."
-    log "Using AWS profile: $AWS_PROFILE, region: $AWS_DEFAULT_REGION"
+# run_cartography_aws() {
+#     log "Running Cartography scan against AWS..."
+#     log "Using AWS profile: $AWS_PROFILE, region: $AWS_DEFAULT_REGION"
     
-    docker-compose -f "$REPO_DIR/docker-compose.yml" run \
-        -e AWS_PROFILE="$AWS_PROFILE" \
-        -e AWS_DEFAULT_REGION="$AWS_DEFAULT_REGION" \
-        cartography --selected-modules aws --neo4j-uri "$NEO4J_URI"
+#     docker-compose -f "$REPO_DIR/docker-compose.yml" run \
+#         -e AWS_PROFILE="$AWS_PROFILE" \
+#         -e AWS_DEFAULT_REGION="$AWS_DEFAULT_REGION" \
+#         cartography --selected-modules aws --neo4j-uri "$NEO4J_URI"
     
-    log "AWS Cartography scan complete."
-}
+#     log "AWS Cartography scan complete."
+# }
 
 # Step 7: Run Cartography for GCP
 run_cartography_gcp() {
@@ -177,9 +167,9 @@ run_cartography_gcp() {
 # Step 8: Run selected scans
 run_selected_scans() {
     case $PROVIDER in
-        "aws")
-            run_cartography_aws
-            ;;
+        # "aws")
+        #     run_cartography_aws
+        #     ;;
         "gcp")
             run_cartography_gcp
             ;;

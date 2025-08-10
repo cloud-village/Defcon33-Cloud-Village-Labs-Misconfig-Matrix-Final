@@ -18,6 +18,13 @@ To take full advantage of this lab participants can clone this Github repository
 
 AWS Cli : https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
 
+Docker Compose: Installation steps
+
+```
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+```
+
 ### Minimum Requirements:
 
 Machine with access to a Cli perferabily linux based systems or git bash for Windows users. https://git-scm.com/downloads.
@@ -78,11 +85,11 @@ Download the credentials from the bitly link and place them in the home director
 We can navigate to each tool in the repository and find the Readme along with the scan results. We have provided HTML files which can be downloaded and viewed if there are technical issues when installing scripts and tools.
 Running scripts and make note of limitations / differences between each tool.
 
-1. ScouteSuite: https://github.com/cloud-village/Defcon33-Cloud-Village-Labs-Misconfig-Matrix-Final/tree/main/scoutesuite
-2. Cloudcustodian: https://github.com/cloud-village/Defcon33-Cloud-Village-Labs-Misconfig-Matrix-Final/tree/main/cloudcustodian
-3. Cartographer: https://github.com/cloud-village/Defcon33-Cloud-Village-Labs-Misconfig-Matrix-Final/tree/main/cartographer
-4. Prowler: https://github.com/cloud-village/Defcon33-Cloud-Village-Labs-Misconfig-Matrix-Final/tree/main/prowler
-5. CloudMapper: https://github.com/cloud-village/Defcon33-Cloud-Village-Labs-Misconfig-Matrix-Final/tree/main/cloudmapper
+1. ScouteSuite: https://github.com/HariPranav/Misconfig-Matrix-From-Chaos-to-Control/tree/master/scoutsuite
+2. Cloudcustodian: https://github.com/HariPranav/Misconfig-Matrix-From-Chaos-to-Control/tree/master/cloudcustodian
+3. Cartographer: https://github.com/HariPranav/Misconfig-Matrix-From-Chaos-to-Control/tree/master/cartographer
+4. Prowler: https://github.com/HariPranav/Misconfig-Matrix-From-Chaos-to-Control/tree/master/prowler
+
 
 ## Part 3: Pugh Matrix Evaluation
 
@@ -96,3 +103,7 @@ Hari is a Security Engineer working to improve cloud, application, and runtime s
 
 ### Ritvik Arya
 Ritvik is an Application Security Engineer with expertise in securing cloud applications, threat modeling, and secure code reviews. He's also a bug bounty hunter and works on container security. Ritvik is a contributor to **Cloud Village** CTFs and enjoys building security challenges.
+
+
+#### Note
+Opinions expressed are solely our own and do not express the views or opinions of my employer.
